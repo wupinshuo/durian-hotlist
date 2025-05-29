@@ -1,7 +1,8 @@
 {
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "compilerOptions": {
-    "resolveJsonModule": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {

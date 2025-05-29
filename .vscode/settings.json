@@ -23,5 +23,5 @@
     "editor.formatOnSave": true
   },
   "typescript.tsdk": "node_modules/typescript/lib",
-  "cSpell.words": ["hotlist", "Juejin", "nestjs", "Weibo"]
+  "cSpell.words": ["hotlist", "Juejin", "nestjs", "nodenext", "VITE", "Weibo"]
 }
