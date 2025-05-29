@@ -19,11 +19,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import NowTime from './NowTime.vue';
 import ThemeSwitch from './ThemeSwitch.vue';
 
 const showLogo = ref(true);
+
+onMounted(() => {
+  const saved = localStorage.getItem('showLogo');
+  if (saved !== null) {
+    showLogo.value = saved === 'true';
+  }
+});
+
+watch(showLogo, (val) => {
+  localStorage.setItem('showLogo', String(val));
+});
 </script>
 
 <style scoped>

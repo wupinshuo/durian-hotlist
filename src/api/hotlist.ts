@@ -1,7 +1,9 @@
 import axios from 'axios';
+import { useConfigStore } from '@/store/configStore';
 
 /** 热榜数据地址 */
-const BASE_URL = 'http://localhost:8082/api/v1/api-data';
+// 从configStore中获取BASE_URL
+const BASE_URL = useConfigStore().baseUrl;
 
 /**
  * 通用热榜数据获取方法
