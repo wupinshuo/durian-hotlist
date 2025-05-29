@@ -1,10 +1,6 @@
 import axios from 'axios';
 import { useConfigStore } from '@/store/configStore';
 
-/** 热榜数据地址 */
-// 从configStore中获取BASE_URL
-const BASE_URL = useConfigStore().baseUrl;
-
 /**
  * 通用热榜数据获取方法
  * @param url 请求地址
@@ -31,7 +27,8 @@ async function getHotListData(url: string): Promise<any[]> {
  * 获取github trending 一周热榜数据
  */
 export async function getGithubTrending() {
-  return getHotListData(`${BASE_URL}/github-trending`);
+  const configStore = useConfigStore();
+  return getHotListData(`${configStore.baseUrl}/github-trending`);
 }
 
 /**
@@ -39,7 +36,8 @@ export async function getGithubTrending() {
  * @returns 掘金热点文章列表
  */
 export async function getJuejinHotArticle() {
-  return getHotListData(`${BASE_URL}/juejin-hot-article`);
+  const configStore = useConfigStore();
+  return getHotListData(`${configStore.baseUrl}/juejin-hot-article`);
 }
 
 /**
@@ -47,5 +45,6 @@ export async function getJuejinHotArticle() {
  * @returns 微博热榜列表
  */
 export async function getWeiboHotList() {
-  return getHotListData(`${BASE_URL}/weibo-hot-list`);
+  const configStore = useConfigStore();
+  return getHotListData(`${configStore.baseUrl}/weibo-hot-list`);
 }
