@@ -2,6 +2,7 @@
   "name": "durian-hotlist",
   "version": "1.0.0",
   "private": true,
+  "author": "tushan",
   "description": "榴莲热榜 - 技术与资讯热榜聚合平台",
   "scripts": {
     "dev": "vite",
