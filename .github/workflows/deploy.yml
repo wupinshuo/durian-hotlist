@@ -26,7 +26,7 @@ jobs:
       - name: 构建
         run: pnpm build
         env:
-          API_URL: ${{ secrets.API_URL }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       - name: 清空服务器目标目录
         uses: appleboy/ssh-action@v1.0.3
