@@ -36,7 +36,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             rm -rf /home/project/Client/*
-            
+
       - name: 部署到服务器
         uses: appleboy/scp-action@v0.1.7
         with:
