@@ -10,7 +10,8 @@ alwaysApply: true
 - 语言：TypeScript
 - UI 组件库：Element Plus
 - 状态管理：优先使用 Vue 自身的响应式 API（如 `ref`、`reactive`），如需全局状态可引入 Pinia
-- 使用 yarn 作为包管理工具
+- 使用 pnpm 作为包管理工具
+- nodejs版本为 20.16.0
 - 网络请求：统一封装在 `src/api/` 目录下
 
 ## 2. 目录结构
