@@ -3,7 +3,7 @@
     <div class="trending-header">
       <span class="trending-icon"><slot name="icon" /></span>
       <span class="trending-title">{{ title }}</span>
-      <span class="trending-update">（{{ updateTime }}）</span>
+      <span class="trending-update">（{{ formattedUpdateTime }}）</span>
       <el-button circle size="small" class="refresh-btn" @click="handleRefresh">
         <el-icon><Refresh /></el-icon>
       </el-button>
@@ -24,24 +24,91 @@
 
 <script setup lang="ts">
 import { Refresh } from '@element-plus/icons-vue';
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
-defineProps<{
+const props = defineProps<{
   title: string;
   list: any[];
   itemKey?: (item: any, index: number) => string | number;
   loading?: boolean;
+  updateTime?: number;
 }>();
 
 const emit = defineEmits(['refresh']);
-const updateTime = ref('15分钟前');
+const justUpdated = ref(false);
+const refreshTimer = ref<number | null>(null);
+const forceUpdate = ref(0); // 用于强制更新计算属性
+
+// 格式化时间显示
+const formattedUpdateTime = computed(() => {
+  // forceUpdate.value 参与计算，但不影响结果，用于强制刷新
+  forceUpdate.value;
+  
+  if (justUpdated.value) {
+    return '刚刚更新';
+  }
+  
+  if (!props.updateTime) {
+    return '暂无更新时间';
+  }
+  
+  const now = Date.now();
+  const diff = now - props.updateTime;
+  
+  // 小于1分钟
+  if (diff < 60 * 1000) {
+    return '刚刚更新';
+  }
+  
+  // 小于1小时，显示分钟
+  if (diff < 60 * 60 * 1000) {
+    const minutes = Math.floor(diff / (60 * 1000));
+    return `${minutes}分钟前`;
+  }
+  
+  // 小于24小时，显示小时
+  if (diff < 24 * 60 * 60 * 1000) {
+    const hours = Math.floor(diff / (60 * 60 * 1000));
+    return `${hours}小时前`;
+  }
+  
+  // 大于24小时，显示日期
+  const date = new Date(props.updateTime);
+  return `${date.getMonth() + 1}月${date.getDate()}日 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+});
+
+// 每分钟更新一次时间显示
+const startTimeRefreshTimer = () => {
+  // 清除之前的定时器
+  if (refreshTimer.value) {
+    clearInterval(refreshTimer.value);
+  }
+  
+  // 设置每分钟执行一次的定时器
+  refreshTimer.value = setInterval(() => {
+    forceUpdate.value++; // 强制更新计算属性
+  }, 60000) as unknown as number;
+};
+
+// 组件挂载时启动定时器
+onMounted(() => {
+  startTimeRefreshTimer();
+});
+
+// 组件卸载时清除定时器
+onUnmounted(() => {
+  if (refreshTimer.value) {
+    clearInterval(refreshTimer.value);
+    refreshTimer.value = null;
+  }
+});
 
 const handleRefresh = () => {
   emit('refresh');
-  updateTime.value = '刚刚更新';
+  justUpdated.value = true;
   setTimeout(() => {
-    updateTime.value = '1分钟前';
-  }, 60000);
+    justUpdated.value = false;
+  }, 5000);
 };
 </script>
 

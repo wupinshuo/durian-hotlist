@@ -4,16 +4,19 @@
       <GithubTrendingCard 
         :repos="githubTrending"
         :loading="githubLoading"
+        :updateTime="githubUpdateTime"
         @refresh="refreshGithubTrending" 
       />
       <JuejinHotArticleCard
         :articles="juejinArticles"
         :loading="juejinLoading"
+        :updateTime="juejinUpdateTime"
         @refresh="refreshJuejinHotArticle"
       />
       <WeiboHotListCard
         :hotTopics="weiboHotList"
         :loading="weiboLoading"
+        :updateTime="weiboUpdateTime"
         @refresh="refreshWeiboHotList"
       />
     </div>
@@ -34,13 +37,18 @@ const weiboHotList = ref([])
 const githubLoading = ref(true)
 const juejinLoading = ref(true)
 const weiboLoading = ref(true)
+const githubUpdateTime = ref(0)
+const juejinUpdateTime = ref(0)
+const weiboUpdateTime = ref(0)
 
 onMounted(async () => {
   githubLoading.value = true
   juejinLoading.value = true
   weiboLoading.value = true
   try {
-    githubTrending.value = await getGithubTrending()
+    const githubData = await getGithubTrending()
+    githubTrending.value = githubData.list
+    githubUpdateTime.value = githubData.updateTime
   } catch (error) {
     console.error('加载 GitHub 热榜数据失败', error)
     ElMessage.error('加载 GitHub 热榜数据失败，请稍后刷新')
@@ -48,7 +56,9 @@ onMounted(async () => {
     githubLoading.value = false
   }
   try {
-    juejinArticles.value = await getJuejinHotArticle()
+    const juejinData = await getJuejinHotArticle()
+    juejinArticles.value = juejinData.list
+    juejinUpdateTime.value = juejinData.updateTime
   } catch (error) {
     console.error('加载掘金热点文章失败', error)
     ElMessage.error('加载掘金热点文章失败，请稍后刷新')
@@ -56,7 +66,9 @@ onMounted(async () => {
     juejinLoading.value = false
   }
   try {
-    weiboHotList.value = await getWeiboHotList()
+    const weiboData = await getWeiboHotList()
+    weiboHotList.value = weiboData.list
+    weiboUpdateTime.value = weiboData.updateTime
   } catch (error) {
     console.error('加载微博热榜数据失败', error)
     ElMessage.error('加载微博热榜数据失败，请稍后刷新')
@@ -70,7 +82,9 @@ const refreshGithubTrending = async () => {
   try {
     githubLoading.value = true
     ElMessage.info('正在刷新 GitHub 热榜...')
-    githubTrending.value = await getGithubTrending()
+    const githubData = await getGithubTrending()
+    githubTrending.value = githubData.list
+    githubUpdateTime.value = githubData.updateTime
     ElMessage.success('GitHub 热榜已更新')
   } catch (error) {
     console.error('刷新 GitHub 热榜失败', error)
@@ -85,7 +99,9 @@ const refreshJuejinHotArticle = async () => {
   try {
     juejinLoading.value = true
     ElMessage.info('正在刷新掘金热点文章...')
-    juejinArticles.value = await getJuejinHotArticle()
+    const juejinData = await getJuejinHotArticle()
+    juejinArticles.value = juejinData.list
+    juejinUpdateTime.value = juejinData.updateTime
     ElMessage.success('掘金热点文章已更新')
   } catch (error) {
     console.error('刷新掘金热点文章失败', error)
@@ -100,7 +116,9 @@ const refreshWeiboHotList = async () => {
   try {
     weiboLoading.value = true
     ElMessage.info('正在刷新微博热榜...')
-    weiboHotList.value = await getWeiboHotList()
+    const weiboData = await getWeiboHotList()
+    weiboHotList.value = weiboData.list
+    weiboUpdateTime.value = weiboData.updateTime
     ElMessage.success('微博热榜已更新')
   } catch (error) {
     console.error('刷新微博热榜失败', error)
