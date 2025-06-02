@@ -55,3 +55,11 @@ export interface GithubHostItem {
   /** 仓库url */
   url: string;
 }
+
+/**
+ * 热榜类型
+ */
+export type HotType =
+  | 'weibo' // 微博
+  | 'juejin' // 掘金
+  | 'github'; // github;

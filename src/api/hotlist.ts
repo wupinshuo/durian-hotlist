@@ -1,73 +1,37 @@
 import axios from 'axios';
 import { useConfigStore } from '@/store/configStore';
 import { ReturnData } from '@/types/base';
-import { GithubHostList, HotList } from '@/types/hot';
+import { GithubHostList, HotList, HotType } from '@/types/hot';
 
 /**
- * 通用热榜数据获取方法
- * @param url 请求地址
- * @returns Promise<HotList>
+ * 根据热榜类型获取热榜数据
+ * @param type 热榜类型
+ * @returns 热榜列表
  */
-async function getHotListData(url: string): Promise<HotList> {
+export async function getHotListByType(
+  type: HotType,
+): Promise<HotList | GithubHostList> {
+  const configStore = useConfigStore();
   try {
-    const res = await axios.get<ReturnData<HotList>>(url);
+    // 使用POST请求，请求体中包含type字段
+    const res = await axios.post<ReturnData<HotList | GithubHostList>>(
+      `${configStore.baseUrl}/hot-list`,
+      { type },
+    );
+    const data = res.data?.data;
+
     // 获取列表数据
-    const list = res.data?.data?.list;
-    // 获取更新时间
-    const updateTime = res.data?.data?.updateTime;
-    // 获取总条数
-    const total = res.data?.data?.total;
+    const list = data?.list;
+
     // 返回数据
     if (list && Array.isArray(list)) {
-      return { list, updateTime, total };
+      return data;
     } else {
       console.error('接口返回格式不符合预期:', res.data);
       return { list: [], updateTime: 0, total: 0 };
     }
   } catch (error) {
-    console.error('获取热榜数据失败:', error);
+    console.error(`获取${type}热榜数据失败:`, error);
     return { list: [], updateTime: 0, total: 0 };
   }
-}
-
-/**
- * 获取github trending 一周热榜数据
- */
-export async function getGithubTrending(): Promise<GithubHostList> {
-  const configStore = useConfigStore();
-  try {
-    const res = await axios.get<ReturnData<GithubHostList>>(
-      `${configStore.baseUrl}/github`,
-    );
-    const list = res.data?.data?.list;
-    const updateTime = res.data?.data?.updateTime;
-    const total = res.data?.data?.total;
-    if (list && Array.isArray(list)) {
-      return { list, updateTime, total };
-    } else {
-      console.error('接口返回格式不符合预期:', res.data);
-      return { list: [], updateTime: 0, total: 0 };
-    }
-  } catch (error) {
-    console.error('获取github trending 一周热榜数据失败:', error);
-    return { list: [], updateTime: 0, total: 0 };
-  }
-}
-
-/**
- * 获取掘金热点文章数据
- * @returns 掘金热点文章列表
- */
-export async function getJuejinHotArticle(): Promise<HotList> {
-  const configStore = useConfigStore();
-  return await getHotListData(`${configStore.baseUrl}/juejin`);
-}
-
-/**
- * 获取微博热榜数据
- * @returns 微博热榜列表
- */
-export async function getWeiboHotList(): Promise<HotList> {
-  const configStore = useConfigStore();
-  return await getHotListData(`${configStore.baseUrl}/weibo`);
 }

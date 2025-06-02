@@ -28,12 +28,13 @@ import GithubTrendingCard from '@/components/GithubTrendingCard.vue'
 import JuejinHotArticleCard from '@/components/JuejinHotArticleCard.vue'
 import WeiboHotListCard from '@/components/WeiboHotListCard.vue'
 import { ref, onMounted } from 'vue'
-import { getGithubTrending, getJuejinHotArticle, getWeiboHotList } from '@/api/hotlist'
+import { getHotListByType } from '@/api/hotlist'
 import { ElMessage } from 'element-plus'
+import { GithubHostItem, GithubHostList, HotItem, HotList } from '@/types/hot'
 
-const githubTrending = ref([])
-const juejinArticles = ref([])
-const weiboHotList = ref([])
+const githubTrending = ref<GithubHostItem[]>([])
+const juejinArticles = ref<HotItem[]>([])
+const weiboHotList = ref<HotItem[]>([])
 const githubLoading = ref(true)
 const juejinLoading = ref(true)
 const weiboLoading = ref(true)
@@ -41,12 +42,18 @@ const githubUpdateTime = ref(0)
 const juejinUpdateTime = ref(0)
 const weiboUpdateTime = ref(0)
 
-onMounted(async () => {
+onMounted(() => {
+  // 三个热榜数据并行加载，互不影响
+  loadGithubTrending()
+  loadJuejinHotArticles()
+  loadWeiboHotList()
+})
+
+// 加载GitHub热榜数据
+const loadGithubTrending = async () => {
   githubLoading.value = true
-  juejinLoading.value = true
-  weiboLoading.value = true
   try {
-    const githubData = await getGithubTrending()
+    const githubData = await getHotListByType('github') as GithubHostList
     githubTrending.value = githubData.list
     githubUpdateTime.value = githubData.updateTime
   } catch (error) {
@@ -55,8 +62,13 @@ onMounted(async () => {
   } finally {
     githubLoading.value = false
   }
+}
+
+// 加载掘金热点文章
+const loadJuejinHotArticles = async () => {
+  juejinLoading.value = true
   try {
-    const juejinData = await getJuejinHotArticle()
+    const juejinData = await getHotListByType('juejin') as HotList
     juejinArticles.value = juejinData.list
     juejinUpdateTime.value = juejinData.updateTime
   } catch (error) {
@@ -65,8 +77,13 @@ onMounted(async () => {
   } finally {
     juejinLoading.value = false
   }
+}
+
+// 加载微博热榜数据
+const loadWeiboHotList = async () => {
+  weiboLoading.value = true
   try {
-    const weiboData = await getWeiboHotList()
+    const weiboData = await getHotListByType('weibo') as HotList
     weiboHotList.value = weiboData.list
     weiboUpdateTime.value = weiboData.updateTime
   } catch (error) {
@@ -75,14 +92,14 @@ onMounted(async () => {
   } finally {
     weiboLoading.value = false
   }
-})
+}
 
 // 刷新 GitHub 热榜
 const refreshGithubTrending = async () => {
   try {
     githubLoading.value = true
     ElMessage.info('正在刷新 GitHub 热榜...')
-    const githubData = await getGithubTrending()
+    const githubData = await getHotListByType('github') as GithubHostList
     githubTrending.value = githubData.list
     githubUpdateTime.value = githubData.updateTime
     ElMessage.success('GitHub 热榜已更新')
@@ -99,7 +116,7 @@ const refreshJuejinHotArticle = async () => {
   try {
     juejinLoading.value = true
     ElMessage.info('正在刷新掘金热点文章...')
-    const juejinData = await getJuejinHotArticle()
+    const juejinData = await getHotListByType('juejin') as HotList
     juejinArticles.value = juejinData.list
     juejinUpdateTime.value = juejinData.updateTime
     ElMessage.success('掘金热点文章已更新')
@@ -116,7 +133,7 @@ const refreshWeiboHotList = async () => {
   try {
     weiboLoading.value = true
     ElMessage.info('正在刷新微博热榜...')
-    const weiboData = await getWeiboHotList()
+    const weiboData = await getHotListByType('weibo') as HotList
     weiboHotList.value = weiboData.list
     weiboUpdateTime.value = weiboData.updateTime
     ElMessage.success('微博热榜已更新')
