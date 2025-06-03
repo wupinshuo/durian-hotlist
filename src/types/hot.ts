@@ -65,4 +65,5 @@ export type HotType =
   | 'weibo' // 微博
   | 'juejin' // 掘金
   | 'github' // github
-  | 'ithome'; // IT之家
+  | 'ithome' // IT之家
+  | 'sspai'; // 少数派

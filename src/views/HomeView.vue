@@ -26,6 +26,12 @@
         :updateTime="ithomeUpdateTime"
         @refresh="refreshIthomeHotList"
       />
+      <SspaiHotListCard
+        :hotTopics="sspaiHotList"
+        :loading="sspaiLoading"
+        :updateTime="sspaiUpdateTime"
+        @refresh="refreshSspaiHotList"
+      />
     </div>
   </div>
 </template>
@@ -35,6 +41,7 @@ import GithubTrendingCard from '@/components/GithubTrendingCard.vue'
 import JuejinHotArticleCard from '@/components/JuejinHotArticleCard.vue'
 import WeiboHotListCard from '@/components/WeiboHotListCard.vue'
 import IthomeHotListCard from '@/components/IthomeHotListCard.vue'
+import SspaiHotListCard from '@/components/SspaiHotListCard.vue'
 import { ref, onMounted } from 'vue'
 import { getHotListByType } from '@/api/hotlist'
 import { ElMessage } from 'element-plus'
@@ -45,14 +52,17 @@ const githubTrending = ref<GithubHostItem[]>([])
 const juejinArticles = ref<HotItem[]>([])
 const weiboHotList = ref<HotItem[]>([])
 const ithomeHotList = ref<HotItem[]>([])
+const sspaiHotList = ref<HotItem[]>([])
 const githubLoading = ref(true)
 const juejinLoading = ref(true)
 const weiboLoading = ref(true)
 const ithomeLoading = ref(true)
+const sspaiLoading = ref(true)
 const githubUpdateTime = ref(0)
 const juejinUpdateTime = ref(0)
 const weiboUpdateTime = ref(0)
 const ithomeUpdateTime = ref(0)
+const sspaiUpdateTime = ref(0)
 const githubPeriod = ref<GithubPeriod>(GITHUB_PERIOD.WEEKLY)
 
 onMounted(() => {
@@ -61,6 +71,7 @@ onMounted(() => {
   loadJuejinHotArticles()
   loadWeiboHotList()
   loadIthomeHotList()
+  loadSspaiHotList()
 })
 
 // 加载GitHub热榜数据
@@ -120,6 +131,21 @@ const loadIthomeHotList = async () => {
     ElMessage.error('加载IT之家热榜数据失败，请稍后刷新')
   } finally {
     ithomeLoading.value = false
+  }
+}
+
+// 加载少数派热榜数据
+const loadSspaiHotList = async () => {
+  sspaiLoading.value = true
+  try {
+    const sspaiData = await getHotListByType('sspai', 'weekly') as HotList
+    sspaiHotList.value = sspaiData.list
+    sspaiUpdateTime.value = sspaiData.updateTime
+  } catch (error) {
+    console.error('加载少数派热榜数据失败', error)
+    ElMessage.error('加载少数派热榜数据失败，请稍后刷新')
+  } finally {
+    sspaiLoading.value = false
   }
 }
 
@@ -194,6 +220,23 @@ const refreshIthomeHotList = async () => {
     ElMessage.error('刷新失败，请稍后再试')
   } finally {
     ithomeLoading.value = false
+  }
+}
+
+// 刷新少数派热榜
+const refreshSspaiHotList = async () => {
+  try {
+    sspaiLoading.value = true
+    ElMessage.info('正在刷新少数派热榜...')
+    const sspaiData = await getHotListByType('sspai', 'weekly', true) as HotList
+    sspaiHotList.value = sspaiData.list
+    sspaiUpdateTime.value = sspaiData.updateTime
+    ElMessage.success('少数派热榜已更新')
+  } catch (error) {
+    console.error('刷新少数派热榜失败', error)
+    ElMessage.error('刷新失败，请稍后再试')
+  } finally {
+    sspaiLoading.value = false
   }
 }
 </script>
