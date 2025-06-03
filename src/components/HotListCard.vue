@@ -4,6 +4,7 @@
       <span class="trending-icon"><slot name="icon" /></span>
       <span class="trending-title">{{ title }}</span>
       <span class="trending-update">（{{ formattedUpdateTime }}）</span>
+      <slot name="header-addon"></slot>
       <el-button circle size="small" class="refresh-btn" @click="handleRefresh">
         <el-icon><Refresh /></el-icon>
       </el-button>
@@ -24,7 +25,7 @@
 
 <script setup lang="ts">
 import { Refresh } from '@element-plus/icons-vue';
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
 const props = defineProps<{
   title: string;
@@ -35,25 +36,32 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['refresh']);
-const justUpdated = ref(false);
 const refreshTimer = ref<number | null>(null);
 const forceUpdate = ref(0); // 用于强制更新计算属性
+const lastUpdateTime = ref(props.updateTime || 0); // 存储上一次的更新时间
+
+// 监听updateTime的变化
+watch(() => props.updateTime, (newVal, oldVal) => {
+  if (newVal && newVal !== oldVal) {
+    // 当接口返回新的updateTime时，记录下来
+    lastUpdateTime.value = newVal;
+  }
+});
 
 // 格式化时间显示
 const formattedUpdateTime = computed(() => {
   // forceUpdate.value 参与计算，但不影响结果，用于强制刷新
   forceUpdate.value;
   
-  if (justUpdated.value) {
-    return '刚刚更新';
-  }
+  // 使用实际的updateTime
+  const currentTime = props.updateTime || 0;
   
-  if (!props.updateTime) {
+  if (!currentTime) {
     return '暂无更新时间';
   }
   
   const now = Date.now();
-  const diff = now - props.updateTime;
+  const diff = now - currentTime;
   
   // 小于1分钟
   if (diff < 60 * 1000) {
@@ -73,7 +81,7 @@ const formattedUpdateTime = computed(() => {
   }
   
   // 大于24小时，显示日期
-  const date = new Date(props.updateTime);
+  const date = new Date(currentTime);
   return `${date.getMonth() + 1}月${date.getDate()}日 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 });
 
@@ -105,10 +113,8 @@ onUnmounted(() => {
 
 const handleRefresh = () => {
   emit('refresh');
-  justUpdated.value = true;
-  setTimeout(() => {
-    justUpdated.value = false;
-  }, 5000);
+  // 不再手动设置"刚刚更新"，而是由父组件更新updateTime
+  // 接口完成后会自动更新updateTime并显示正确的时间
 };
 </script>
 

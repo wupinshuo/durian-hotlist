@@ -6,6 +6,7 @@
         :loading="githubLoading"
         :updateTime="githubUpdateTime"
         @refresh="refreshGithubTrending" 
+        @periodChange="handleGithubPeriodChange"
       />
       <JuejinHotArticleCard
         :articles="juejinArticles"
@@ -31,6 +32,7 @@ import { ref, onMounted } from 'vue'
 import { getHotListByType } from '@/api/hotlist'
 import { ElMessage } from 'element-plus'
 import { GithubHostItem, GithubHostList, HotItem, HotList } from '@/types/hot'
+import { GithubPeriod, GITHUB_PERIOD } from '@/constants/hotlist'
 
 const githubTrending = ref<GithubHostItem[]>([])
 const juejinArticles = ref<HotItem[]>([])
@@ -41,6 +43,7 @@ const weiboLoading = ref(true)
 const githubUpdateTime = ref(0)
 const juejinUpdateTime = ref(0)
 const weiboUpdateTime = ref(0)
+const githubPeriod = ref<GithubPeriod>(GITHUB_PERIOD.WEEKLY)
 
 onMounted(() => {
   // 三个热榜数据并行加载，互不影响
@@ -50,10 +53,10 @@ onMounted(() => {
 })
 
 // 加载GitHub热榜数据
-const loadGithubTrending = async () => {
+const loadGithubTrending = async (period: GithubPeriod = githubPeriod.value) => {
   githubLoading.value = true
   try {
-    const githubData = await getHotListByType('github') as GithubHostList
+    const githubData = await getHotListByType('github', period) as GithubHostList
     githubTrending.value = githubData.list
     githubUpdateTime.value = githubData.updateTime
   } catch (error) {
@@ -94,12 +97,18 @@ const loadWeiboHotList = async () => {
   }
 }
 
+// 处理GitHub热榜时间范围变化
+const handleGithubPeriodChange = (period: GithubPeriod) => {
+  githubPeriod.value = period
+  loadGithubTrending(period)
+}
+
 // 刷新 GitHub 热榜
-const refreshGithubTrending = async () => {
+const refreshGithubTrending = async (period: GithubPeriod = githubPeriod.value) => {
   try {
     githubLoading.value = true
     ElMessage.info('正在刷新 GitHub 热榜...')
-    const githubData = await getHotListByType('github') as GithubHostList
+    const githubData = await getHotListByType('github', period) as GithubHostList
     githubTrending.value = githubData.list
     githubUpdateTime.value = githubData.updateTime
     ElMessage.success('GitHub 热榜已更新')

@@ -1,39 +1,64 @@
 <template>
-  <HotListCard
-    title="掘金热榜"
-    :list="articles"
-    :itemKey="(item) => item.url"
-    :loading="loading"
-    @refresh="handleRefresh"
-  >
-    <template #icon>
-      <svg width="28" height="28" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g>
-          <path d="M512 128L128 384l384 256 384-256L512 128z" fill="#296CFF"/>
-          <path d="M512 576L256 416l-64 42.7L512 704l320-245.3-64-42.7-256 160z" fill="#296CFF"/>
-          <path d="M512 768l-192-147.2-64 42.7L512 896l256-192.5-64-42.7L512 768z" fill="#296CFF"/>
-        </g>
-      </svg>
-    </template>
-    <template #item="{ item, index }">
-      <div class="trending-item" :class="{ top: index < 3 }">
-        <div class="item-rank" :class="{ top: index < 3 }">{{ index + 1 }}</div>
-        <div class="item-main">
-          <a :href="item.url" target="_blank" class="repo-name" :title="item.title">{{ item.title }}</a>
-          <div class="repo-meta">
-            <span class="repo-stars">
-              <svg class="star-icon" viewBox="0 0 20 20" width="14" height="14"><path fill="#e3b341" d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/></svg>
-              {{ item.hot }} 热度
-            </span>
-          </div>
+  <div class="juejin-card">
+    <div class="card-header">
+      <div class="header-left">
+        <div class="logo">
+          <svg width="22" height="22" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g>
+              <path d="M512 128L128 384l384 256 384-256L512 128z" fill="#1e80ff"/>
+              <path d="M512 576L256 416l-64 42.7L512 704l320-245.3-64-42.7-256 160z" fill="#1e80ff"/>
+              <path d="M512 768l-192-147.2-64 42.7L512 896l256-192.5-64-42.7L512 768z" fill="#1e80ff"/>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <div class="title">掘金热榜</div>
+          <div class="subtitle">技术头条</div>
         </div>
       </div>
-    </template>
-  </HotListCard>
+      
+      <div class="right-actions">
+        <div class="time-indicator">
+          <div class="status-dot"></div>
+          <span class="time-text">{{ formattedUpdateTime }}</span>
+        </div>
+        
+        <button class="refresh-btn" @click="handleRefresh" :disabled="loading">
+          <svg class="refresh-icon" viewBox="0 0 24 24" :class="{ 'rotating': loading }">
+            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="trending-list-wrapper">
+      <div class="trending-list-inner">
+        <el-skeleton v-if="loading" :rows="8" animated />
+        <template v-else>
+          <div class="trending-list">
+            <div v-for="(item, index) in articles" :key="item.url" class="trending-item" :class="{ top: index < 3 }">
+              <div class="item-rank" :class="{ top: index < 3 }">{{ index + 1 }}</div>
+              <div class="item-main">
+                <a :href="item.url" target="_blank" class="article-title" :title="item.title">{{ item.title }}</a>
+                <div class="article-meta">
+                  <span class="article-hot">
+                    <svg class="hot-icon" viewBox="0 0 1024 1024" width="14" height="14"><path fill="#f67c0b" d="M753.607 730.599c-61.465 0-111.608-49.687-111.608-111.166 0-61.45 50.144-111.15 111.608-111.15 61.473 0 111.608 49.7 111.608 111.15 0 61.48-50.135 111.166-111.608 111.166m-477.221-.008c-61.465 0-111.6-49.687-111.6-111.166 0-61.458 50.135-111.15 111.6-111.15 61.48 0 111.616 49.692 111.616 111.15 0 61.48-50.135 111.166-111.616 111.166m712.158-56.924c0-64.784-36.972-121.309-91.207-148.54 15.24-19.94 24.359-45.46 24.359-72.574 0-64.848-52.937-117.816-118.09-117.816-65.242 0-118.09 52.968-118.09 117.816 0 27.114 9.12 52.634 24.36 72.574-54.227 27.232-91.198 83.757-91.198 148.54 0 76.244 51.647 141.154 122.845 160.709-34.002 23.533-77.063 37.458-123.765 38.518h-242.01c-46.695-1.06-89.764-14.985-123.774-38.518 71.19-19.555 122.853-84.465 122.853-160.709 0-64.784-36.98-121.309-91.19-148.54 15.24-19.94 24.351-45.46 24.351-72.574 0-64.848-52.952-117.816-118.09-117.816-65.227 0-118.09 52.968-118.09 117.816 0 27.114 9.12 52.634 24.351 72.574C53.065 552.358 16.07 608.883 16.07 673.667c0 80.483 57.66 147.52 134.261 162.7-22.761 56.188-33.868 117.287-35.418 182.26h812.347c-1.565-64.981-12.664-126.08-35.418-182.26 76.601-15.172 134.261-82.217 134.261-162.7"/></svg>
+                    {{ item.hot }} 热度
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div v-if="!articles.length" class="empty-tip">暂无数据</div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import HotListCard from './HotListCard.vue';
+import { computed } from 'vue';
+import { ElSkeleton } from 'element-plus';
 
 const props = defineProps<{
   articles: Array<{
@@ -42,8 +67,40 @@ const props = defineProps<{
     hot: string;
   }>;
   loading?: boolean;
+  updateTime?: number;
 }>();
 const emit = defineEmits(['refresh']);
+
+// 格式化更新时间
+const formattedUpdateTime = computed(() => {
+  if (!props.updateTime) {
+    return '暂无更新';
+  }
+  
+  const now = Date.now();
+  const diff = now - props.updateTime;
+  
+  // 小于1分钟
+  if (diff < 60 * 1000) {
+    return '刚刚更新';
+  }
+  
+  // 小于1小时，显示分钟
+  if (diff < 60 * 60 * 1000) {
+    const minutes = Math.floor(diff / (60 * 1000));
+    return `${minutes}分钟前`;
+  }
+  
+  // 小于24小时，显示小时
+  if (diff < 24 * 60 * 60 * 1000) {
+    const hours = Math.floor(diff / (60 * 60 * 1000));
+    return `${hours}小时前`;
+  }
+  
+  // 大于24小时，显示日期
+  const date = new Date(props.updateTime);
+  return `${date.getMonth() + 1}月${date.getDate()}日更新`;
+});
 
 function handleRefresh() {
   emit('refresh');
@@ -51,5 +108,295 @@ function handleRefresh() {
 </script>
 
 <style scoped>
-/* 不再需要导入外部CSS，使用全局主题CSS */
+.juejin-card {
+  background: var(--card-bg, rgba(22, 27, 34, 0.8));
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg, 16px);
+  border: 1px solid var(--border-color, rgba(48, 54, 61, 0.4));
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  width: 100%;
+  max-width: 300px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-color, rgba(48, 54, 61, 0.3));
+  position: relative;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius, 6px);
+  background: linear-gradient(135deg, #1e80ff, #3694ff);
+  box-shadow: 0 0 8px rgba(30, 128, 255, 0.25);
+}
+
+.logo svg {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.logo svg path {
+  fill: #ffffff !important;
+}
+
+/* 深色模式下增加发光效果 */
+:root.dark .logo {
+  box-shadow: 0 0 12px rgba(30, 128, 255, 0.5);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #1e80ff, #3694ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.right-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(30, 128, 255, 0.1);
+  padding: 6px 10px;
+  border-radius: var(--radius-full, 50px);
+  border: 1px solid rgba(30, 128, 255, 0.2);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #1e80ff;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+}
+
+.time-text {
+  font-size: 12px;
+  color: #1e80ff;
+}
+
+.refresh-btn {
+  background: rgba(30, 128, 255, 0.1);
+  border: 1px solid rgba(30, 128, 255, 0.2);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background: rgba(30, 128, 255, 0.2);
+}
+
+.refresh-icon {
+  width: 16px;
+  height: 16px;
+  fill: #1e80ff;
+  transition: transform 0.6s ease;
+}
+
+.refresh-icon.rotating {
+  animation: rotate 1s infinite linear;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 原有列表样式 */
+.trending-list-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 5px 0 0;
+  height: 290px;
+  min-height: 290px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.trending-list-inner {
+  height: 100%;
+  min-height: 290px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.trending-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.trending-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 5px;
+  border-radius: 5px;
+  transition: all 0.2s;
+}
+
+.trending-item:hover {
+  background-color: var(--hover-bg, rgba(48, 54, 61, 0.2));
+  transform: translateY(-2px);
+}
+
+.item-rank {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  min-width: 20px;
+  text-align: center;
+}
+
+.item-rank.top {
+  color: #f67c0b;
+}
+
+.item-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.article-title {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.article-title:hover {
+  color: #1e80ff;
+  text-decoration: underline;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.article-hot {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #f67c0b;
+}
+
+.empty-tip {
+  text-align: center;
+  color: var(--muted-foreground);
+  padding: 32px 0;
+}
+
+/* 滚动条美化 */
+.trending-list-wrapper::-webkit-scrollbar {
+  width: 5px;
+}
+
+.trending-list-wrapper::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb, rgba(120, 130, 140, 0.5));
+  border-radius: var(--radius, 4px);
+}
+
+.trending-list-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover, rgba(130, 160, 190, 0.8));
+}
+
+.trending-list-wrapper::-webkit-scrollbar-track {
+  background: var(--scroll-track, rgba(30, 34, 39, 0.2));
+  border-radius: var(--radius, 4px);
+}
+
+/* 深色模式特定样式 */
+:root.dark .trending-list-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(140, 160, 190, 0.4);
+}
+
+:root.dark .trending-list-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 200, 255, 0.65);
+}
+
+/* 浅色模式特定滚动条样式 */
+:root:not(.dark) .trending-list-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(180, 190, 200, 0.5);
+}
+
+:root:not(.dark) .trending-list-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 150, 165, 0.7);
+}
+
+:root:not(.dark) .trending-list-wrapper::-webkit-scrollbar-track {
+  background: rgba(230, 235, 240, 0.6);
+}
+
+@media (max-width: 768px) {
+  .juejin-card {
+    max-width: 100%;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .right-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
 </style> 

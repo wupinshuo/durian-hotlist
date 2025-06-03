@@ -46,12 +46,14 @@ export interface GithubHostItem {
   language: string;
   /** 仓库星星数 */
   stars: string;
-  /** 本周新增星星数 */
-  starsThisWeek: string;
   /** 仓库fork数 */
   forks: string;
-  /** 仓库今日星星数 */
+  /** 今日新增星星数 */
   starsToday: string;
+  /** 本周新增星星数 */
+  starsThisWeek: string;
+  /** 本月新增星星数 */
+  starsThisMonth: string;
   /** 仓库url */
   url: string;
 }
