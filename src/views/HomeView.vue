@@ -20,6 +20,12 @@
         :updateTime="weiboUpdateTime"
         @refresh="refreshWeiboHotList"
       />
+      <IthomeHotListCard
+        :hotTopics="ithomeHotList"
+        :loading="ithomeLoading"
+        :updateTime="ithomeUpdateTime"
+        @refresh="refreshIthomeHotList"
+      />
     </div>
   </div>
 </template>
@@ -28,6 +34,7 @@
 import GithubTrendingCard from '@/components/GithubTrendingCard.vue'
 import JuejinHotArticleCard from '@/components/JuejinHotArticleCard.vue'
 import WeiboHotListCard from '@/components/WeiboHotListCard.vue'
+import IthomeHotListCard from '@/components/IthomeHotListCard.vue'
 import { ref, onMounted } from 'vue'
 import { getHotListByType } from '@/api/hotlist'
 import { ElMessage } from 'element-plus'
@@ -37,19 +44,23 @@ import { GithubPeriod, GITHUB_PERIOD } from '@/constants/hotlist'
 const githubTrending = ref<GithubHostItem[]>([])
 const juejinArticles = ref<HotItem[]>([])
 const weiboHotList = ref<HotItem[]>([])
+const ithomeHotList = ref<HotItem[]>([])
 const githubLoading = ref(true)
 const juejinLoading = ref(true)
 const weiboLoading = ref(true)
+const ithomeLoading = ref(true)
 const githubUpdateTime = ref(0)
 const juejinUpdateTime = ref(0)
 const weiboUpdateTime = ref(0)
+const ithomeUpdateTime = ref(0)
 const githubPeriod = ref<GithubPeriod>(GITHUB_PERIOD.WEEKLY)
 
 onMounted(() => {
-  // 三个热榜数据并行加载，互不影响
+  // 热榜数据并行加载，互不影响
   loadGithubTrending()
   loadJuejinHotArticles()
   loadWeiboHotList()
+  loadIthomeHotList()
 })
 
 // 加载GitHub热榜数据
@@ -94,6 +105,21 @@ const loadWeiboHotList = async () => {
     ElMessage.error('加载微博热榜数据失败，请稍后刷新')
   } finally {
     weiboLoading.value = false
+  }
+}
+
+// 加载IT之家热榜数据
+const loadIthomeHotList = async () => {
+  ithomeLoading.value = true
+  try {
+    const ithomeData = await getHotListByType('ithome', 'weekly') as HotList
+    ithomeHotList.value = ithomeData.list
+    ithomeUpdateTime.value = ithomeData.updateTime
+  } catch (error) {
+    console.error('加载IT之家热榜数据失败', error)
+    ElMessage.error('加载IT之家热榜数据失败，请稍后刷新')
+  } finally {
+    ithomeLoading.value = false
   }
 }
 
@@ -151,6 +177,23 @@ const refreshWeiboHotList = async () => {
     ElMessage.error('刷新失败，请稍后再试')
   } finally {
     weiboLoading.value = false
+  }
+}
+
+// 刷新IT之家热榜
+const refreshIthomeHotList = async () => {
+  try {
+    ithomeLoading.value = true
+    ElMessage.info('正在刷新IT之家热榜...')
+    const ithomeData = await getHotListByType('ithome', 'weekly', true) as HotList
+    ithomeHotList.value = ithomeData.list
+    ithomeUpdateTime.value = ithomeData.updateTime
+    ElMessage.success('IT之家热榜已更新')
+  } catch (error) {
+    console.error('刷新IT之家热榜失败', error)
+    ElMessage.error('刷新失败，请稍后再试')
+  } finally {
+    ithomeLoading.value = false
   }
 }
 </script>

@@ -64,4 +64,5 @@ export interface GithubHostItem {
 export type HotType =
   | 'weibo' // 微博
   | 'juejin' // 掘金
-  | 'github'; // github;
+  | 'github' // github
+  | 'ithome'; // IT之家

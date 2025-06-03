@@ -7,18 +7,21 @@ import { GithubPeriod } from '@/constants/hotlist';
 /**
  * 根据热榜类型获取热榜数据
  * @param type 热榜类型
+ * @param period 时间周期
+ * @param force 是否强制刷新
  * @returns 热榜列表
  */
 export async function getHotListByType(
   type: HotType,
-  period: GithubPeriod,
+  period: GithubPeriod = 'weekly',
+  force: boolean = false,
 ): Promise<HotList | GithubHostList> {
   const configStore = useConfigStore();
   try {
     // 使用POST请求，请求体中包含type字段
     const res = await axios.post<ReturnData<HotList | GithubHostList>>(
       `${configStore.baseUrl}/hot-list`,
-      { type, period },
+      { type, period, force },
     );
     const data = res.data?.data;
 

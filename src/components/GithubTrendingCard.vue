@@ -129,18 +129,32 @@ const periodSuffix = computed(() => {
   }
 });
 
+function formatStarsCount(count: string): string {
+  // 如果包含 "stars this week" 或 "stars today" 或 "stars this month"，只保留数字和"stars"
+  if (!count) return '';
+  
+  return count.replace(/ (this week|today|this month)( |$)/i, ' ');
+}
+
 // 根据当前选择的时间范围显示对应的星星数
 function getStarsByPeriod(item: any) {
+  let result = '';
+  
   switch (currentPeriod.value) {
     case GITHUB_PERIOD.DAILY:
-      return item.starsToday;
+      result = item.starsToday;
+      break;
     case GITHUB_PERIOD.WEEKLY:
-      return item.starsThisWeek;
+      result = item.starsThisWeek;
+      break;
     case GITHUB_PERIOD.MONTHLY:
-      return item.starsThisMonth;
+      result = item.starsThisMonth;
+      break;
     default:
-      return item.starsThisWeek;
+      result = item.starsThisWeek;
   }
+  
+  return formatStarsCount(result);
 }
 
 function getLanguageColor(language: string): string {
