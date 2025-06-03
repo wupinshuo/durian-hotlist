@@ -17,18 +17,12 @@
         </div>
       </div>
       
-      <div class="right-actions">
-        <div class="time-indicator">
-          <div class="status-dot"></div>
-          <span class="time-text">{{ formattedUpdateTime }}</span>
-        </div>
-        
-        <button class="refresh-btn" @click="handleRefresh" :disabled="loading">
-          <svg class="refresh-icon" viewBox="0 0 24 24" :class="{ 'rotating': loading }">
-            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
-          </svg>
-        </button>
-      </div>
+      <UpdateTimeDisplay 
+        :update-time="updateTime" 
+        :loading="loading" 
+        theme-color="#1e80ff"
+        @refresh="handleRefresh" 
+      />
     </div>
 
     <div class="trending-list-wrapper">
@@ -57,8 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { ElSkeleton } from 'element-plus';
+import { UpdateTimeDisplay } from './index';
 
 const props = defineProps<{
   articles: Array<{
@@ -70,37 +64,6 @@ const props = defineProps<{
   updateTime?: number;
 }>();
 const emit = defineEmits(['refresh']);
-
-// 格式化更新时间
-const formattedUpdateTime = computed(() => {
-  if (!props.updateTime) {
-    return '暂无更新';
-  }
-  
-  const now = Date.now();
-  const diff = now - props.updateTime;
-  
-  // 小于1分钟
-  if (diff < 60 * 1000) {
-    return '刚刚更新';
-  }
-  
-  // 小于1小时，显示分钟
-  if (diff < 60 * 60 * 1000) {
-    const minutes = Math.floor(diff / (60 * 1000));
-    return `${minutes}分钟前`;
-  }
-  
-  // 小于24小时，显示小时
-  if (diff < 24 * 60 * 60 * 1000) {
-    const hours = Math.floor(diff / (60 * 60 * 1000));
-    return `${hours}小时前`;
-  }
-  
-  // 大于24小时，显示日期
-  const date = new Date(props.updateTime);
-  return `${date.getMonth() + 1}月${date.getDate()}日更新`;
-});
 
 function handleRefresh() {
   emit('refresh');
@@ -126,7 +89,7 @@ function handleRefresh() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 10px;
+  padding: 10px 10px;
   border-bottom: 1px solid var(--border-color, rgba(48, 54, 61, 0.3));
   position: relative;
 }
@@ -166,82 +129,12 @@ function handleRefresh() {
 .title {
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #1e80ff, #3694ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1e80ff;
 }
 
 .subtitle {
   font-size: 12px;
   color: var(--muted-foreground);
-}
-
-.right-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.time-indicator {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(30, 128, 255, 0.1);
-  padding: 6px 10px;
-  border-radius: var(--radius-full, 50px);
-  border: 1px solid rgba(30, 128, 255, 0.2);
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  background: #1e80ff;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.7; }
-}
-
-.time-text {
-  font-size: 12px;
-  color: #1e80ff;
-}
-
-.refresh-btn {
-  background: rgba(30, 128, 255, 0.1);
-  border: 1px solid rgba(30, 128, 255, 0.2);
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.refresh-btn:hover {
-  background: rgba(30, 128, 255, 0.2);
-}
-
-.refresh-icon {
-  width: 16px;
-  height: 16px;
-  fill: #1e80ff;
-  transition: transform 0.6s ease;
-}
-
-.refresh-icon.rotating {
-  animation: rotate 1s infinite linear;
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
 
 /* 原有列表样式 */
@@ -392,11 +285,6 @@ function handleRefresh() {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
-  }
-  
-  .right-actions {
-    width: 100%;
-    justify-content: space-between;
   }
 }
 </style> 

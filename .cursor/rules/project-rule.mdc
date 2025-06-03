@@ -13,7 +13,6 @@ alwaysApply: true
 - 使用 pnpm 作为包管理工具
 - nodejs版本为 20.16.0
 - 网络请求：使用axios，统一封装在 `src/api/` 目录下
-- 使用 shadcn 的组件和风格
 
 ## 2. 目录结构
 - 页面组件放在 `src/views/`

@@ -1,45 +1,37 @@
 <template>
   <div class="github-card">
     <div class="card-header">
-      <div class="header-left">
-        <div class="logo">
-          <svg width="24" height="24" viewBox="0 0 16 16" fill="none">
-            <path :fill="isDarkMode ? '#ffffff' : '#24292f'" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
-          </svg>
-        </div>
-        <div>
-          <div class="title-row">
-            <div class="title">GitHub热榜</div>
-            <div class="period-text">{{ periodShortText }}</div>
-          </div>
-          <div class="subtitle">开源热点</div>
-        </div>
-      </div>
-      
-      <div class="right-actions">
-        <div class="period-selector">
-          <button 
-            v-for="period in availablePeriods" 
-            :key="period.value"
-            :class="['period-btn', { active: currentPeriod === period.value }]"
-            @click="handlePeriodChange(period.value)"
-          >
-            {{ period.label }}
-          </button>
-        </div>
-        
-        <div class="refresh-wrapper">
-          <div class="time-indicator">
-            <div class="status-dot"></div>
-            <span class="time-text">{{ formattedUpdateTime }}</span>
-          </div>
-          
-          <button class="refresh-btn" @click="handleRefresh" :disabled="loading">
-            <svg class="refresh-icon" viewBox="0 0 24 24" :class="{ 'rotating': loading }">
-              <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+      <div class="header-content">
+        <div class="header-left">
+          <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 16 16" fill="none">
+              <path :fill="isDarkMode ? '#ffffff' : '#24292f'" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
             </svg>
-          </button>
+          </div>
+          <div class="header-title">
+            <div class="title-row">
+              <div class="title">GitHub</div>
+              <div class="period-selector">
+                <button 
+                  v-for="period in availablePeriods" 
+                  :key="period.value"
+                  :class="['period-btn', { active: currentPeriod === period.value }]"
+                  @click="handlePeriodChange(period.value)"
+                >
+                  {{ period.label }}
+                </button>
+              </div>
+            </div>
+            <div class="subtitle">开源热点</div>
+          </div>
         </div>
+
+        <UpdateTimeDisplay 
+          :update-time="updateTime" 
+          :loading="loading" 
+          theme-color="#40b583"
+          @refresh="handleRefresh" 
+        />
       </div>
     </div>
 
@@ -52,6 +44,7 @@
               <div class="item-rank" :class="{ top: index < 3 }">{{ index + 1 }}</div>
               <div class="item-main">
                 <a :href="item.url" target="_blank" class="repo-name" :title="item.name">{{ item.name }}</a>
+                <div v-if="item.desc" class="repo-desc" :title="item.desc">{{ item.desc }}</div>
                 <div class="repo-meta">
                   <span class="repo-lang" v-if="item.language">
                     <span class="language-dot" :style="{ backgroundColor: getLanguageColor(item.language) }"></span>
@@ -81,6 +74,7 @@ import { useThemeStore } from '../store/theme';
 import { computed, ref } from 'vue';
 import { GithubPeriod, GITHUB_PERIOD, GITHUB_PERIOD_TEXT } from '@/constants/hotlist';
 import { ElSkeleton } from 'element-plus';
+import { UpdateTimeDisplay } from './index';
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDark);
@@ -133,37 +127,6 @@ const periodSuffix = computed(() => {
     case GITHUB_PERIOD.MONTHLY: return '本月';
     default: return '';
   }
-});
-
-// 格式化更新时间
-const formattedUpdateTime = computed(() => {
-  if (!props.updateTime) {
-    return '暂无更新';
-  }
-  
-  const now = Date.now();
-  const diff = now - props.updateTime;
-  
-  // 小于1分钟
-  if (diff < 60 * 1000) {
-    return '刚刚更新';
-  }
-  
-  // 小于1小时，显示分钟
-  if (diff < 60 * 60 * 1000) {
-    const minutes = Math.floor(diff / (60 * 1000));
-    return `${minutes}分钟前`;
-  }
-  
-  // 小于24小时，显示小时
-  if (diff < 24 * 60 * 60 * 1000) {
-    const hours = Math.floor(diff / (60 * 60 * 1000));
-    return `${hours}小时前`;
-  }
-  
-  // 大于24小时，显示日期
-  const date = new Date(props.updateTime);
-  return `${date.getMonth() + 1}月${date.getDate()}日更新`;
 });
 
 // 根据当前选择的时间范围显示对应的星星数
@@ -225,35 +188,63 @@ function handlePeriodChange(period: GithubPeriod) {
 .card-header {
   display: flex;
   flex-direction: column;
-  padding: 8px 10px;
+  padding: 10px 10px;
   border-bottom: 1px solid var(--border-color, rgba(48, 54, 61, 0.3));
   position: relative;
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .header-left {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+}
+
+.header-title {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .title-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .title {
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #58a6ff, #79c0ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #58a6ff;
+  white-space: nowrap;
 }
 
-.period-text {
-  font-size: 14px;
+.period-selector {
+  display: flex;
+  background: var(--card-bg, rgba(22, 27, 34, 0.8));
+  border-radius: var(--radius, 6px);
+  padding: 1px;
+  border: 1px solid var(--border-color, rgba(48, 54, 61, 0.4));
+  height: 20px;
+}
+
+.period-btn {
+  padding: 1px 6px;
+  border: none;
+  background: transparent;
   color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: var(--radius, 4px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 22px;
+  text-align: center;
 }
 
 .logo {
@@ -293,124 +284,6 @@ function handlePeriodChange(period: GithubPeriod) {
   color: var(--muted-foreground);
 }
 
-.right-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 8px;
-}
-
-.refresh-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.time-indicator {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(35, 134, 54, 0.1);
-  padding: 4px 8px;
-  border-radius: var(--radius-full, 50px);
-  border: 1px solid rgba(35, 134, 54, 0.2);
-}
-
-.status-dot {
-  width: 5px;
-  height: 5px;
-  background: #2ea043;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.7; }
-}
-
-.time-text {
-  font-size: 11px;
-  color: #2ea043;
-}
-
-.period-selector {
-  display: flex;
-  background: var(--muted, rgba(13, 17, 23, 0.5));
-  border-radius: var(--radius, 6px);
-  padding: 2px;
-  border: 1px solid var(--border-color, rgba(48, 54, 61, 0.4));
-}
-
-/* 浅色模式下的切换按钮容器 */
-:root:not(.dark) .period-selector {
-  background: rgba(240, 242, 245, 0.8);
-  border: 1px solid rgba(200, 205, 215, 0.6);
-}
-
-.period-btn {
-  padding: 3px 7px;
-  border: none;
-  background: transparent;
-  color: var(--muted-foreground);
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: var(--radius, 4px);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-/* 浅色模式下的按钮文字颜色 */
-:root:not(.dark) .period-btn {
-  color: rgba(80, 90, 110, 0.8);
-}
-
-.period-btn.active {
-  background: linear-gradient(135deg, #58a6ff, #79c0ff);
-  color: var(--background);
-  box-shadow: 0 2px 6px rgba(88, 166, 255, 0.3);
-}
-
-/* 浅色模式下的活跃按钮 */
-:root:not(.dark) .period-btn.active {
-  background: linear-gradient(135deg, #4182dd, #589bf5);
-  color: #ffffff;
-  box-shadow: 0 2px 4px rgba(65, 130, 221, 0.3);
-}
-
-.refresh-btn {
-  background: rgba(88, 166, 255, 0.1);
-  border: 1px solid rgba(88, 166, 255, 0.2);
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.refresh-btn:hover {
-  background: rgba(88, 166, 255, 0.2);
-}
-
-.refresh-icon {
-  width: 14px;
-  height: 14px;
-  fill: #58a6ff;
-  transition: transform 0.6s ease;
-}
-
-.refresh-icon.rotating {
-  animation: rotate 1s infinite linear;
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 /* 原有列表样式 */
 .trending-list-wrapper {
   flex: 1;
@@ -441,7 +314,7 @@ function handlePeriodChange(period: GithubPeriod) {
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  padding: 5px 5px;
+  padding: 6px 5px;
   border-radius: 5px;
   transition: all 0.2s;
 }
@@ -467,7 +340,7 @@ function handlePeriodChange(period: GithubPeriod) {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .repo-name {
@@ -486,6 +359,18 @@ function handlePeriodChange(period: GithubPeriod) {
 .repo-name:hover {
   color: var(--accent-blue-hover, #79c0ff);
   text-decoration: underline;
+}
+
+.repo-desc {
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--muted-foreground, #8b949e);
+  margin-top: 1px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0.9;
 }
 
 .repo-meta {
@@ -569,6 +454,30 @@ function handlePeriodChange(period: GithubPeriod) {
 
 :root:not(.dark) .trending-list-wrapper::-webkit-scrollbar-track {
   background: rgba(230, 235, 240, 0.6);
+}
+
+/* 浅色模式下的切换按钮容器 */
+:root:not(.dark) .period-selector {
+  background: rgba(240, 242, 245, 0.8);
+  border: 1px solid rgba(200, 205, 215, 0.6);
+}
+
+/* 浅色模式下的按钮文字颜色 */
+:root:not(.dark) .period-btn {
+  color: rgba(80, 90, 110, 0.8);
+}
+
+.period-btn.active {
+  background: #58a6ff;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(88, 166, 255, 0.2);
+}
+
+/* 浅色模式下的活跃按钮 */
+:root:not(.dark) .period-btn.active {
+  background: #4182dd;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(65, 130, 221, 0.2);
 }
 
 @media (max-width: 768px) {
