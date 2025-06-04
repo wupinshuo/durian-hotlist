@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useConfigStore } from '@/store/configStore';
 import { ReturnData } from '@/types/base';
 import { GithubHostList, HotList, HotType } from '@/types/hot';
 import { GithubPeriod } from '@/constants/hotlist';
@@ -16,11 +15,12 @@ export async function getHotListByType(
   period: GithubPeriod = 'weekly',
   force: boolean = false,
 ): Promise<HotList | GithubHostList> {
-  const configStore = useConfigStore();
   try {
+    // 获取当前域名
+    const baseUrl = window.location.origin;
     // 使用POST请求，请求体中包含type字段
     const res = await axios.post<ReturnData<HotList | GithubHostList>>(
-      `${configStore.baseUrl}/api/v1/api-data/hot-list`,
+      `${baseUrl}/hot-list`,
       { type, period, force },
     );
     const data = res.data?.data;
