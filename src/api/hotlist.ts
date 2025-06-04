@@ -22,6 +22,7 @@ export async function getHotListByType(
     const res = await axios.post<ReturnData<HotList | GithubHostList>>(
       `${baseUrl}/hot-list`,
       { type, period, force },
+      { timeout: 30000 },
     );
     const data = res.data?.data;
 
