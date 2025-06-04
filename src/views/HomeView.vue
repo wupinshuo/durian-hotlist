@@ -20,6 +20,12 @@
         :updateTime="weiboUpdateTime"
         @refresh="refreshWeiboHotList"
       />
+      <BilibiliHotListCard
+        :hotTopics="bilibiliHotList"
+        :loading="bilibiliLoading"
+        :updateTime="bilibiliUpdateTime"
+        @refresh="refreshBilibiliHotList"
+      />
       <IthomeHotListCard
         :hotTopics="ithomeHotList"
         :loading="ithomeLoading"
@@ -31,12 +37,6 @@
         :loading="sspaiLoading"
         :updateTime="sspaiUpdateTime"
         @refresh="refreshSspaiHotList"
-      />
-      <BilibiliHotListCard
-        :hotTopics="bilibiliHotList"
-        :loading="bilibiliLoading"
-        :updateTime="bilibiliUpdateTime"
-        @refresh="refreshBilibiliHotList"
       />
     </div>
   </div>

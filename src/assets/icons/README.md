@@ -73,4 +73,5 @@ import { BilibiliSVGRaw } from '@/assets/icons';
 
 - SVG图标应该保持简洁，去除不必要的属性
 - 图标命名格式：`平台名-功能.svg`，例如 `bilibili-play.svg`
-- 平台主图标直接使用平台名，例如 `bilibili.svg` 
+- 平台主图标直接使用平台名，例如 `bilibili.svg`
+- 测试热更新 (可以删除) 

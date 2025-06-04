@@ -29,6 +29,9 @@
               <div class="item-main">
                 <a :href="item.url" target="_blank" class="repo-name" :title="item.title">{{ item.title }}</a>
                 <div class="repo-meta">
+                  <span class="tag" v-if="item.tag">
+                    <el-tag size="small" type="danger" effect="plain" class="bilibili-tag">{{ item.tag }}</el-tag>
+                  </span>
                   <span class="author" v-if="item.author">
                     <AppIcon name="bilibili-up" class="up-icon" />
                     {{ item.author }}
@@ -49,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ElSkeleton } from 'element-plus';
+import { ElSkeleton, ElTag } from 'element-plus';
 import { UpdateTimeDisplay } from './index';
 import { HotItem } from '@/types/hot';
 import AppIcon from './AppIcon.vue';
@@ -256,6 +259,20 @@ function formatHotCount(hot: string): string {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.bilibili-tag {
+  font-size: 10px;
+  padding: 0 5px;
+  height: 18px;
+  line-height: 16px;
+  border-color: #FB7299;
+  color: #FB7299;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
 }
 
 .empty-tip {

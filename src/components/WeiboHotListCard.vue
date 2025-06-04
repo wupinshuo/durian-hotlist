@@ -33,7 +33,7 @@
                 <a :href="item.url" target="_blank" class="repo-name" :title="item.title">{{ item.title }}</a>
                 <div class="repo-meta">
                   <span class="repo-stars">
-                    <svg class="hot-icon" viewBox="0 0 1024 1024" width="14" height="14"><path fill="#ff8200" d="M512 204.8c23.808-51.2 38.912-73.984 68.608-116.736C621.44 32.256 687.872 0 743.424 0c59.904 0 111.104 32.768 160.256 88.064 51.2 59.904 68.608 125.44 68.608 200.192 0 81.92-51.712 240.64-167.424 445.44-115.712 204.8-212.48 288.768-293.376 288.768-51.2 0-95.744-47.616-131.584-137.728L368.64 848.384c-20.48-55.296-44.544-83.968-72.704-83.968-9.216 0-40.96 19.456-95.232 57.344L160 791.04 398.336 512l-45.568-353.28c39.936-28.16 79.872-41.984 119.808-41.984 38.4 0.512 63.488 20.992 75.776 87.552l38.912 241.152 38.4-241.152z" /></svg>
+                    <AppIcon name="weibo-hot" class="hot-icon" />
                     {{ formatHotCount(item.hot) }}
                   </span>
                 </div>
@@ -50,6 +50,7 @@
 <script setup lang="ts">
 import { ElSkeleton } from 'element-plus';
 import { UpdateTimeDisplay } from './index';
+import { AppIcon } from './index';
 
 const props = defineProps<{
   hotTopics: Array<{
@@ -237,6 +238,12 @@ function formatHotCount(hot: string): string {
   display: flex;
   align-items: center;
   gap: 4px;
+  color: #ff8200;
+}
+
+.hot-icon {
+  width: 14px;
+  height: 14px;
   color: #ff8200;
 }
 
