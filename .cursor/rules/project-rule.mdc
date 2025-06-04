@@ -21,6 +21,7 @@ alwaysApply: true
 - 数据类型文件放在 `src/types/`
 - 常量放在 `src/constants/`
 - 主题样式放在 `src/styles/`
+- 图标放在 `src/assets/icons`
 - 样式文件建议模块化，页面样式写在对应 `.vue` 文件的 `<style scoped>`
 
 ## 3. 代码风格

@@ -32,6 +32,12 @@
         :updateTime="sspaiUpdateTime"
         @refresh="refreshSspaiHotList"
       />
+      <BilibiliHotListCard
+        :hotTopics="bilibiliHotList"
+        :loading="bilibiliLoading"
+        :updateTime="bilibiliUpdateTime"
+        @refresh="refreshBilibiliHotList"
+      />
     </div>
   </div>
 </template>
@@ -42,6 +48,7 @@ import JuejinHotArticleCard from '@/components/JuejinHotArticleCard.vue'
 import WeiboHotListCard from '@/components/WeiboHotListCard.vue'
 import IthomeHotListCard from '@/components/IthomeHotListCard.vue'
 import SspaiHotListCard from '@/components/SspaiHotListCard.vue'
+import BilibiliHotListCard from '@/components/BilibiliHotListCard.vue'
 import { ref, onMounted } from 'vue'
 import { getHotListByType } from '@/api/hotlist'
 import { ElMessage } from 'element-plus'
@@ -53,16 +60,19 @@ const juejinArticles = ref<HotItem[]>([])
 const weiboHotList = ref<HotItem[]>([])
 const ithomeHotList = ref<HotItem[]>([])
 const sspaiHotList = ref<HotItem[]>([])
+const bilibiliHotList = ref<HotItem[]>([])
 const githubLoading = ref(true)
 const juejinLoading = ref(true)
 const weiboLoading = ref(true)
 const ithomeLoading = ref(true)
 const sspaiLoading = ref(true)
+const bilibiliLoading = ref(true)
 const githubUpdateTime = ref(0)
 const juejinUpdateTime = ref(0)
 const weiboUpdateTime = ref(0)
 const ithomeUpdateTime = ref(0)
 const sspaiUpdateTime = ref(0)
+const bilibiliUpdateTime = ref(0)
 const githubPeriod = ref<GithubPeriod>(GITHUB_PERIOD.WEEKLY)
 
 onMounted(() => {
@@ -72,6 +82,7 @@ onMounted(() => {
   loadWeiboHotList()
   loadIthomeHotList()
   loadSspaiHotList()
+  loadBilibiliHotList()
 })
 
 // 加载GitHub热榜数据
@@ -146,6 +157,21 @@ const loadSspaiHotList = async () => {
     ElMessage.error('加载少数派热榜数据失败，请稍后刷新')
   } finally {
     sspaiLoading.value = false
+  }
+}
+
+// 加载B站热榜数据
+const loadBilibiliHotList = async () => {
+  bilibiliLoading.value = true
+  try {
+    const bilibiliData = await getHotListByType('bilibili', 'weekly') as HotList
+    bilibiliHotList.value = bilibiliData.list
+    bilibiliUpdateTime.value = bilibiliData.updateTime
+  } catch (error) {
+    console.error('加载B站热榜数据失败', error)
+    ElMessage.error('加载B站热榜数据失败，请稍后刷新')
+  } finally {
+    bilibiliLoading.value = false
   }
 }
 
@@ -237,6 +263,23 @@ const refreshSspaiHotList = async () => {
     ElMessage.error('刷新失败，请稍后再试')
   } finally {
     sspaiLoading.value = false
+  }
+}
+
+// 刷新B站热榜
+const refreshBilibiliHotList = async () => {
+  try {
+    bilibiliLoading.value = true
+    ElMessage.info('正在刷新B站热榜...')
+    const bilibiliData = await getHotListByType('bilibili', 'weekly', true) as HotList
+    bilibiliHotList.value = bilibiliData.list
+    bilibiliUpdateTime.value = bilibiliData.updateTime
+    ElMessage.success('B站热榜已更新')
+  } catch (error) {
+    console.error('刷新B站热榜失败', error)
+    ElMessage.error('刷新失败，请稍后再试')
+  } finally {
+    bilibiliLoading.value = false
   }
 }
 </script>
