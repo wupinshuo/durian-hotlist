@@ -1,5 +1,5 @@
 <template>
-  <div class="header-bar">
+  <div class="header-bar" :class="{ 'compact': isCompact }">
     <div class="header-left-placeholder">
       <div class="header-left" v-if="showLogo">
         <img src="/durian_logo.svg" alt="榴莲LOGO" class="logo" />
@@ -19,17 +19,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import NowTime from './NowTime.vue';
 import ThemeSwitch from './ThemeSwitch.vue';
 
 const showLogo = ref(true);
+const isCompact = ref(false);
+let lastScrollTop = 0;
+
+const handleScroll = () => {
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  
+  // 如果滚动超过50px，启用压缩模式
+  if (scrollTop > 50) {
+    isCompact.value = true;
+  } else {
+    isCompact.value = false;
+  }
+  
+  lastScrollTop = scrollTop;
+};
 
 onMounted(() => {
   const saved = localStorage.getItem('showLogo');
   if (saved !== null) {
     showLogo.value = saved === 'true';
   }
+  
+  // 添加滚动监听
+  window.addEventListener('scroll', handleScroll);
+});
+
+onBeforeUnmount(() => {
+  // 组件卸载时移除滚动监听
+  window.removeEventListener('scroll', handleScroll);
 });
 
 watch(showLogo, (val) => {
@@ -53,7 +76,27 @@ watch(showLogo, (val) => {
   -webkit-backdrop-filter: blur(8px);
   background-color: rgba(247, 248, 250, 0.85);
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  height: auto;
+}
+
+/* 压缩模式下的样式 */
+.header-bar.compact {
+  padding: 10px 32px 6px 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-bar.compact .site-title {
+  font-size: 22px;
+}
+
+.header-bar.compact .site-desc {
+  font-size: 12px;
+}
+
+.header-bar.compact .logo {
+  width: 36px;
+  height: 36px;
 }
 
 body[data-theme='dark'] .header-bar {
@@ -65,7 +108,13 @@ body[data-theme='dark'] .header-bar {
   height: 60px;
   display: flex;
   align-items: center;
+  transition: all 0.3s ease;
 }
+
+.header-bar.compact .header-left-placeholder {
+  height: 40px;
+}
+
 .header-left {
   display: flex;
   align-items: center;
@@ -74,6 +123,7 @@ body[data-theme='dark'] .header-bar {
   width: 48px;
   height: 48px;
   margin-right: 14px;
+  transition: all 0.3s ease;
 }
 .site-info {
   display: flex;
@@ -85,11 +135,13 @@ body[data-theme='dark'] .header-bar {
   color: #1976d2;
   letter-spacing: 2px;
   font-family: 'ZCOOL KuaiLe', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+  transition: all 0.3s ease;
 }
 .site-desc {
   font-size: 14px;
   color: #888;
   margin-top: 2px;
+  transition: all 0.3s ease;
 }
 .header-center {
   position: absolute;
@@ -100,6 +152,7 @@ body[data-theme='dark'] .header-bar {
   color: #666;
   font-family: 'JetBrains Mono', 'Consolas', 'Menlo', monospace;
   z-index: 1;
+  transition: all 0.3s ease;
 }
 .header-right {
   display: flex;
@@ -112,12 +165,21 @@ body[data-theme='dark'] .header-bar {
     align-items: flex-start;
     padding: 18px 10px 8px 10px;
   }
+  
+  .header-bar.compact {
+    padding: 8px 10px 4px 10px;
+  }
+  
   .header-center {
     position: static;
     left: auto;
     transform: none;
     margin: 8px 0;
     width: 100%;
+  }
+  
+  .header-bar.compact .header-center {
+    margin: 4px 0;
   }
 }
 </style> 
