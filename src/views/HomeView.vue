@@ -286,7 +286,7 @@ const refreshBilibiliHotList = async () => {
 
 <style scoped>
 .home-container { 
-  padding: 48px 0; 
+  padding: 120px 0 48px 0; 
   display: flex; 
   justify-content: center; 
 }
@@ -306,6 +306,12 @@ const refreshBilibiliHotList = async () => {
   .hot-list-section {
     justify-content: center;
     gap: 20px;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-container {
+    padding-top: 150px; /* 为移动端折叠后的顶部导航提供更多空间 */
   }
 }
 

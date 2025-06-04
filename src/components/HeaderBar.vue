@@ -44,8 +44,22 @@ watch(showLogo, (val) => {
   justify-content: space-between;
   padding: 28px 32px 12px 32px;
   background: none;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(247, 248, 250, 0.85);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s;
 }
+
+body[data-theme='dark'] .header-bar {
+  background-color: rgba(26, 26, 26, 0.85);
+}
+
 .header-left-placeholder {
   min-width: 220px;
   height: 60px;
