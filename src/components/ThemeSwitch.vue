@@ -21,11 +21,21 @@ const emit = defineEmits(['update:showLogo']);
 
 const localShowLogo = ref(props.showLogo);
 
+// 更新标题的函数
+const updateDocumentTitle = (isSedimentationMode: boolean) => {
+  document.title = isSedimentationMode ? '榴莲热榜' : '学习网站';
+};
+
+// 初始化时设置标题
+updateDocumentTitle(localShowLogo.value);
+
 watch(() => props.showLogo, val => {
   localShowLogo.value = val;
+  updateDocumentTitle(val);
 });
 watch(localShowLogo, val => {
   emit('update:showLogo', val);
+  updateDocumentTitle(val);
 });
 
 const themeStore = useThemeStore();

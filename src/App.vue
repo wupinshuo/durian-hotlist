@@ -8,8 +8,6 @@
 <script setup lang="ts">
 import HeaderBar from './components/HeaderBar.vue';
 import { RouterView } from 'vue-router';
-// 引入SVG测试
-import { BilibiliIcon } from './assets/icons';
 </script>
 
 <style>
