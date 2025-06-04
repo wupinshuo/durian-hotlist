@@ -1,0 +1,90 @@
+/* 高级感主题 - 轻量版 */
+:root {
+  /* 更精致的颜色变量 */
+  --primary-color: #3c85ee;
+  --success-color: #5cb85c;
+  --warning-color: #f0ad4e;
+  --danger-color: #d9534f;
+  --info-color: #5bc0de;
+
+  /* 更细腻的文字颜色 */
+  --text-primary: #2c3e50;
+  --text-regular: #475669;
+  --text-secondary: #8492a6;
+  --text-placeholder: #c0c7d1;
+
+  /* 更精致的边框颜色 */
+  --border-color: #e2e7ef;
+  --border-color-light: #eaeef5;
+  --border-color-lighter: #f0f2f7;
+  --border-color-extra-light: #f6f8fb;
+
+  /* 更高级的背景颜色 */
+  --bg-color: #ffffff;
+  --bg-color-page: #f9fafc;
+  --bg-color-overlay: #ffffff;
+
+  /* 更精致的阴影 */
+  --box-shadow-base: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --box-shadow-light: 0 2px 16px 0 rgba(0, 0, 0, 0.06);
+  --box-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* 更现代的字体设置 */
+  --font-size-base: 15px;
+  --font-size-small: 13px;
+  --font-size-large: 18px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+  --line-height-base: 1.6;
+  
+  /* 更优雅的圆角 */
+  --border-radius-base: 6px;
+  --border-radius-small: 4px;
+  --border-radius-round: 24px;
+  --border-radius-circle: 100%;
+  
+  /* 卡片样式变量优化 */
+  --card-bg: #fff;
+  --card-header-bg: #f9fafc;
+  --card-border: #eaecf0;
+  --card-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.06);
+  --text-muted: #8492a6;
+  --link-color: #3c85ee;
+  --link-hover: #2c66be;
+  --hover-bg: #f5f9ff;
+  --scrollbar-thumb: #d0d7e2;
+  --rank-top-color: #f57c00;
+  --rank-normal-color: #b0bec5;
+  
+  /* 动画持续时间 */
+  --transition-duration: 0.3s;
+}
+
+/* 深色模式的高级主题 */
+body[data-theme='dark'] {
+  --text-primary: #e6eaf0;
+  --text-regular: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-placeholder: #6e7681;
+  
+  --border-color: #30363d;
+  --border-color-light: #3b434c;
+  --border-color-lighter: #454c56;
+  --border-color-extra-light: #4c535d;
+  
+  --bg-color: #22272e;
+  --bg-color-page: #1c2128;
+  --bg-color-overlay: #2d333b;
+  
+  --card-bg: #2d333b;
+  --card-header-bg: #282f37;
+  --card-border: #444c56;
+  --card-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.3);
+  
+  --text-muted: #8b949e;
+  --link-color: #58a6ff;
+  --link-hover: #79b8ff;
+  --hover-bg: #2f3946;
+  --scrollbar-thumb: #444c56;
+} 

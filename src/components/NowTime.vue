@@ -1,5 +1,5 @@
 <template>
-  <span class="now-time">{{ nowTime }}</span>
+  <div class="now-time">{{ nowTime }}</div>
 </template>
 
 <script setup lang="ts">
@@ -30,13 +30,53 @@ onMounted(() => {
 
 <style scoped>
 .now-time {
-  background: var(--now-time-bg);
-  color: var(--now-time-color);
-  border-radius: 8px;
-  padding: 4px 18px;
-  font-weight: 500;
-  transition: background 0.3s, color 0.3s;
-  font-size: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-regular);
+  border-radius: var(--border-radius-round);
+  padding: 5px 18px;
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-duration) ease;
+  font-size: 15px;
   font-family: 'JetBrains Mono', 'Consolas', 'Menlo', monospace;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  text-align: center;
+  user-select: none;
+  white-space: nowrap;
+}
+
+body[data-theme='dark'] .now-time {
+  background: rgba(40, 40, 45, 0.5);
+  border-color: rgba(60, 60, 70, 0.3);
+  color: #e0e0e0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 添加微妙的闪烁动画效果 */
+@keyframes second-pulse {
+  0% {
+    text-shadow: none;
+  }
+  50% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+  }
+  100% {
+    text-shadow: none;
+  }
+}
+
+.now-time:hover {
+  animation: second-pulse 2s infinite;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+body[data-theme='dark'] .now-time:hover {
+  animation: second-pulse 2s infinite;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  background: rgba(45, 45, 55, 0.6);
 }
 </style> 

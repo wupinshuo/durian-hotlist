@@ -12,46 +12,109 @@ import { RouterView } from 'vue-router';
 
 <style>
 :root {
-  --now-time-bg: #f3f6fa;
-  --now-time-color: #333;
+  --now-time-bg: rgba(243, 246, 250, 0.6);
+  --now-time-color: var(--text-regular);
 }
 body[data-theme='dark'] {
-  --now-time-bg: #222428;
-  --now-time-color: #eee;
+  --now-time-bg: rgba(34, 36, 40, 0.7);
+  --now-time-color: var(--text-regular);
 }
 body {
   margin: 0;
   font-family: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
-  transition: background-color 0.3s, color 0.3s;
+  transition: all var(--transition-duration) ease;
 }
 body {
-  background: #f7f8fa;
-  color: #333;
+  background-color: var(--bg-color-page);
+  color: var(--text-regular);
 }
 body[data-theme='dark'] {
-  background: #1a1a1a;
-  color: #e5e5e5;
+  background-color: var(--bg-color-page);
+  color: var(--text-regular);
 }
 .app-container {
   position: relative;
   min-height: 100vh;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
+
+/* 卡片样式优化 */
+.el-card {
+  border-radius: var(--border-radius-base);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow) !important;
+  transition: all var(--transition-duration) ease;
+  overflow: hidden;
+}
+
+.el-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-hover) !important;
+}
+
+.el-card__header {
+  background-color: var(--card-header-bg);
+  border-bottom: 1px solid var(--border-color-lighter);
+  padding: 16px 20px;
+}
+
+.el-card__body {
+  padding: 20px;
+}
+
 /* 深色模式下的卡片样式 */
 body[data-theme='dark'] .el-card {
-  background-color: #2c2c2c;
-  color: #e5e5e5;
-  border-color: #3a3a3a;
+  background-color: var(--card-bg);
+  color: var(--text-regular);
+  border-color: var(--card-border);
 }
+
 body[data-theme='dark'] a {
-  color: #409eff;
+  color: var(--link-color);
 }
+
 body[data-theme='dark'] .el-card__header {
-  border-bottom-color: #3a3a3a;
+  border-bottom-color: var(--border-color);
+  background-color: var(--card-header-bg);
 }
-body[data-theme='dark'] .el-switch__label--left {
-  color: #b0b3b8 !important;
-  font-weight: bold;
-  font-size: 18px !important;
-  letter-spacing: 1px;
+
+/* 按钮样式优化 */
+.el-button {
+  border-radius: var(--border-radius-base);
+  transition: all var(--transition-duration) ease;
+}
+
+.el-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--box-shadow-light);
+}
+
+.el-button:active {
+  transform: translateY(0);
+}
+
+/* 开关样式优化 */
+.el-switch__label {
+  color: var(--text-regular) !important;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-small) !important;
+  letter-spacing: 0.5px;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 0 12px;
+  }
+  
+  .el-card__header {
+    padding: 12px 16px;
+  }
+  
+  .el-card__body {
+    padding: 16px;
+  }
 }
 </style> 

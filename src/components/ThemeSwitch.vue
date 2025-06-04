@@ -1,5 +1,5 @@
 <template>
-  <el-button @click="themeStore.toggleTheme" circle class="header-btn">
+  <el-button @click="themeStore.toggleTheme" circle class="header-btn theme-toggle-btn">
     <el-icon :size="20"><component :is="themeStore.isDark ? Sunny : Moon" /></el-icon>
   </el-button>
   <el-switch
@@ -7,7 +7,9 @@
     active-text="开摸"
     inactive-text="沉淀"
     inline-prompt
-    style="margin-left: 10px;"
+    class="premium-switch"
+    active-color="#5cb85c"
+    inactive-color="#3c85ee"
   />
 </template>
 
@@ -46,8 +48,56 @@ const themeStore = useThemeStore();
   background: none;
   border: none;
   box-shadow: none;
+  transition: all var(--transition-duration) ease;
+  color: var(--text-regular);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
 }
+
+.theme-toggle-btn {
+  background-color: rgba(var(--bg-color-overlay), 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: var(--border-radius-circle);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
 .header-btn:hover {
-  background: #f0f7ff;
+  background: var(--hover-bg);
+  transform: translateY(-1px);
+  box-shadow: var(--box-shadow-light);
+}
+
+.header-btn:active {
+  transform: translateY(0);
+}
+
+.premium-switch {
+  margin-left: 14px;
+  --el-switch-on-color: var(--success-color);
+  --el-switch-off-color: var(--primary-color);
+}
+
+.premium-switch :deep(.el-switch__core) {
+  border-radius: var(--border-radius-round);
+}
+
+.premium-switch :deep(.el-switch__label) {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-small);
+}
+
+/* 深色模式下的样式调整 */
+body[data-theme='dark'] .theme-toggle-btn {
+  background-color: rgba(45, 51, 59, 0.6);
+  color: var(--text-regular);
+}
+
+body[data-theme='dark'] .header-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 </style> 

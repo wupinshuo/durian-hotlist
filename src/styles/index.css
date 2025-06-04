@@ -7,6 +7,9 @@
 /* 导入深色主题 */
 @import './dark.css';
 
+/* 导入高级主题样式 */
+@import './premium-theme.css';
+
 /* 导入组件样式 */
 @import './components.css';
 
@@ -21,22 +24,70 @@ body {
   font-size: var(--font-size-base);
   color: var(--text-regular);
   background-color: var(--bg-color-page);
-  transition: background-color 0.3s, color 0.3s;
+  transition: all var(--transition-duration) ease;
+  line-height: var(--line-height-base);
 }
 
 /* 链接样式 */
 a {
-  color: var(--primary-color);
+  color: var(--link-color);
   text-decoration: none;
-  transition: color 0.3s;
+  transition: all var(--transition-duration) ease;
+  font-weight: var(--font-weight-medium);
 }
 
 a:hover {
-  color: var(--link-hover, var(--primary-color));
-  opacity: 0.8;
+  color: var(--link-hover);
+  opacity: 0.9;
 }
 
 /* 确保所有元素在主题切换时有平滑过渡 */
 * {
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+  transition: background-color var(--transition-duration), 
+              color var(--transition-duration), 
+              border-color var(--transition-duration), 
+              box-shadow var(--transition-duration),
+              transform var(--transition-duration);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 默认隐藏滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: var(--border-radius-round);
+  transition: background-color 0.3s ease;
+}
+
+/* 仅在滚动或悬停时显示滚动条 */
+*:hover::-webkit-scrollbar-thumb,
+*:active::-webkit-scrollbar-thumb,
+*:focus::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb);
+}
+
+body:hover::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+}
+
+/* 针对Firefox的滚动条样式 */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+html:hover {
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 } 
