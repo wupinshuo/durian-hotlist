@@ -1,0 +1,42 @@
+/* 导入基础主题变量 */
+@import './theme.css';
+
+/* 导入浅色主题 */
+@import './light.css';
+
+/* 导入深色主题 */
+@import './dark.css';
+
+/* 导入组件样式 */
+@import './components.css';
+
+/* 全局样式 */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: var(--font-size-base);
+  color: var(--text-regular);
+  background-color: var(--bg-color-page);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* 链接样式 */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: var(--link-hover, var(--primary-color));
+  opacity: 0.8;
+}
+
+/* 确保所有元素在主题切换时有平滑过渡 */
+* {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+} 

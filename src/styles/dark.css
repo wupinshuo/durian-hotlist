@@ -1,0 +1,43 @@
+body[data-theme='dark'] {
+  /* 基础颜色变量 */
+  --primary-color: #409eff;
+  --success-color: #67c23a;
+  --warning-color: #e6a23c;
+  --danger-color: #f56c6c;
+  --info-color: #909399;
+
+  /* 文字颜色 */
+  --text-primary: #e5e5e5;
+  --text-regular: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-placeholder: #7c7c7c;
+
+  /* 边框颜色 */
+  --border-color: #3a3a3a;
+  --border-color-light: #525252;
+  --border-color-lighter: #616161;
+  --border-color-extra-light: #757575;
+
+  /* 背景颜色 */
+  --bg-color: #181818;
+  --bg-color-page: #121212;
+  --bg-color-overlay: #202020;
+  
+  /* 组件特定颜色 */
+  --header-bg-color: #1a1a1a;
+  --sidebar-bg-color: #202020;
+  --card-bg-color: #252525;
+  
+  /* 原有主题样式变量 */
+  --card-bg: #2c2c2c;
+  --card-header-bg: #333333;
+  --card-border: #3a3a3a;
+  --card-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.2);
+  --text-muted: #999999;
+  --link-color: #64b5f6;
+  --link-hover: #90caf9;
+  --hover-bg: #3c4043;
+  --scrollbar-thumb: #555555;
+  --rank-top-color: #ff7043;
+  --rank-normal-color: #757575;
+} 
