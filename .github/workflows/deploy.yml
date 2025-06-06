@@ -9,7 +9,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v3
 
       - name: 设置Node.js
@@ -23,11 +23,6 @@ jobs:
       - name: 安装依赖
         run: pnpm install
 
-      - name: 构建
-        run: pnpm build
-        env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-
       - name: 清空服务器目标目录
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -35,7 +30,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            rm -rf /home/project/Client/*
+            rm -rf ${{ secrets.SERVER_TARGET_DIR }}/*
 
       - name: 部署到服务器
         uses: appleboy/scp-action@v0.1.7
@@ -44,5 +39,5 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: "dist/**"
-          target: "/home/project/Client"
+          target: ${{ secrets.SERVER_TARGET_DIR }}
           strip_components: 1

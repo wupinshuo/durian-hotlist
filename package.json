@@ -1,9 +1,19 @@
 {
   "name": "durian-hotlist",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "author": "tushan",
   "description": "榴莲热榜 - 技术与资讯热榜聚合平台",
+  "keywords": [
+    "durian",
+    "hotlist",
+    "热榜",
+    "榴莲热榜",
+    "今日热榜",
+    "技术热榜",
+    "资讯热榜",
+    "聚合平台"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
