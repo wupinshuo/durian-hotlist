@@ -24,11 +24,12 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // 代理 /api/v1开头的请求
-      '/api/v1': {
+      // 代理 /hot-list开头的请求
+      '/hot-list': {
         target: 'http://localhost:8082',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/v1/, '/api/v1/api-data'),
+        rewrite: (path) =>
+          path.replace(/^\/hot-list/, '/api/v1/api-data/hot-list'),
       },
     },
   },

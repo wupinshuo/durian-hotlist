@@ -20,7 +20,7 @@ export async function getHotListByType(
     const baseUrl = window.location.origin;
     // 使用POST请求，请求体中包含type字段
     const res = await axios.post<ReturnData<HotList | GithubHostList>>(
-      `${baseUrl}/api/v1/hot-list`,
+      `${baseUrl}/hot-list`,
       { type, period, force },
       { timeout: 30000 },
     );
