@@ -186,7 +186,7 @@ const refreshGithubTrending = async (period: GithubPeriod = githubPeriod.value) 
   try {
     githubLoading.value = true
     ElMessage.info('正在刷新 GitHub 热榜...')
-    const githubData = await getHotListByType('github', period) as GithubHostList
+    const githubData = await getHotListByType('github', period, true) as GithubHostList
     githubTrending.value = githubData.list
     githubUpdateTime.value = githubData.updateTime
     ElMessage.success('GitHub 热榜已更新')
