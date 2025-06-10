@@ -14,18 +14,55 @@
     </div>
     <div class="header-right">
       <ThemeSwitch v-model:show-logo="showLogo" />
+      <div class="product-switcher">
+        <el-tooltip
+          content="榴莲+"
+          placement="bottom"
+          :effect="tooltipEffect"
+        >
+          <el-dropdown trigger="click">
+            <div class="product-dropdown">
+              <div class="durian-menu-icon">
+                <img src="/durian_logo.svg" alt="榴莲" class="mini-durian-logo" />
+                <div class="dots">
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                </div>
+              </div>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu class="product-menu">
+                <el-dropdown-item>
+                  <a href="https://xiuxian.durio.cc/" target="_blank" class="product-link">
+                    <div class="product-item">
+                      <img src="/durian_logo.svg" alt="榴莲修仙" class="product-logo" />
+                      <span class="product-title">榴莲修仙</span>
+                    </div>
+                  </a>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </el-tooltip>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue';
 import NowTime from './NowTime.vue';
 import ThemeSwitch from './ThemeSwitch.vue';
+import { CaretBottom, Menu } from '@element-plus/icons-vue';
+import { useThemeStore } from '@/store/theme';
 
 const showLogo = ref(true);
 const isCompact = ref(false);
 let lastScrollTop = 0;
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDark);
+const tooltipEffect = computed(() => isDarkMode.value ? 'dark' : 'light');
 
 const handleScroll = () => {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -151,6 +188,128 @@ body[data-theme='dark'] .header-bar {
   margin-top: 2px;
   transition: all var(--transition-duration) ease;
   letter-spacing: 0.5px;
+}
+
+/* 产品切换下拉菜单样式 */
+.product-switcher {
+  margin-left: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.product-dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 6px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme='dark'] .product-dropdown {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.product-dropdown:hover {
+  color: var(--primary-color);
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme='dark'] .product-dropdown:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.durian-menu-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.mini-durian-logo {
+  width: 20px;
+  height: 20px;
+}
+
+.dots {
+  display: flex;
+  gap: 2px;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--text-secondary);
+}
+
+.product-dropdown:hover .dot {
+  background-color: var(--primary-color);
+}
+
+.menu-icon {
+  font-size: 18px;
+}
+
+.product-menu {
+  min-width: 150px;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+body[data-theme='dark'] .el-dropdown-menu {
+  background-color: #1e1e2d;
+  border-color: #2d2d3a;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+body[data-theme='dark'] .el-dropdown-item:hover,
+body[data-theme='dark'] .el-dropdown-item:focus {
+  background-color: #3a3a4c;
+}
+
+body[data-theme='dark'] .el-dropdown-item.is-active {
+  color: #55a7ff;
+  background-color: #252533;
+}
+
+body[data-theme='dark'] .product-title {
+  color: #ffffff;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+body[data-theme='dark'] .product-item span {
+  color: #ffffff;
+}
+
+.product-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 5px;
+  gap: 8px;
+}
+
+.product-logo {
+  width: 18px;
+  height: 18px;
+}
+
+.product-item span {
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.product-link {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  width: 100%;
 }
 
 .header-center {
