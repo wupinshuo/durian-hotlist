@@ -4,7 +4,7 @@
       <RecommendationCard
         :recommendations="recommendations"
         :loading="recommendationsLoading"
-        @refresh="generateRecommendations"
+        @refresh="refreshRecommendations"
         @recordClick="handleRecommendationClick"
       />
       <GithubTrendingCard 
@@ -120,6 +120,27 @@ const generateRecommendations = () => {
 // 处理推荐项点击
 const handleRecommendationClick = (item: any) => {
   console.log('推荐项被点击:', item.title);
+}
+
+// 刷新推荐内容
+const refreshRecommendations = async () => {
+  try {
+    recommendationsLoading.value = true
+    ElMessage.info('正在刷新推荐内容...')
+    
+    // 随机等待一小段时间，模拟网络请求
+    await new Promise(resolve => setTimeout(resolve, 800))
+    
+    // 重新生成推荐内容
+    generateRecommendations()
+    
+    ElMessage.success('推荐内容已更新')
+  } catch (error) {
+    console.error('刷新推荐内容失败', error)
+    ElMessage.error('刷新失败，请稍后再试')
+  } finally {
+    recommendationsLoading.value = false
+  }
 }
 
 // 加载GitHub热榜数据

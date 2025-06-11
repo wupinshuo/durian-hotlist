@@ -12,22 +12,23 @@
       </div>
       
       <div class="header-right">
-        <el-button 
-          size="small" 
-          @click="showInterestSelector" 
-          text
-        >
-          设置兴趣
-        </el-button>
-        <el-button 
+        <button class="action-btn" @click="showInterestSelector">
+          <svg class="action-icon" viewBox="0 0 24 24" width="16" height="16">
+            <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z"/>
+          </svg>
+          <span class="action-text">设置兴趣</span>
+        </button>
+        <button 
           v-if="recommendations.length > 0" 
-          size="small" 
+          class="action-btn refresh-btn" 
           @click="refreshRecommendations"
-          :loading="loading"
-          text
+          :disabled="loading"
         >
-          刷新推荐
-        </el-button>
+          <svg class="action-icon refresh-icon" viewBox="0 0 24 24" width="16" height="16" :class="{ 'rotating': loading }">
+            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+          </svg>
+          <span class="action-text">{{ loading ? '刷新中...' : '刷新推荐' }}</span>
+        </button>
       </div>
     </div>
 
@@ -448,5 +449,59 @@ function getSourceColor(source: string): string {
   .recommendation-card {
     max-width: 100%;
   }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  color: #8c959f;
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-btn:hover:not(:disabled) {
+  background: rgba(255, 218, 0, 0.1);
+  color: #FFDA00;
+}
+
+.action-btn:hover:not(:disabled) .action-icon {
+  fill: #FFDA00;
+}
+
+.action-icon {
+  width: 16px;
+  height: 16px;
+  fill: #8c959f;
+  transition: all 0.2s ease;
+}
+
+.refresh-icon.rotating {
+  animation: rotate 1s infinite linear;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.action-text {
+  white-space: nowrap;
 }
 </style> 

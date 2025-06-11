@@ -72,7 +72,10 @@ export function useRecommendationEngine() {
 
       // 处理GitHub项目
       githubItems.forEach((item) => {
-        const score = calculateMatchScore(item.name, userInterests);
+        // 添加0-0.3的随机分数，增加推荐结果的随机性
+        const randomBonus = Math.random() * 0.3;
+        const score =
+          calculateMatchScore(item.name, userInterests) + randomBonus;
         const matchedTags = userInterests.filter(
           (tag) =>
             item.name.toLowerCase().includes(tag.toLowerCase()) ||
@@ -95,7 +98,9 @@ export function useRecommendationEngine() {
 
       // 处理掘金文章
       juejinItems.forEach((item) => {
-        const score = calculateMatchScore(item.title, userInterests);
+        const randomBonus = Math.random() * 0.3;
+        const score =
+          calculateMatchScore(item.title, userInterests) + randomBonus;
         const matchedTags = userInterests.filter(
           (tag) =>
             item.title.toLowerCase().includes(tag.toLowerCase()) ||
@@ -115,7 +120,9 @@ export function useRecommendationEngine() {
 
       // 处理微博热榜
       weiboItems.forEach((item) => {
-        const score = calculateMatchScore(item.title, userInterests);
+        const randomBonus = Math.random() * 0.3;
+        const score =
+          calculateMatchScore(item.title, userInterests) + randomBonus;
         const matchedTags = userInterests.filter((tag) =>
           item.title.toLowerCase().includes(tag.toLowerCase()),
         );
@@ -133,7 +140,9 @@ export function useRecommendationEngine() {
 
       // 处理IT之家
       ithomeItems.forEach((item) => {
-        const score = calculateMatchScore(item.title, userInterests);
+        const randomBonus = Math.random() * 0.3;
+        const score =
+          calculateMatchScore(item.title, userInterests) + randomBonus;
         const matchedTags = userInterests.filter((tag) =>
           item.title.toLowerCase().includes(tag.toLowerCase()),
         );
@@ -151,7 +160,9 @@ export function useRecommendationEngine() {
 
       // 处理少数派
       sspaiItems.forEach((item) => {
-        const score = calculateMatchScore(item.title, userInterests);
+        const randomBonus = Math.random() * 0.3;
+        const score =
+          calculateMatchScore(item.title, userInterests) + randomBonus;
         const matchedTags = userInterests.filter((tag) =>
           item.title.toLowerCase().includes(tag.toLowerCase()),
         );
@@ -169,7 +180,9 @@ export function useRecommendationEngine() {
 
       // 处理B站热榜
       bilibiliItems.forEach((item) => {
-        const score = calculateMatchScore(item.title, userInterests);
+        const randomBonus = Math.random() * 0.3;
+        const score =
+          calculateMatchScore(item.title, userInterests) + randomBonus;
         const matchedTags = userInterests.filter((tag) =>
           item.title.toLowerCase().includes(tag.toLowerCase()),
         );
@@ -192,7 +205,40 @@ export function useRecommendationEngine() {
       const topRecommendations: RecommendationItem[] = [];
       const sourceCounts: Record<string, number> = {};
       const MAX_PER_SOURCE = 3; // 每个来源最多3个
-      const MAX_RECOMMENDATIONS = 12; // 总共最多12个推荐
+      const MAX_RECOMMENDATIONS = 20; // 总共最多20个推荐
+
+      // 随机选择一些低分项目提升到顶部，增加多样性
+      if (candidates.length > 20) {
+        // 将候选列表分为两部分：高分项目和低分项目
+        const highScoreCandidates = candidates.slice(
+          0,
+          Math.ceil(candidates.length * 0.3),
+        );
+        const lowScoreCandidates = candidates.slice(
+          Math.ceil(candidates.length * 0.3),
+        );
+
+        // 随机从低分项目中选择2-4个
+        const randomCount = Math.floor(Math.random() * 3) + 2; // 2-4个
+
+        // 随机打乱低分数组
+        const shuffledLowScore = [...lowScoreCandidates].sort(
+          () => Math.random() - 0.5,
+        );
+
+        // 从低分项目中选择一些项目提升排名
+        const promotedItems = shuffledLowScore.slice(0, randomCount);
+
+        // 重新组合列表并按分数排序
+        candidates.length = 0;
+        candidates.push(...highScoreCandidates, ...promotedItems);
+
+        // 重新打乱顺序，减少预测性
+        candidates.sort(() => 0.7 - Math.random());
+
+        // 按分数重新排序
+        candidates.sort((a, b) => b.score - a.score);
+      }
 
       for (const item of candidates) {
         const source = item.source;
@@ -204,6 +250,19 @@ export function useRecommendationEngine() {
         }
 
         if (topRecommendations.length >= MAX_RECOMMENDATIONS) break;
+      }
+
+      // 最终随机打乱结果的顺序，但保持前5个不变，保证高质量推荐仍在顶部
+      if (topRecommendations.length > 5) {
+        const topFive = topRecommendations.slice(0, 5);
+        const rest = topRecommendations.slice(5);
+
+        // 随机打乱剩余部分
+        rest.sort(() => Math.random() - 0.5);
+
+        // 重组列表
+        topRecommendations.length = 0;
+        topRecommendations.push(...topFive, ...rest);
       }
 
       // 更新推荐列表
