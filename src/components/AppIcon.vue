@@ -15,6 +15,7 @@ import {
   WeiboIcon, WeiboHotIcon, 
   JuejinIcon, JuejinHotIcon, 
   SspaiIcon, 
+  GuessLikesIcon,
   IconType 
 } from '@/assets/icons';
 
@@ -28,6 +29,7 @@ const iconMap = {
   'juejin': JuejinIcon,
   'juejin-hot': JuejinHotIcon,
   'sspai': SspaiIcon,
+  'guess-likes': GuessLikesIcon,
 };
 
 // 定义组件属性

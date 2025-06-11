@@ -3,15 +3,7 @@
     <div class="card-header">
       <div class="header-left">
         <div class="logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#paint0_linear)" />
-            <defs>
-              <linearGradient id="paint0_linear" x1="2" y1="2" x2="22" y2="21.02" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#FF8A00" />
-                <stop offset="1" stop-color="#FF4578" />
-              </linearGradient>
-            </defs>
-          </svg>
+          <AppIcon name="guess-likes" />
         </div>
         <div>
           <div class="title">猜你喜欢</div>
@@ -70,9 +62,7 @@
           
           <div v-else class="empty-recommendations">
             <div class="empty-icon">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#e0e0e0" />
-              </svg>
+              <AppIcon name="guess-likes" />
             </div>
             <p class="empty-text">还没有推荐内容</p>
             <p class="empty-subtext">浏览更多内容或设置您的兴趣偏好</p>
@@ -112,6 +102,7 @@ import { ref, onMounted } from 'vue';
 import { ElButton, ElTag, ElSkeleton, ElDialog, ElMessage } from 'element-plus';
 import { RecommendationItem } from '@/composables/useRecommendationEngine';
 import { useUserBehavior } from '@/composables/useUserBehavior';
+import AppIcon from './AppIcon.vue';
 
 // 接收外部传入的推荐数据和加载状态
 const props = defineProps<{
@@ -263,30 +254,40 @@ function getSourceColor(source: string): string {
   width: 28px;
   height: 28px;
   border-radius: var(--radius, 6px);
-  background: linear-gradient(135deg, #FF8A00, #FF4578);
-  box-shadow: 0 0 8px rgba(255, 138, 0, 0.25);
+  background: #FFDA00;
+  box-shadow: 0 0 8px rgba(255, 218, 0, 0.25);
+  overflow: hidden;
 }
 
-.logo svg {
-  width: 22px;
-  height: 22px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+:deep(.svg-icon svg) {
+  width: 24px;
+  height: 24px;
+}
+
+/* 移除对SVG填充色的覆盖，保持原始样式 */
+:deep(.svg-icon svg path) {
+  /* 不设置fill */
 }
 
 /* 深色模式下增加发光效果 */
 :root.dark .logo {
-  box-shadow: 0 0 12px rgba(255, 138, 0, 0.5);
+  box-shadow: 0 0 12px rgba(255, 218, 0, 0.5);
 }
 
 .title {
   font-size: 16px;
   font-weight: 600;
-  color: #FF8A00;
+  color: #FFDA00;
 }
 
 .subtitle {
   font-size: 12px;
   color: var(--muted-foreground);
+}
+
+.item-title.read-link {
+  color: var(--muted-foreground, #909399) !important;
+  opacity: 0.8;
 }
 
 .recommendation-list-wrapper {
