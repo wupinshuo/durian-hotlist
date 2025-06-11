@@ -25,6 +25,7 @@
     "axios": "^1.6.0",
     "element-plus": "^2.5.0",
     "lunar-javascript": "^1.7.3",
+    "mitt": "^3.0.1",
     "pinia": "^2.1.7",
     "vue": "^3.4.0",
     "vue-router": "^4.2.0"

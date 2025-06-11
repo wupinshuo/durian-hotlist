@@ -33,7 +33,7 @@
                   class="video-title" 
                   :class="{'read-link': isRead(item.url)}"
                   :title="item.title"
-                  @click="markAsRead(item.url)"
+                  @click="handleClick(item)"
                 >{{ item.title }}</a>
                 <div class="repo-meta">
                   <span class="tag" v-if="item.tag">
@@ -63,9 +63,13 @@ import { ElSkeleton, ElTag } from 'element-plus';
 import { UpdateTimeDisplay } from './index';
 import { HotItem } from '@/types/hot';
 import AppIcon from './AppIcon.vue';
-import { useReadStatus } from '../composables/useReadStatus';
+import { useUserBehavior } from '../composables/useUserBehavior';
+import { ref } from 'vue';
 
-const { isRead, markAsRead } = useReadStatus();
+const { isRead, trackClick } = useUserBehavior();
+
+// 用于强制组件重新渲染
+const updateTrigger = ref(0);
 
 const props = defineProps<{
   hotTopics: HotItem[];
@@ -76,6 +80,13 @@ const emit = defineEmits(['refresh']);
 
 function handleRefresh() {
   emit('refresh');
+}
+
+function handleClick(item: any) {
+  trackClick(item, 'B站');
+  
+  // 增加更新触发器来强制视图更新
+  updateTrigger.value++;
 }
 
 function formatHotCount(hot: string): string {

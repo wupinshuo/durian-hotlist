@@ -49,7 +49,7 @@
                   class="repo-name" 
                   :class="{'read-link': isRead(item.url)}"
                   :title="item.name"
-                  @click="markAsRead(item.url)"
+                  @click="handleClick(item)"
                 >{{ item.name }}</a>
                 <div v-if="item.desc" class="repo-desc" :title="item.desc">{{ item.desc }}</div>
                 <div class="repo-meta">
@@ -82,13 +82,16 @@ import { computed, ref } from 'vue';
 import { GithubPeriod, GITHUB_PERIOD, GITHUB_PERIOD_TEXT } from '@/constants/hotlist';
 import { ElSkeleton } from 'element-plus';
 import { UpdateTimeDisplay } from './index';
-import { useReadStatus } from '../composables/useReadStatus';
+import { useUserBehavior } from '../composables/useUserBehavior';
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDark);
 
-// 使用已读状态管理
-const { isRead, markAsRead } = useReadStatus();
+// 使用用户行为收集
+const { isRead, trackClick } = useUserBehavior();
+
+// 用于强制组件重新渲染
+const updateTrigger = ref(0);
 
 const props = defineProps<{
   repos: Array<{
@@ -192,6 +195,20 @@ function handleRefresh() {
 function handlePeriodChange(period: GithubPeriod) {
   currentPeriod.value = period;
   emit('periodChange', period);
+}
+
+// 处理点击事件
+function handleClick(item: any) {
+  // 使用整合的行为跟踪，会同时标记为已读
+  trackClick({
+    title: item.name,
+    url: item.url,
+    desc: item.desc || '',
+    hot: item.stars,
+  }, 'GitHub');
+  
+  // 增加更新触发器来强制视图更新
+  updateTrigger.value++;
 }
 </script>
 

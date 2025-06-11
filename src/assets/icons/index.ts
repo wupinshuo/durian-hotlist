@@ -9,6 +9,7 @@ import WeiboHotSVG from './weibo-hot.svg?raw';
 import JuejinSVG from './juejin.svg?raw';
 import JuejinHotSVG from './juejin-hot.svg?raw';
 import SspaiSVG from './sspai.svg?raw';
+import GuessLikesSVG from './guess-likes.svg?raw';
 
 // 原始SVG内容导出
 export const BilibiliSVGRaw = BilibiliSVG;
@@ -19,6 +20,7 @@ export const WeiboHotSVGRaw = WeiboHotSVG;
 export const JuejinSVGRaw = JuejinSVG;
 export const JuejinHotSVGRaw = JuejinHotSVG;
 export const SspaiSVGRaw = SspaiSVG;
+export const GuessLikesSVGRaw = GuessLikesSVG;
 
 // 创建自定义渲染函数，将原始SVG字符串转换为Vue组件
 export const createSvgIconComponent = (svgString: string) => {
@@ -38,6 +40,7 @@ export const WeiboHotIcon = createSvgIconComponent(WeiboHotSVG);
 export const JuejinIcon = createSvgIconComponent(JuejinSVG);
 export const JuejinHotIcon = createSvgIconComponent(JuejinHotSVG);
 export const SspaiIcon = createSvgIconComponent(SspaiSVG);
+export const GuessLikesIcon = createSvgIconComponent(GuessLikesSVG);
 
 // 图标类型定义
 export type IconType =
@@ -48,4 +51,5 @@ export type IconType =
   | 'weibo-hot'
   | 'juejin'
   | 'juejin-hot'
-  | 'sspai';
+  | 'sspai'
+  | 'guess-likes';

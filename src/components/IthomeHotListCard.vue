@@ -33,7 +33,7 @@
                   class="article-title" 
                   :class="{'read-link': isRead(item.url)}"
                   :title="item.title"
-                  @click="markAsRead(item.url)"
+                  @click="handleClick(item)"
                 >{{ item.title }}</a>
               </div>
             </div>
@@ -48,10 +48,15 @@
 <script setup lang="ts">
 import { ElSkeleton } from 'element-plus';
 import { AppIcon, UpdateTimeDisplay } from './index';
-import { useReadStatus } from '../composables/useReadStatus';
+import { useUserBehavior } from '../composables/useUserBehavior';
 import { HotItem } from '@/types/hot';
+import { ref } from 'vue';
 
-const { isRead, markAsRead } = useReadStatus();
+// 使用用户行为收集
+const { isRead, trackClick } = useUserBehavior();
+
+// 用于强制组件重新渲染
+const updateTrigger = ref(0);
 
 const props = defineProps<{
   hotTopics: HotItem[];
@@ -62,6 +67,15 @@ const emit = defineEmits(['refresh']);
 
 function handleRefresh() {
   emit('refresh');
+}
+
+// 处理点击事件
+function handleClick(item: any) {
+  // 使用整合的行为跟踪，会同时标记为已读
+  trackClick(item, 'IT之家');
+  
+  // 增加更新触发器来强制视图更新
+  updateTrigger.value++;
 }
 </script>
 

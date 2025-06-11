@@ -36,7 +36,7 @@
                   class="repo-name" 
                   :class="{'read-link': isRead(item.url)}"
                   :title="item.title"
-                  @click="markAsRead(item.url)"
+                  @click="handleClick(item)"
                 >{{ item.title }}</a>
                 <div class="repo-meta">
                   <span class="repo-stars">
@@ -58,9 +58,13 @@
 import { ElSkeleton } from 'element-plus';
 import { UpdateTimeDisplay } from './index';
 import { AppIcon } from './index';
-import { useReadStatus } from '../composables/useReadStatus';
+import { useUserBehavior } from '../composables/useUserBehavior';
+import { ref } from 'vue';
 
-const { isRead, markAsRead } = useReadStatus();
+const { isRead, trackClick } = useUserBehavior();
+
+// 用于强制组件重新渲染
+const updateTrigger = ref(0);
 
 const props = defineProps<{
   hotTopics: Array<{
@@ -76,6 +80,13 @@ const emit = defineEmits(['refresh']);
 
 function handleRefresh() {
   emit('refresh');
+}
+
+function handleClick(item: any) {
+  trackClick(item, '微博');
+  
+  // 增加更新触发器来强制视图更新
+  updateTrigger.value++;
 }
 
 function formatHotCount(hot: string): string {

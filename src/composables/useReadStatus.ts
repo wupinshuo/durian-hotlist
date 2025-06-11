@@ -5,6 +5,11 @@ interface ReadItem {
   timestamp: number;
 }
 
+/**
+ * 已读状态
+ * @param expireDays 过期时间，默认2天
+ * @returns
+ */
 export function useReadStatus(expireDays = 2) {
   const readLinks = ref<Set<string>>(new Set());
 
@@ -41,7 +46,11 @@ export function useReadStatus(expireDays = 2) {
 
       // 添加新链接，避免重复
       if (!readLinks.value.has(link)) {
-        readLinks.value.add(link);
+        // 创建一个新的 Set 对象来触发响应式更新
+        const newReadLinks = new Set(readLinks.value);
+        newReadLinks.add(link);
+        readLinks.value = newReadLinks; // 替换整个 Set 对象以触发响应式
+
         items.push({
           link,
           timestamp: Date.now(),

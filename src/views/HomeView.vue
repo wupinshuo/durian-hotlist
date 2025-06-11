@@ -1,6 +1,12 @@
 <template>
   <div class="home-container">
     <div class="hot-list-section">
+      <RecommendationCard
+        :recommendations="recommendations"
+        :loading="recommendationsLoading"
+        @refresh="generateRecommendations"
+        @recordClick="handleRecommendationClick"
+      />
       <GithubTrendingCard 
         :repos="githubTrending"
         :loading="githubLoading"
@@ -49,11 +55,14 @@ import WeiboHotListCard from '@/components/WeiboHotListCard.vue'
 import IthomeHotListCard from '@/components/IthomeHotListCard.vue'
 import SspaiHotListCard from '@/components/SspaiHotListCard.vue'
 import BilibiliHotListCard from '@/components/BilibiliHotListCard.vue'
-import { ref, onMounted } from 'vue'
+import RecommendationCard from '@/components/RecommendationCard.vue'
+import { ref, onMounted, watch } from 'vue'
 import { getHotListByType } from '@/api/hotlist'
 import { ElMessage } from 'element-plus'
 import { GithubHostItem, GithubHostList, HotItem, HotList } from '@/types/hot'
 import { GithubPeriod, GITHUB_PERIOD } from '@/constants/hotlist'
+import { useRecommendationEngine } from '@/composables/useRecommendationEngine'
+import { useUserBehavior } from '@/composables/useUserBehavior'
 
 const githubTrending = ref<GithubHostItem[]>([])
 const juejinArticles = ref<HotItem[]>([])
@@ -75,6 +84,17 @@ const sspaiUpdateTime = ref(0)
 const bilibiliUpdateTime = ref(0)
 const githubPeriod = ref<GithubPeriod>(GITHUB_PERIOD.WEEKLY)
 
+// 推荐引擎
+const { recommendations, loading: recommendationsLoading, generateRecommendations: generateEngineRecommendations } = useRecommendationEngine()
+
+// 用户行为收集
+const userBehavior = useUserBehavior()
+
+// 监听所有热榜数据变化，更新推荐
+watch([githubTrending, juejinArticles, weiboHotList, ithomeHotList, sspaiHotList, bilibiliHotList], () => {
+  generateRecommendations()
+}, { deep: true })
+
 onMounted(() => {
   // 热榜数据并行加载，互不影响
   loadGithubTrending()
@@ -84,6 +104,23 @@ onMounted(() => {
   loadSspaiHotList()
   loadBilibiliHotList()
 })
+
+// 生成推荐内容
+const generateRecommendations = () => {
+  generateEngineRecommendations(
+    githubTrending.value,
+    juejinArticles.value,
+    weiboHotList.value,
+    ithomeHotList.value,
+    sspaiHotList.value,
+    bilibiliHotList.value
+  )
+}
+
+// 处理推荐项点击
+const handleRecommendationClick = (item: any) => {
+  console.log('推荐项被点击:', item.title);
+}
 
 // 加载GitHub热榜数据
 const loadGithubTrending = async (period: GithubPeriod = githubPeriod.value) => {
