@@ -4,6 +4,7 @@ import router from './router';
 import pinia from './store';
 import setupElementPlus from './plugins/element';
 import './styles/index.css'; // 这里已经包含了所有主题样式
+import './styles/read-status.css'; // 导入已读链接样式
 import { initTheme } from './styles/theme-utils';
 
 const app = createApp(App);

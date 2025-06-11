@@ -1,0 +1,16 @@
+/* 已读链接的样式 */
+.read-link {
+  color: #909399 !important; /* 已读链接颜色 */
+  opacity: 0.8;
+  text-decoration: none;
+}
+
+.read-link-indicator {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #67c23a;
+  margin-right: 6px;
+  vertical-align: middle;
+} 

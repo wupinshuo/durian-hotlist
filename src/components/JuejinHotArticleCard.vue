@@ -33,7 +33,14 @@
             <div v-for="(item, index) in articles" :key="item.url" class="trending-item" :class="{ top: index < 3 }">
               <div class="item-rank" :class="{ top: index < 3 }">{{ index + 1 }}</div>
               <div class="item-main">
-                <a :href="item.url" target="_blank" class="article-title" :title="item.title">{{ item.title }}</a>
+                <a 
+                  :href="item.url" 
+                  target="_blank" 
+                  class="article-title" 
+                  :class="{'read-link': isRead(item.url)}"
+                  :title="item.title"
+                  @click="markAsRead(item.url)"
+                >{{ item.title }}</a>
                 <div class="article-meta">
                   <span class="article-hot">
                     <AppIcon name="juejin-hot" class="hot-icon" />
@@ -53,6 +60,7 @@
 <script setup lang="ts">
 import { ElSkeleton } from 'element-plus';
 import { UpdateTimeDisplay, AppIcon } from './index';
+import { useReadStatus } from '../composables/useReadStatus';
 
 const props = defineProps<{
   articles: Array<{
@@ -64,6 +72,9 @@ const props = defineProps<{
   updateTime?: number;
 }>();
 const emit = defineEmits(['refresh']);
+
+// 使用已读状态管理
+const { isRead, markAsRead } = useReadStatus();
 
 function handleRefresh() {
   emit('refresh');

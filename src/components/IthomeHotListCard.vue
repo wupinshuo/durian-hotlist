@@ -27,7 +27,14 @@
             <div v-for="(item, index) in hotTopics" :key="item.url" class="trending-item" :class="{ top: index < 3 }">
               <div class="item-rank" :class="{ top: index < 3 }">{{ index + 1 }}</div>
               <div class="item-main">
-                <a :href="item.url" target="_blank" class="repo-name" :title="item.title">{{ item.title }}</a>
+                <a 
+                  :href="item.url" 
+                  target="_blank" 
+                  class="article-title" 
+                  :class="{'read-link': isRead(item.url)}"
+                  :title="item.title"
+                  @click="markAsRead(item.url)"
+                >{{ item.title }}</a>
               </div>
             </div>
             <div v-if="!hotTopics.length" class="empty-tip">暂无数据</div>
@@ -40,8 +47,11 @@
 
 <script setup lang="ts">
 import { ElSkeleton } from 'element-plus';
-import { UpdateTimeDisplay } from './index';
+import { AppIcon, UpdateTimeDisplay } from './index';
+import { useReadStatus } from '../composables/useReadStatus';
 import { HotItem } from '@/types/hot';
+
+const { isRead, markAsRead } = useReadStatus();
 
 const props = defineProps<{
   hotTopics: HotItem[];
@@ -172,7 +182,7 @@ function handleRefresh() {
   gap: 3px;
 }
 
-.repo-name {
+.article-title {
   font-size: 13px;
   font-weight: 500;
   line-height: 1.3;
@@ -185,9 +195,13 @@ function handleRefresh() {
   overflow: hidden;
 }
 
-.repo-name:hover {
+.article-title:hover {
   color: #E74025;
   text-decoration: underline;
+}
+
+.article-title.read-link {
+  color: var(--muted-foreground);
 }
 
 .empty-tip {

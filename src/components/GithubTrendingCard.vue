@@ -43,7 +43,14 @@
             <div v-for="(item, index) in repos" :key="item.url" class="trending-item" :class="{ top: index < 3 }">
               <div class="item-rank" :class="{ top: index < 3 }">{{ index + 1 }}</div>
               <div class="item-main">
-                <a :href="item.url" target="_blank" class="repo-name" :title="item.name">{{ item.name }}</a>
+                <a 
+                  :href="item.url" 
+                  target="_blank" 
+                  class="repo-name" 
+                  :class="{'read-link': isRead(item.url)}"
+                  :title="item.name"
+                  @click="markAsRead(item.url)"
+                >{{ item.name }}</a>
                 <div v-if="item.desc" class="repo-desc" :title="item.desc">{{ item.desc }}</div>
                 <div class="repo-meta">
                   <span class="repo-lang" v-if="item.language">
@@ -75,9 +82,13 @@ import { computed, ref } from 'vue';
 import { GithubPeriod, GITHUB_PERIOD, GITHUB_PERIOD_TEXT } from '@/constants/hotlist';
 import { ElSkeleton } from 'element-plus';
 import { UpdateTimeDisplay } from './index';
+import { useReadStatus } from '../composables/useReadStatus';
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDark);
+
+// 使用已读状态管理
+const { isRead, markAsRead } = useReadStatus();
 
 const props = defineProps<{
   repos: Array<{

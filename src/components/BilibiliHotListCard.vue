@@ -27,7 +27,14 @@
             <div v-for="(item, index) in hotTopics" :key="item.url" class="trending-item" :class="{ top: index < 3 }">
               <div class="item-rank" :class="{ top: index < 3 }">{{ index + 1 }}</div>
               <div class="item-main">
-                <a :href="item.url" target="_blank" class="repo-name" :title="item.title">{{ item.title }}</a>
+                <a 
+                  :href="item.url" 
+                  target="_blank" 
+                  class="video-title" 
+                  :class="{'read-link': isRead(item.url)}"
+                  :title="item.title"
+                  @click="markAsRead(item.url)"
+                >{{ item.title }}</a>
                 <div class="repo-meta">
                   <span class="tag" v-if="item.tag">
                     <el-tag size="small" type="danger" effect="plain" class="bilibili-tag">{{ item.tag }}</el-tag>
@@ -56,6 +63,9 @@ import { ElSkeleton, ElTag } from 'element-plus';
 import { UpdateTimeDisplay } from './index';
 import { HotItem } from '@/types/hot';
 import AppIcon from './AppIcon.vue';
+import { useReadStatus } from '../composables/useReadStatus';
+
+const { isRead, markAsRead } = useReadStatus();
 
 const props = defineProps<{
   hotTopics: HotItem[];
@@ -221,7 +231,7 @@ function formatHotCount(hot: string): string {
   overflow: hidden;
 }
 
-.repo-name {
+.video-title {
   font-size: 13px;
   line-height: 1.4;
   color: var(--text-primary);
@@ -232,6 +242,10 @@ function formatHotCount(hot: string): string {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   margin-bottom: 2px;
+}
+
+.read-link {
+  color: var(--text-muted);
 }
 
 .repo-meta {
