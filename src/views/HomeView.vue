@@ -56,7 +56,7 @@ import IthomeHotListCard from '@/components/IthomeHotListCard.vue'
 import SspaiHotListCard from '@/components/SspaiHotListCard.vue'
 import BilibiliHotListCard from '@/components/BilibiliHotListCard.vue'
 import RecommendationCard from '@/components/RecommendationCard.vue'
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import { getHotListByType } from '@/api/hotlist'
 import { ElMessage } from 'element-plus'
 import { GithubHostItem, GithubHostList, HotItem, HotList } from '@/types/hot'
@@ -103,6 +103,14 @@ onMounted(() => {
   loadIthomeHotList()
   loadSspaiHotList()
   loadBilibiliHotList()
+  
+  // 监听来自HeaderBar的刷新推荐事件
+  window.addEventListener('refresh-recommendations', refreshRecommendations)
+})
+
+// 组件卸载时移除事件监听
+onBeforeUnmount(() => {
+  window.removeEventListener('refresh-recommendations', refreshRecommendations)
 })
 
 // 生成推荐内容

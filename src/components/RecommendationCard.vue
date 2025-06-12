@@ -12,12 +12,6 @@
       </div>
       
       <div class="header-right">
-        <button class="action-btn" @click="showInterestSelector">
-          <svg class="action-icon" viewBox="0 0 24 24" width="16" height="16">
-            <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z"/>
-          </svg>
-          <span class="action-text">设置兴趣</span>
-        </button>
         <button 
           v-if="recommendations.length > 0" 
           class="action-btn refresh-btn" 
@@ -67,40 +61,16 @@
             </div>
             <p class="empty-text">还没有推荐内容</p>
             <p class="empty-subtext">浏览更多内容或设置您的兴趣偏好</p>
-            <el-button @click="showInterestSelector" type="primary">设置兴趣</el-button>
           </div>
         </template>
       </div>
     </div>
-    
-    <!-- 兴趣选择器对话框 -->
-    <el-dialog v-model="interestDialogVisible" title="选择你感兴趣的主题" width="400px">
-      <div class="interest-tags">
-        <el-tag
-          v-for="tag in availableTags"
-          :key="tag"
-          :class="{ selected: selectedTags.includes(tag) }"
-          @click="toggleTag(tag)"
-          class="interest-tag"
-        >
-          {{ tag }}
-        </el-tag>
-      </div>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="interestDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="saveInterests">
-            保存
-          </el-button>
-        </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { ElButton, ElTag, ElSkeleton, ElDialog, ElMessage } from 'element-plus';
+import { ref, onMounted, watch } from 'vue';
+import { ElButton, ElTag, ElSkeleton, ElMessage } from 'element-plus';
 import { RecommendationItem } from '@/composables/useRecommendationEngine';
 import { useUserBehavior } from '@/composables/useUserBehavior';
 import AppIcon from './AppIcon.vue';
@@ -120,66 +90,12 @@ const { trackClick, isRead } = useUserBehavior();
 // 用于强制组件重新渲染
 const updateTrigger = ref(0);
 
-// 兴趣标签选择对话框
-const interestDialogVisible = ref(false);
-const selectedTags = ref<string[]>([]);
-
-// 可选的兴趣标签
-const availableTags = [
-  'React', 'Vue', 'Angular', 'JavaScript', 'TypeScript', 'Node.js', 
-  'Python', 'Java', 'Go', 'Rust', 'AI', '人工智能', '机器学习', 
-  '深度学习', '区块链', '云计算', '大数据', '前端', '后端', '全栈',
-  '微服务', 'Docker', 'Kubernetes', '开源', 'Git', 'GitHub',
-  '算法', '编程', '架构', '数据库', 'API', '服务器', '安全',
-  'iOS', 'Android', '移动端', 'Web3', '元宇宙',
-  '科技', '金融', '教育', '医疗', '电商', '游戏', '娱乐', '音乐',
-  '视频', '直播', '社交', '出行', '健康', '创业', '投资', '营销'
-];
-
-// 加载已保存的兴趣标签
+// 监听来自HeaderBar的刷新事件
 onMounted(() => {
-  loadSavedInterests();
-});
-
-// 切换标签选择状态
-function toggleTag(tag: string) {
-  const index = selectedTags.value.indexOf(tag);
-  if (index === -1) {
-    selectedTags.value.push(tag);
-  } else {
-    selectedTags.value.splice(index, 1);
-  }
-}
-
-// 保存用户兴趣标签
-function saveInterests() {
-  try {
-    localStorage.setItem('durian_user_interests', JSON.stringify(selectedTags.value));
-    interestDialogVisible.value = false;
-    ElMessage.success('兴趣设置已保存');
+  window.addEventListener('refresh-recommendations', () => {
     emit('refresh');
-  } catch (error) {
-    console.error('保存兴趣标签失败', error);
-    ElMessage.error('保存失败，请重试');
-  }
-}
-
-// 加载保存的兴趣标签
-function loadSavedInterests() {
-  try {
-    const savedInterests = localStorage.getItem('durian_user_interests');
-    if (savedInterests) {
-      selectedTags.value = JSON.parse(savedInterests);
-    }
-  } catch (error) {
-    console.error('加载兴趣标签失败', error);
-  }
-}
-
-// 显示兴趣选择器
-function showInterestSelector() {
-  interestDialogVisible.value = true;
-}
+  });
+});
 
 // 刷新推荐
 function refreshRecommendations() {
@@ -408,27 +324,6 @@ function getSourceColor(source: string): string {
   font-size: 12px;
   color: var(--muted-foreground);
   margin-bottom: 16px;
-}
-
-/* 兴趣标签对话框样式 */
-.interest-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.interest-tag {
-  cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.interest-tag.selected {
-  background-color: #FF8A00;
-  color: white;
-  border-color: #FF8A00;
 }
 
 /* 滚动条美化 */

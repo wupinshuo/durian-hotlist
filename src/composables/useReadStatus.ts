@@ -1,4 +1,5 @@
 import { ref, onMounted } from 'vue';
+import { READ_STATUS_EXPIRE_TIME } from '@/constants/read';
 
 interface ReadItem {
   link: string;
@@ -7,10 +8,10 @@ interface ReadItem {
 
 /**
  * 已读状态
- * @param expireDays 过期时间，默认2天
+ * @param expireDays 过期时间，默认1天
  * @returns
  */
-export function useReadStatus(expireDays = 2) {
+export function useReadStatus(expireDays = READ_STATUS_EXPIRE_TIME) {
   const readLinks = ref<Set<string>>(new Set());
 
   // 从localStorage加载已读状态
