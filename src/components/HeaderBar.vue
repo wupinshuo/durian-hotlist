@@ -26,7 +26,8 @@
           </svg>
         </div>
       </el-tooltip> -->
-      <div class="product-switcher">
+      <!-- TODO 暂时隐藏 样式或者位置需要再调整-->
+      <!-- <div class="product-switcher">
         <el-tooltip
           content="榴莲+"
           placement="bottom"
@@ -57,7 +58,7 @@
             </template>
           </el-dropdown>
         </el-tooltip>
-      </div>
+      </div> -->
     </div>
     
     <el-dialog v-model="interestDialogVisible" title="选择你感兴趣的主题" width="400px">
