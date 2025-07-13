@@ -2,7 +2,7 @@
   <div class="header-bar" :class="{ 'compact': isCompact }">
     <div class="header-left-placeholder">
       <div class="header-left" v-if="showLogo">
-        <img src="/durian_logo.svg" alt="榴莲LOGO" class="logo" />
+        <img src="/durian_logo.svg" alt="榴莲LOGO" class="logo" @click="navigateToHomepage" />
         <div class="site-info">
           <span class="site-title">榴莲热榜</span>
           <span class="site-desc">技术与资讯热榜聚合平台</span>
@@ -184,6 +184,10 @@ function loadSavedInterests() {
     console.error('加载兴趣标签失败', error);
   }
 }
+
+function navigateToHomepage() {
+  window.open('https://durio.cc', '_blank');
+}
 </script>
 
 <style scoped>
@@ -253,6 +257,7 @@ body[data-theme='dark'] .header-bar {
   margin-right: 16px;
   transition: all var(--transition-duration) ease;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1));
+  cursor: pointer; /* 添加鼠标指针样式 */
 }
 
 .site-info {

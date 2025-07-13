@@ -2,11 +2,13 @@
   <div class="app-container">
     <HeaderBar />
     <router-view />
+    <FooterBar />
   </div>
 </template>
 
 <script setup lang="ts">
 import HeaderBar from './components/HeaderBar.vue';
+import FooterBar from './components/FooterBar.vue';
 import { RouterView } from 'vue-router';
 </script>
 
