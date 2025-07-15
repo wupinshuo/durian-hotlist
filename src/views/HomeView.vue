@@ -278,6 +278,10 @@ const refreshGithubTrending = async (period: GithubPeriod = githubPeriod.value) 
     githubLoading.value = true
     ElMessage.info('正在刷新 GitHub 热榜...')
     const githubData = await getHotListByType('github', period, true) as GithubHostList
+    if(githubData.list.length === 0) {
+      console.error('GitHub热榜数据为空', githubData)
+      return;
+    }
     githubTrending.value = githubData.list
     githubUpdateTime.value = githubData.updateTime
     ElMessage.success('GitHub 热榜已更新')
@@ -295,6 +299,10 @@ const refreshJuejinHotArticle = async () => {
     juejinLoading.value = true
     ElMessage.info('正在刷新掘金热点文章...')
     const juejinData = await getHotListByType('juejin', undefined, true) as HotList
+    if(juejinData.list.length === 0) {
+      console.error('掘金热点文章数据为空', juejinData)
+      return;
+    }
     juejinArticles.value = juejinData.list
     juejinUpdateTime.value = juejinData.updateTime
     ElMessage.success('掘金热点文章已更新')
@@ -312,6 +320,10 @@ const refreshWeiboHotList = async () => {
     weiboLoading.value = true
     ElMessage.info('正在刷新微博热榜...')
     const weiboData = await getHotListByType('weibo', undefined, true) as HotList
+    if(weiboData.list.length === 0) {
+      console.error('微博热榜数据为空', weiboData)
+      return;
+    }
     weiboHotList.value = weiboData.list
     weiboUpdateTime.value = weiboData.updateTime
     ElMessage.success('微博热榜已更新')
@@ -329,6 +341,10 @@ const refreshIthomeHotList = async () => {
     ithomeLoading.value = true
     ElMessage.info('正在刷新IT之家热榜...')
     const ithomeData = await getHotListByType('ithome', 'weekly', true) as HotList
+    if(ithomeData.list.length === 0) {
+      console.error('IT之家热榜数据为空', ithomeData)
+      return;
+    }
     ithomeHotList.value = ithomeData.list
     ithomeUpdateTime.value = ithomeData.updateTime
     ElMessage.success('IT之家热榜已更新')
@@ -346,6 +362,10 @@ const refreshSspaiHotList = async () => {
     sspaiLoading.value = true
     ElMessage.info('正在刷新少数派热榜...')
     const sspaiData = await getHotListByType('sspai', 'weekly', true) as HotList
+    if(sspaiData.list.length === 0) {
+      console.error('少数派热榜数据为空', sspaiData)
+      return;
+    }
     sspaiHotList.value = sspaiData.list
     sspaiUpdateTime.value = sspaiData.updateTime
     ElMessage.success('少数派热榜已更新')
@@ -363,6 +383,10 @@ const refreshBilibiliHotList = async () => {
     bilibiliLoading.value = true
     ElMessage.info('正在刷新B站热榜...')
     const bilibiliData = await getHotListByType('bilibili', 'weekly', true) as HotList
+    if(bilibiliData.list.length === 0) {
+      console.error('B站热榜数据为空', bilibiliData)
+      return;
+    }
     bilibiliHotList.value = bilibiliData.list
     bilibiliUpdateTime.value = bilibiliData.updateTime
     ElMessage.success('B站热榜已更新')
