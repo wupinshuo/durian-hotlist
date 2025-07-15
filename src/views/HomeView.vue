@@ -269,7 +269,7 @@ const refreshJuejinHotArticle = async () => {
   try {
     juejinLoading.value = true
     ElMessage.info('正在刷新掘金热点文章...')
-    const juejinData = await getHotListByType('juejin') as HotList
+    const juejinData = await getHotListByType('juejin', undefined, true) as HotList
     juejinArticles.value = juejinData.list
     juejinUpdateTime.value = juejinData.updateTime
     ElMessage.success('掘金热点文章已更新')
@@ -286,7 +286,7 @@ const refreshWeiboHotList = async () => {
   try {
     weiboLoading.value = true
     ElMessage.info('正在刷新微博热榜...')
-    const weiboData = await getHotListByType('weibo') as HotList
+    const weiboData = await getHotListByType('weibo', undefined, true) as HotList
     weiboHotList.value = weiboData.list
     weiboUpdateTime.value = weiboData.updateTime
     ElMessage.success('微博热榜已更新')

@@ -61,3 +61,4 @@ alwaysApply: true
 - 禁止在模板中写复杂表达式，复杂逻辑应放到计算属性或方法中
 - 建议使用 ESLint + Prettier 保持代码风格统一
 - Git 提交信息建议遵循 Conventional Commits 规范
+- 不要自动执行终端命令，需要提前询问我

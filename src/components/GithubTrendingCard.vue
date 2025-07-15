@@ -1,38 +1,36 @@
 <template>
   <div class="github-card">
     <div class="card-header">
-      <div class="header-content">
-        <div class="header-left">
-          <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 16 16" fill="none">
-              <path :fill="isDarkMode ? '#ffffff' : '#24292f'" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
-            </svg>
-          </div>
-          <div class="header-title">
-            <div class="title-row">
-              <div class="title">GitHub</div>
-              <div class="period-selector">
-                <button 
-                  v-for="period in availablePeriods" 
-                  :key="period.value"
-                  :class="['period-btn', { active: currentPeriod === period.value }]"
-                  @click="handlePeriodChange(period.value)"
-                >
-                  {{ period.label }}
-                </button>
-              </div>
-            </div>
-            <div class="subtitle">开源热点</div>
-          </div>
+      <div class="header-left">
+        <div class="logo">
+          <svg width="24" height="24" viewBox="0 0 16 16" fill="none">
+            <path :fill="isDarkMode ? '#ffffff' : '#24292f'" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
         </div>
-
-        <UpdateTimeDisplay 
-          :update-time="updateTime" 
-          :loading="loading" 
-          theme-color="#40b583"
-          @refresh="handleRefresh" 
-        />
+        <div>
+          <div class="title-wrapper">
+            <div class="title">GitHub</div>
+            <div class="period-selector">
+              <button 
+                v-for="period in availablePeriods" 
+                :key="period.value"
+                :class="['period-btn', { active: currentPeriod === period.value }]"
+                @click="handlePeriodChange(period.value)"
+              >
+                {{ period.label }}
+              </button>
+            </div>
+          </div>
+          <div class="subtitle">开源热点</div>
+        </div>
       </div>
+
+      <UpdateTimeDisplay 
+        :update-time="updateTime" 
+        :loading="loading" 
+        theme-color="#40b583"
+        @refresh="handleRefresh" 
+      />
     </div>
 
     <div class="trending-list-wrapper">
@@ -229,31 +227,20 @@ function handleClick(item: any) {
 
 .card-header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   padding: 10px 10px;
   border-bottom: 1px solid var(--border-color, rgba(48, 54, 61, 0.3));
   position: relative;
 }
 
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .header-left {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
 }
 
-.header-title {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.title-row {
+.title-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -262,7 +249,7 @@ function handleClick(item: any) {
 .title {
   font-size: 16px;
   font-weight: 600;
-  color: #58a6ff;
+  color: #40b583;
   white-space: nowrap;
 }
 
@@ -272,20 +259,20 @@ function handleClick(item: any) {
   border-radius: var(--radius, 6px);
   padding: 1px;
   border: 1px solid var(--border-color, rgba(48, 54, 61, 0.4));
-  height: 20px;
+  height: 18px;
 }
 
 .period-btn {
-  padding: 1px 6px;
+  padding: 0px 5px;
   border: none;
   background: transparent;
   color: var(--muted-foreground);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   border-radius: var(--radius, 4px);
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 22px;
+  min-width: 18px;
   text-align: center;
 }
 
@@ -297,12 +284,12 @@ function handleClick(item: any) {
   height: 28px;
   border-radius: var(--radius, 6px);
   background: linear-gradient(135deg, #238636, #2ea043);
-  box-shadow: 0 0 10px rgba(35, 134, 54, 0.3);
+  box-shadow: 0 0 8px rgba(35, 134, 54, 0.25);
 }
 
 .logo svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
@@ -510,16 +497,16 @@ function handleClick(item: any) {
 }
 
 .period-btn.active {
-  background: #58a6ff;
+  background: #40b583;
   color: #fff;
-  box-shadow: 0 2px 4px rgba(88, 166, 255, 0.2);
+  box-shadow: 0 2px 4px rgba(64, 181, 131, 0.2);
 }
 
 /* 浅色模式下的活跃按钮 */
 :root:not(.dark) .period-btn.active {
-  background: #4182dd;
+  background: #40b583;
   color: #ffffff;
-  box-shadow: 0 1px 2px rgba(65, 130, 221, 0.2);
+  box-shadow: 0 1px 2px rgba(64, 181, 131, 0.2);
 }
 
 @media (max-width: 768px) {
