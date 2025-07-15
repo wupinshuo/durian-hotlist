@@ -156,6 +156,10 @@ const loadGithubTrending = async (period: GithubPeriod = githubPeriod.value) => 
   githubLoading.value = true
   try {
     const githubData = await getHotListByType('github', period) as GithubHostList
+    if(githubData.list.length === 0) {
+      console.error('GitHub热榜数据为空', githubData)
+      return;
+    }
     githubTrending.value = githubData.list
     githubUpdateTime.value = githubData.updateTime
   } catch (error) {
@@ -171,6 +175,10 @@ const loadJuejinHotArticles = async () => {
   juejinLoading.value = true
   try {
     const juejinData = await getHotListByType('juejin') as HotList
+    if(juejinData.list.length === 0) {
+      console.error('掘金热点文章数据为空', juejinData)
+      return;
+    }
     juejinArticles.value = juejinData.list
     juejinUpdateTime.value = juejinData.updateTime
   } catch (error) {
@@ -186,8 +194,13 @@ const loadWeiboHotList = async () => {
   weiboLoading.value = true
   try {
     const weiboData = await getHotListByType('weibo') as HotList
-    weiboHotList.value = weiboData.list
-    weiboUpdateTime.value = weiboData.updateTime
+    if(weiboData.list.length === 0) {
+      console.error('微博热榜数据为空', weiboData)
+      return;
+    }
+      weiboHotList.value = weiboData.list
+      weiboUpdateTime.value = weiboData.updateTime
+    }
   } catch (error) {
     console.error('加载微博热榜数据失败', error)
     ElMessage.error('加载微博热榜数据失败，请稍后刷新')
@@ -201,6 +214,10 @@ const loadIthomeHotList = async () => {
   ithomeLoading.value = true
   try {
     const ithomeData = await getHotListByType('ithome', 'weekly') as HotList
+    if(ithomeData.list.length === 0) {
+      console.error('IT之家热榜数据为空', ithomeData)
+      return;
+    }
     ithomeHotList.value = ithomeData.list
     ithomeUpdateTime.value = ithomeData.updateTime
   } catch (error) {
@@ -216,6 +233,10 @@ const loadSspaiHotList = async () => {
   sspaiLoading.value = true
   try {
     const sspaiData = await getHotListByType('sspai', 'weekly') as HotList
+    if(sspaiData.list.length === 0) {
+      console.error('少数派热榜数据为空', sspaiData)
+      return;
+    }
     sspaiHotList.value = sspaiData.list
     sspaiUpdateTime.value = sspaiData.updateTime
   } catch (error) {
@@ -231,6 +252,10 @@ const loadBilibiliHotList = async () => {
   bilibiliLoading.value = true
   try {
     const bilibiliData = await getHotListByType('bilibili', 'weekly') as HotList
+    if(bilibiliData.list.length === 0) {
+      console.error('B站热榜数据为空', bilibiliData)
+      return;
+    }
     bilibiliHotList.value = bilibiliData.list
     bilibiliUpdateTime.value = bilibiliData.updateTime
   } catch (error) {
