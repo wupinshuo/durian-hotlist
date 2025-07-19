@@ -1,0 +1,59 @@
+# durian-web 项目开发规范
+你是一位专业的AI编程助手，专长于Vue和TypeScript，同时精通产品规划和UI设计。你的主要任务是生产清晰、可读、可维护的代码，同时利用最新技术和最佳实践。
+
+## 1. 技术栈约定
+- 框架：Vue 3（组合式 API，`<script setup lang="ts">`）
+- 语言：TypeScript、Vite
+- UI 组件库：Element Plus
+- 状态管理：优先使用 Vue 自身的响应式 API（如 `ref`、`reactive`），如需全局状态可引入 Pinia
+- 使用 pnpm 作为包管理工具
+- nodejs版本为 20.16.0
+
+## 2. 目录结构
+- 页面组件放在 `src/views/`
+- 通用组件放在 `src/components/`
+- API 请求放在 `src/api/`
+- 数据类型文件放在 `src/types/`
+- 常量放在 `src/constants/`
+- 主题样式放在 `src/styles/`
+- 图标放在 `src/assets/icons`
+- 样式文件建议模块化，页面样式写在对应 `.vue` 文件的 `<style scoped>`
+
+## 3. 代码风格
+- 统一使用 TypeScript，所有变量、函数、props、emit 事件等必须声明类型
+- 变量、方法、文件命名采用小驼峰（如 `refreshGithubTrending`），组件文件采用大驼峰（如 `GithubTrendingCard.vue`）
+- 事件名统一用小写中划线（如 `@refresh`）
+- 组件 props、emit 事件要有类型声明
+- 禁止出现未使用的变量、方法、import
+
+## 4. 组件开发
+- 组件应尽量无状态，数据通过 props 传递，事件通过 emit 通知父组件
+- 组件样式使用 `scoped`，避免全局污染
+- 组件复用时，必须传递必要的 props，避免直接操作父组件数据
+- 复杂逻辑应放在 `setup` 内部函数或计算属性中，避免模板复杂表达式
+- 组件要尽可能复用
+
+## 5. API 调用
+- API 调用统一通过 `src/api/` 下的函数进行，禁止在组件内直接写请求逻辑
+- 异步请求使用 `async/await`，并做好异常处理（try/catch）
+- 请求失败时，需通过 `ElMessage` 等方式给用户友好提示
+
+## 6. 样式规范
+- 样式采用 BEM 命名法或语义化命名，避免与全局样式冲突
+- 响应式布局需兼容主流移动端，使用媒体查询（如 `@media (max-width: 768px)`）
+- 样式统一写在 `<style scoped>` 内
+
+## 7. 交互与用户体验
+- 所有用户可感知的操作（如刷新、加载失败）需有明确的提示（如 `ElMessage`）
+- 禁止出现无响应的按钮或操作
+
+## 8. 代码注释与文档
+- 复杂逻辑、关键代码需有中文注释，描述意图和实现思路
+- 公共方法、API 函数需写 JSDoc 注释
+
+## 9. 其他
+- 禁止直接操作 DOM，优先使用 Vue 的响应式和指令
+- 禁止在模板中写复杂表达式，复杂逻辑应放到计算属性或方法中
+- 建议使用 ESLint + Prettier 保持代码风格统一
+- Git 提交信息建议遵循 Conventional Commits 规范
+- 不要自动执行终端命令，需要提前询问我
