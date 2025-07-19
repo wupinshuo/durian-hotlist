@@ -198,9 +198,8 @@ const loadWeiboHotList = async () => {
       console.error('微博热榜数据为空', weiboData)
       return;
     }
-      weiboHotList.value = weiboData.list
-      weiboUpdateTime.value = weiboData.updateTime
-    }
+    weiboHotList.value = weiboData.list
+    weiboUpdateTime.value = weiboData.updateTime
   } catch (error) {
     console.error('加载微博热榜数据失败', error)
     ElMessage.error('加载微博热榜数据失败，请稍后刷新')
@@ -436,4 +435,4 @@ const refreshBilibiliHotList = async () => {
     align-items: center;
   }
 }
-</style> 
+</style>

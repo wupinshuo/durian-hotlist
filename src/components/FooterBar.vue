@@ -3,7 +3,7 @@
     <div class="footer-content">
       <div class="copyright">
         榴莲热榜 © {{ currentYear }} - 技术与资讯热榜聚合平台
-        <a href="https://durio.cc" target="_blank" class="footer-link">首页</a>
+        <!-- <a href="https://durio.cc" target="_blank" class="footer-link">首页</a> -->
       </div>
     </div>
   </div>

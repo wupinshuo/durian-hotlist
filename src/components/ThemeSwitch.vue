@@ -4,8 +4,8 @@
   </el-button>
   <el-switch
     v-model="localShowLogo"
-    active-text="开摸"
-    inactive-text="沉淀"
+    active-text="刷榜"
+    inactive-text="充电"
     inline-prompt
     class="premium-switch"
     active-color="#5cb85c"
