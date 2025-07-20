@@ -31,6 +31,12 @@ export default defineConfig({
         rewrite: (path) =>
           path.replace(/^\/api\/v1\/hot-list/, '/api/v1/api-data/hot-list'),
       },
+      // 代理 /api/v1/gold开头的请求
+      '/api/v1/gold': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/v1\/gold/, '/api/v1/gold'),
+      },
     },
   },
   // 配置SVG raw导入

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <HeaderBar />
+    <HeaderBar v-if="!hideHeader" />
     <router-view />
     <FooterBar />
   </div>
@@ -9,7 +9,11 @@
 <script setup lang="ts">
 import HeaderBar from './components/HeaderBar.vue';
 import FooterBar from './components/FooterBar.vue';
-import { RouterView } from 'vue-router';
+import { RouterView, useRoute } from 'vue-router';
+import { computed } from 'vue';
+
+const route = useRoute();
+const hideHeader = computed(() => route.meta.hideHeader);
 </script>
 
 <style>
@@ -119,4 +123,4 @@ body[data-theme='dark'] .el-card__header {
     padding: 16px;
   }
 }
-</style> 
+</style>
