@@ -10,8 +10,9 @@ export async function getGoldList(): Promise<GoldItem[]> {
   try {
     // 获取当前域名
     const baseUrl = window.location.origin;
-    const res = await axios.get<ReturnData<GoldItem[]>>(
+    const res = await axios.post<ReturnData<GoldItem[]>>(
       `${baseUrl}/api/v1/gold`,
+      {},
       {
         timeout: 30000,
       },
