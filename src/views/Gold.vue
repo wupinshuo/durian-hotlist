@@ -18,6 +18,9 @@
               <el-option label="最近7天" :value="7" />
               <el-option label="最近14天" :value="14" />
               <el-option label="最近30天" :value="30" />
+              <el-option label="最近60天" :value="60" />
+              <el-option label="最近90天" :value="90" />
+              <el-option label="最近180天" :value="180" />
             </el-select>
             <el-button type="primary" @click="refreshData">
               <el-icon><Refresh /></el-icon> 刷新
@@ -113,7 +116,7 @@ const loadGoldList = async () => {
     if (data.length > 0) {
       goldList.value = data;
     } else {
-      ElMessage.warning('金价列表数据为空');
+    //   ElMessage.warning('金价列表数据为空');
     }
   } catch (error) {
     console.error('加载金价列表失败:', error);
