@@ -6,42 +6,48 @@
         <div class="chart-header">
           <h2>{{ selectedGold.name || '金价' }}走势图</h2>
           <div class="chart-controls">
-            <el-select
-              v-model="selectedGoldId"
-              placeholder="选择金价"
-              @change="handleGoldChange"
-              class="dark-select"
-              popper-class="dark-select-dropdown"
-            >
-              <el-option
-                v-for="item in goldList"
-                :key="item.goldId"
-                :label="item.name"
-                :value="item.goldId"
-                class="dark-option"
-              />
-            </el-select>
-            <el-select
-              v-model="selectedDays"
-              placeholder="选择时间范围"
-              @change="handleDaysChange"
-              class="dark-select"
-              popper-class="dark-select-dropdown"
-            >
-              <el-option label="最近7天" :value="7" class="dark-option" />
-              <el-option label="最近14天" :value="14" class="dark-option" />
-              <el-option label="最近30天" :value="30" class="dark-option" />
-              <el-option label="最近60天" :value="60" class="dark-option" />
-              <el-option label="最近90天" :value="90" class="dark-option" />
-              <el-option label="最近180天" :value="180" class="dark-option" />
-            </el-select>
-            <el-button
+            <div class="select-container">
+              <span class="select-label">金价种类:</span>
+              <el-select
+                v-model="selectedGoldId"
+                placeholder="选择金价"
+                @change="handleGoldChange"
+                class="dark-select"
+                popper-class="dark-select-dropdown"
+              >
+                <el-option
+                  v-for="item in goldList"
+                  :key="item.goldId"
+                  :label="item.name"
+                  :value="item.goldId"
+                  class="dark-option"
+                />
+              </el-select>
+            </div>
+            <div class="select-container">
+              <span class="select-label">时间范围:</span>
+              <el-select
+                v-model="selectedDays"
+                placeholder="选择时间范围"
+                @change="handleDaysChange"
+                class="dark-select"
+                popper-class="dark-select-dropdown"
+              >
+                <el-option label="最近7天" :value="7" class="dark-option" />
+                <el-option label="最近14天" :value="14" class="dark-option" />
+                <el-option label="最近30天" :value="30" class="dark-option" />
+                <el-option label="最近60天" :value="60" class="dark-option" />
+                <el-option label="最近90天" :value="90" class="dark-option" />
+                <el-option label="最近180天" :value="180" class="dark-option" />
+              </el-select>
+            </div>
+            <!-- <el-button
               type="primary"
               @click="refreshData"
               class="refresh-button"
             >
               <el-icon><Refresh /></el-icon> 刷新
-            </el-button>
+            </el-button> -->
           </div>
         </div>
         <div class="chart-container">
@@ -619,7 +625,8 @@ watch(goldList, () => {
 .chart-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .chart-container {
@@ -1023,4 +1030,16 @@ height: 44px; line-height: 44px; font-size: 15px; } /* 优化移动端的触摸�
 @media (hover: none) and (pointer: coarse) { :deep(.el-select-dropdown__item),
 :deep(.el-button), :deep(.el-input__wrapper) { cursor: default; }
 :deep(.dark-select-dropdown .el-select-dropdown__item) { height: 44px;
-line-height: 44px; } }
+line-height: 44px; } } /* 下拉框标签样式 */ .select-container { display: flex;
+align-items: center; gap: 8px; } .select-label { color: hsl(210, 40%, 98%);
+font-size: 14px; font-weight: 500; white-space: nowrap; } /* 在移动端隐藏标签 */
+@media (max-width: 768px) { .select-container { width: 100%; } .select-label {
+display: none; } .dark-select { width: 100%; } } /* 在桌面端显示标签和下拉框 */
+@media (min-width: 769px) { .select-container { display: flex; align-items:
+center; } .select-label { display: inline-block; } .dark-select { width: 140px;
+} }/* 横屏模式下的优 化 */ @media (orientation: landscape) and (max-width:
+932px) { .chart-header { flex-direction: row; align-items: center; }
+.chart-controls { width: auto; flex-wrap: nowrap; } .select-container {
+flex-direction: row; align-items: center; } .select-label { display:
+inline-block; font-size: 13px; } .dark-select { width: 120px; } .refresh-button
+{ width: auto; margin-top: 0; } }
