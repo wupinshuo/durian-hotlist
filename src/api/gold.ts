@@ -19,6 +19,10 @@ export async function getGoldList(): Promise<GoldItem[]> {
     );
 
     if (res.data?.status === 200 && res.data?.data) {
+      // 价格保留一位小数
+      res.data.data.forEach((item) => {
+        item.price = Number(item.price).toFixed(1);
+      });
       return res.data.data;
     } else {
       console.error('获取金价列表数据失败:', res.data);
