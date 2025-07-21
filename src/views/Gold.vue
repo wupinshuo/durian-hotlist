@@ -283,7 +283,25 @@ const renderChart = () => {
   const chartContainer = chartRef.value.parentElement;
   if (chartContainer) {
     chartRef.value.width = chartContainer.clientWidth;
-    chartRef.value.height = 400;
+
+    // 根据屏幕宽度动态调整图表高度
+    const screenWidth = window.innerWidth;
+    let chartHeight = 400; // 默认高度
+
+    if (screenWidth <= 360) {
+      chartHeight = 220;
+    } else if (screenWidth <= 430) {
+      chartHeight = 300;
+    } else if (screenWidth <= 768) {
+      chartHeight = 280;
+    }
+
+    // 检查是否为横屏模式
+    if (window.innerWidth > window.innerHeight && screenWidth <= 932) {
+      chartHeight = 240;
+    }
+
+    chartRef.value.height = chartHeight;
   }
 
   // 创建图表
@@ -301,6 +319,9 @@ const renderChart = () => {
     const borderColor = 'rgba(71, 85, 105, 0.5)'; // 边框颜色 (深色模式)
     const gridColor = 'rgba(71, 85, 105, 0.3)'; // 网格线颜色 (深色模式)
 
+    // 检测是否为移动设备
+    const isMobile = window.innerWidth <= 768;
+
     chart.value = new Chart(ctx, {
       type: 'line',
       data: {
@@ -314,12 +335,12 @@ const renderChart = () => {
             fill: true,
             tension: 0.4,
             spanGaps: true,
-            pointRadius: 3,
-            pointHoverRadius: 6,
+            pointRadius: isMobile ? 2 : 3,
+            pointHoverRadius: isMobile ? 4 : 6,
             pointBackgroundColor: primaryColor,
             pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            borderWidth: 2,
+            pointBorderWidth: isMobile ? 1 : 2,
+            borderWidth: isMobile ? 1.5 : 2,
           },
         ],
       },
@@ -553,12 +574,13 @@ watch(goldList, () => {
 
 <style scoped>
 .gold-page {
-  padding: 24px;
+  padding: clamp(10px, 3vw, 24px); /* 响应式内边距 */
   background-color: hsl(222, 47%, 11%); /* 深色背景 */
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Helvetica, Arial, sans-serif;
   color: hsl(210, 40%, 98%); /* 浅色文本 */
+  -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
 }
 
 .gold-container {
@@ -566,14 +588,14 @@ watch(goldList, () => {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: clamp(12px, 2vw, 24px); /* 响应式间距 */
 }
 
 .gold-chart-card,
 .gold-list-card {
   background-color: hsl(224, 71%, 4%); /* 深色卡片背景 */
   border-radius: 8px;
-  padding: 24px;
+  padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   border: 1px solid hsl(215, 25%, 27%, 0.3); /* 深色边框 */
   transition: all 0.2s ease;
@@ -589,9 +611,9 @@ watch(goldList, () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   border-bottom: 1px solid hsl(215, 25%, 27%, 0.3); /* 深色边框 */
-  padding-bottom: 16px;
+  padding-bottom: 12px;
 }
 
 .chart-controls {
@@ -626,10 +648,20 @@ watch(goldList, () => {
 
 /* 响应式布局 */
 @media (max-width: 768px) {
+  .gold-page {
+    padding: 12px;
+  }
+
+  .gold-container {
+    gap: 16px;
+  }
+
   .chart-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
   }
 
   .chart-controls {
@@ -638,12 +670,19 @@ watch(goldList, () => {
   }
 
   .chart-container {
-    height: 350px; /* 增加移动设备上的高度 */
+    height: 280px; /* 调整移动设备上的高度 */
+    margin-bottom: 12px;
   }
 
   .gold-chart-card,
   .gold-list-card {
-    padding: 16px;
+    padding: 14px;
+    border-radius: 6px;
+  }
+
+  h2 {
+    font-size: 16px;
+    margin: 0 0 12px 0;
   }
 }
 h2 {
@@ -919,125 +958,69 @@ hsl(250, 84%, 67%); } /* 表格容器增强 */ .gold-list-card { position: relat
 overflow: hidden; } .gold-list-card::before { content: ''; position: absolute;
 top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg,
 hsl(250, 84%, 67%) 0%, hsl(250, 84%, 80%) 50%, hsl(250, 84%, 67%) 100%);
-opacity: 0.7; }
-/* 下拉框和按钮增强样式 */
-.dark-select {
-  width: 140px;
-  height: 36px;
-}
-
-:deep(.dark-select .el-input__wrapper) {
-  background-color: hsl(224, 71%, 4%);
-  border: 1px solid hsl(215, 25%, 27%, 0.5);
-  box-shadow: none !important;
-  padding: 0 12px;
-  height: 36px;
-}
-
-:deep(.dark-select .el-input__wrapper:hover) {
-  border-color: hsl(250, 84%, 67%);
-}
-
-:deep(.dark-select .el-input__wrapper.is-focus) {
-  border-color: hsl(250, 84%, 67%);
-  box-shadow: 0 0 0 2px hsla(250, 84%, 67%, 0.2) !important;
-}
-
-:deep(.dark-select .el-input__inner) {
-  color: hsl(210, 40%, 98%);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-:deep(.dark-select .el-select__caret) {
-  color: hsl(250, 84%, 67%);
-  font-size: 16px;
-}
-
-:deep(.dark-select-dropdown) {
-  background-color: hsl(224, 71%, 4%) !important;
-  border: 1px solid hsl(215, 25%, 27%, 0.5) !important;
-  border-radius: 6px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-}
-
-:deep(.dark-select-dropdown .el-scrollbar__view) {
-  padding: 4px 0;
-}
-
-:deep(.dark-select-dropdown .el-select-dropdown__item) {
-  color: hsl(210, 40%, 98%);
-  height: 36px;
-  line-height: 36px;
-  padding: 0 12px;
-  font-size: 14px;
-}
-
+opacity: 0.7; } /* 下拉框和按钮增强样式 */ .dark-select { width: 140px; height:
+36px; } :deep(.dark-select .el-input__wrapper) { background-color: hsl(224, 71%,
+4%); border: 1px solid hsl(215, 25%, 27%, 0.5); box-shadow: none !important;
+padding: 0 12px; height: 36px; } :deep(.dark-select .el-input__wrapper:hover) {
+border-color: hsl(250, 84%, 67%); } :deep(.dark-select
+.el-input__wrapper.is-focus) { border-color: hsl(250, 84%, 67%); box-shadow: 0 0
+0 2px hsla(250, 84%, 67%, 0.2) !important; } :deep(.dark-select
+.el-input__inner) { color: hsl(210, 40%, 98%); font-size: 14px; font-weight:
+500; } :deep(.dark-select .el-select__caret) { color: hsl(250, 84%, 67%);
+font-size: 16px; } :deep(.dark-select-dropdown) { background-color: hsl(224,
+71%, 4%) !important; border: 1px solid hsl(215, 25%, 27%, 0.5) !important;
+border-radius: 6px !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3)
+!important; } :deep(.dark-select-dropdown .el-scrollbar__view) { padding: 4px 0;
+} :deep(.dark-select-dropdown .el-select-dropdown__item) { color: hsl(210, 40%,
+98%); height: 36px; line-height: 36px; padding: 0 12px; font-size: 14px; }
 :deep(.dark-select-dropdown .el-select-dropdown__item.hover),
-:deep(.dark-select-dropdown .el-select-dropdown__item:hover) {
-  background-color: hsla(250, 84%, 20%, 0.3);
-}
-
-:deep(.dark-select-dropdown .el-select-dropdown__item.selected) {
-  background-color: hsla(250, 84%, 20%, 0.5);
-  color: hsl(250, 84%, 80%);
-  font-weight: 600;
-}
-
-.refresh-button {
-  height: 36px;
-  padding: 0 16px;
-  background-color: hsl(250, 84%, 67%);
-  border-color: hsl(250, 84%, 67%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-}
-
-.refresh-button:hover {
-  background-color: hsl(250, 84%, 60%);
-  border-color: hsl(250, 84%, 60%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.refresh-button:active {
-  background-color: hsl(250, 84%, 55%);
-  border-color: hsl(250, 84%, 55%);
-  transform: translateY(0);
-}
-
-:deep(.refresh-button .el-icon) {
-  margin-right: 0;
-  font-size: 16px;
-}
-
-/* 修复下拉框在深色模式下的样式问题 */
-:deep(.el-popper.is-light) {
-  background-color: hsl(224, 71%, 4%) !important;
-  border-color: hsl(215, 25%, 27%, 0.5) !important;
-}
-
-:deep(.el-popper.is-light .el-popper__arrow::before) {
-  background-color: hsl(224, 71%, 4%) !important;
-  border-color: hsl(215, 25%, 27%, 0.5) !important;
-}
-
-/* 确保控件在移动设备上的对齐 */
-@media (max-width: 768px) {
-  .chart-controls {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .dark-select {
-    width: calc(50% - 5px);
-  }
-  
-  .refresh-button {
-    width: 100%;
-    margin-top: 5px;
-  }
-}
+:deep(.dark-select-dropdown .el-select-dropdown__item:hover) { background-color:
+hsla(250, 84%, 20%, 0.3); } :deep(.dark-select-dropdown
+.el-select-dropdown__item.selected) { background-color: hsla(250, 84%, 20%,
+0.5); color: hsl(250, 84%, 80%); font-weight: 600; } .refresh-button { height:
+36px; padding: 0 16px; background-color: hsl(250, 84%, 67%); border-color:
+hsl(250, 84%, 67%); display: flex; align-items: center; justify-content: center;
+gap: 6px; transition: all 0.2s ease; } .refresh-button:hover { background-color:
+hsl(250, 84%, 60%); border-color: hsl(250, 84%, 60%); transform:
+translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+.refresh-button:active { background-color: hsl(250, 84%, 55%); border-color:
+hsl(250, 84%, 55%); transform: translateY(0); } :deep(.refresh-button .el-icon)
+{ margin-right: 0; font-size: 16px; } /* 修复下拉框在深色模式下的样式问题 */
+:deep(.el-popper.is-light) { background-color: hsl(224, 71%, 4%) !important;
+border-color: hsl(215, 25%, 27%, 0.5) !important; } :deep(.el-popper.is-light
+.el-popper__arrow::before) { background-color: hsl(224, 71%, 4%) !important;
+border-color: hsl(215, 25%, 27%, 0.5) !important; } /*
+确保控件在移动设备上的对齐 */ @media (max-width: 768px) { .chart-controls {
+flex-wrap: wrap; gap: 8px; } .dark-select { width: 100%; height: 40px;
+margin-bottom: 2px; } :deep(.dark-select .el-input__wrapper) { height: 40px; }
+.refresh-button { width: 100%; height: 40px; margin-top: 4px; } } /*
+针对iPhone等设备的特殊优化 */ @media (max-width: 430px) { .gold-page { padding:
+10px; } .gold-container { gap: 12px; } .gold-chart-card, .gold-list-card {
+padding: 12px; } .chart-header { margin-bottom: 10px; padding-bottom: 8px; }
+.chart-container { height: 250px; } :deep(.el-table th), :deep(.el-table td) {
+padding: 10px; font-size: 13px; } .gold-price-value { font-size: 14px; } }/*
+针对iPhone 14 Pro Max等大屏手机的优化 */ @media (min-width: 390px) and
+(max-width: 430px) { .chart-container { height: 300px; /*
+为大屏手机提供更大的图表高度 */ } .dark-select { height: 44px; /* 增加触摸区域
+*/ } :deep(.dark-select .el-input__wrapper) { height: 44px; padding: 0 14px; }
+:deep(.dark-select .el-input__inner) { font-size: 15px; } .refresh-button {
+height: 44px; font-size: 15px; } :deep(.refresh-button .el-icon) { font-size:
+18px; } /* 优化表格在大屏手机上的显示 */ .gold-price-value { font-size: 16px; }
+:deep(.el-table th) { font-size: 14px; } :deep(.el-table td) { font-size: 15px;
+} } /* 针对横屏模式的优化 */ @media (orientation: landscape) and (max-width:
+932px) { .gold-container { max-width: 100%; } .chart-header { flex-direction:
+row; align-items: center; flex-wrap: wrap; } .chart-controls { display: flex;
+flex-direction: row; width: auto; } .dark-select { width: 140px; }
+.refresh-button { width: auto; margin-top: 0; } .chart-container { height:
+240px; } } /* 针对超小屏幕设备的优化 */ @media (max-width: 360px) { .gold-page {
+padding: 8px; } .gold-chart-card, .gold-list-card { padding: 10px;
+border-radius: 6px; } h2 { font-size: 15px; margin-bottom: 10px; }
+.chart-container { height: 220px; } :deep(.el-table th), :deep(.el-table td) {
+padding: 8px; font-size: 12px; } .gold-price-value { font-size: 13px; } } /*
+优化下拉菜单在移动端的体验 */ :deep(.dark-select-dropdown) { max-width: 90vw; }
+:deep(.dark-select-dropdown .el-select-dropdown__item) { padding: 0 12px;
+height: 44px; line-height: 44px; font-size: 15px; } /* 优化移动端的触摸体验 */
+@media (hover: none) and (pointer: coarse) { :deep(.el-select-dropdown__item),
+:deep(.el-button), :deep(.el-input__wrapper) { cursor: default; }
+:deep(.dark-select-dropdown .el-select-dropdown__item) { height: 44px;
+line-height: 44px; } }
