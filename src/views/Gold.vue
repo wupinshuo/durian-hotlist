@@ -6,15 +6,23 @@
         <div class="chart-header">
           <h2>{{ selectedGold.name || '金价' }}走势图</h2>
           <div class="chart-controls">
-            <el-select v-model="selectedGoldId" placeholder="选择金价" @change="handleGoldChange">
-              <el-option 
-                v-for="item in goldList" 
-                :key="item.goldId" 
-                :label="item.name" 
-                :value="item.goldId" 
+            <el-select
+              v-model="selectedGoldId"
+              placeholder="选择金价"
+              @change="handleGoldChange"
+            >
+              <el-option
+                v-for="item in goldList"
+                :key="item.goldId"
+                :label="item.name"
+                :value="item.goldId"
               />
             </el-select>
-            <el-select v-model="selectedDays" placeholder="选择时间范围" @change="handleDaysChange">
+            <el-select
+              v-model="selectedDays"
+              placeholder="选择时间范围"
+              @change="handleDaysChange"
+            >
               <el-option label="最近7天" :value="7" />
               <el-option label="最近14天" :value="14" />
               <el-option label="最近30天" :value="30" />
@@ -45,7 +53,11 @@
           <el-table-column prop="name" label="品牌" />
           <el-table-column prop="price" label="价格(元/克)">
             <template #default="scope">
-              <span>{{ typeof scope.row.price === 'number' ? scope.row.price.toFixed(2) : scope.row.price }}</span>
+              <span>{{
+                typeof scope.row.price === 'number'
+                  ? scope.row.price.toFixed(2)
+                  : scope.row.price
+              }}</span>
             </template>
           </el-table-column>
           <!-- <el-table-column label="与基准价差">
@@ -80,32 +92,36 @@ const selectedDays = ref(7); // 默认查询7天
 
 // 获取选中的金价信息
 const selectedGold = computed(() => {
-  return goldList.value.find(item => item.goldId === selectedGoldId.value) || {};
+  return (
+    goldList.value.find((item) => item.goldId === selectedGoldId.value) || {}
+  );
 });
 
 // 基准金价（今日金价）
 const baseGoldPrice = computed(() => {
-  const baseGold = goldList.value.find(item => item.goldId === 'jj');
+  const baseGold = goldList.value.find((item) => item.goldId === 'jj');
   return baseGold ? Number(baseGold.price) : 0;
 });
 
 // 计算与基准价的差值
 const calculatePriceDiff = (gold: GoldItem) => {
   if (!baseGoldPrice.value || !gold.price) return '0';
-  
-  const price = typeof gold.price === 'string' ? parseFloat(gold.price) : gold.price;
+
+  const price =
+    typeof gold.price === 'string' ? parseFloat(gold.price) : gold.price;
   const diff = price - baseGoldPrice.value;
-  
+
   return diff > 0 ? `+${diff.toFixed(2)}` : diff.toFixed(2);
 };
 
 // 获取价格差异的样式类
 const getPriceDiffClass = (gold: GoldItem) => {
   if (!baseGoldPrice.value || !gold.price) return '';
-  
-  const price = typeof gold.price === 'string' ? parseFloat(gold.price) : gold.price;
+
+  const price =
+    typeof gold.price === 'string' ? parseFloat(gold.price) : gold.price;
   const diff = price - baseGoldPrice.value;
-  
+
   return diff > 0 ? 'price-up' : diff < 0 ? 'price-down' : '';
 };
 
@@ -116,7 +132,7 @@ const loadGoldList = async () => {
     if (data.length > 0) {
       goldList.value = data;
     } else {
-    //   ElMessage.warning('金价列表数据为空');
+      //   ElMessage.warning('金价列表数据为空');
     }
   } catch (error) {
     console.error('加载金价列表失败:', error);
@@ -145,233 +161,260 @@ const loadGoldHistory = async () => {
 
 // 渲染图表
 const renderChart = () => {
-  console.log('尝试渲染图表', { 
-    chartRefExists: !!chartRef.value, 
+  console.log('尝试渲染图表', {
+    chartRefExists: !!chartRef.value,
     historyLength: goldHistory.value.length,
-    chartElement: document.getElementById('goldChart')
+    chartElement: document.getElementById('goldChart'),
   });
-  
+
   if (!chartRef.value || goldHistory.value.length === 0) {
-    console.log('无法渲染图表：', !chartRef.value ? 'chartRef不存在' : '历史数据为空');
+    console.log(
+      '无法渲染图表：',
+      !chartRef.value ? 'chartRef不存在' : '历史数据为空',
+    );
     return;
   }
-  
+
   // 销毁旧图表
   if (chart.value) {
     chart.value.destroy();
     chart.value = null;
   }
-  
+
   // 确保canvas尺寸正确
-const container = chartRef.value.parentElement;
+  const container = chartRef.value.parentElement;
   if (container) {
     chartRef.value.width = container.clientWidth;
     chartRef.value.height = container.clientHeight;
   }
-  
+
   // 准备数据
   const sortedData = [...goldHistory.value].sort((a, b) => {
     const timeA = a.time ? new Date(a.time).getTime() : 0;
     const timeB = b.time ? new Date(b.time).getTime() : 0;
     return timeA - timeB;
   });
-  
+
   // 检查数据有效性
   if (sortedData.length === 0) {
     console.log('排序后数据为空');
     return;
   }
-  
+
   // 打印数据进行调试
   console.log('金价历史数据:', sortedData);
-  
+
   // 创建日期标签和价格数据
-  const dataPoints = sortedData.map(item => {
-    // 确保日期格式正确
-    let date = null;
-    try {
-      date = item.time ? new Date(item.time) : null;
-    } catch (e) {
-      console.error('日期解析错误:', item.time, e);
-      return null;
-    }
-    
-    // 确保价格格式正确
-    const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
-    if (isNaN(price)) {
-      console.error('价格格式错误:', item.price);
-      return null;
-    }
-    
-    return {
-      x: date,
-      y: price,
-      label: date ? `${date.getMonth() + 1}/${date.getDate()}` : '未知日期'
-    };
-  }).filter(item => item !== null);
-  
+  const dataPoints = sortedData
+    .map((item) => {
+      // 确保日期格式正确
+      let date = null;
+      try {
+        date = item.time ? new Date(item.time) : null;
+      } catch (e) {
+        console.error('日期解析错误:', item.time, e);
+        return null;
+      }
+
+      // 确保价格格式正确
+      const price =
+        typeof item.price === 'string' ? parseFloat(item.price) : item.price;
+      if (isNaN(price)) {
+        console.error('价格格式错误:', item.price);
+        return null;
+      }
+
+      return {
+        x: date,
+        y: price,
+        label: date ? `${date.getMonth() + 1}/${date.getDate()}` : '未知日期',
+      };
+    })
+    .filter((item) => item !== null);
+
   // 如果没有有效数据点，则不渲染图表
   if (dataPoints.length === 0) {
     console.log('没有有效的数据点');
     return;
   }
-  
+
   // 提取标签和数据
-  const labels = dataPoints.map(item => item.label);
-  const prices = dataPoints.map(item => item.y);
-  
+  const labels = dataPoints.map((item) => item.label);
+  const prices = dataPoints.map((item) => item.y);
+
   // 创建图表
   const ctx = chartRef.value.getContext('2d');
   if (!ctx) {
     console.error('无法获取canvas上下文');
     return;
   }
-  
+
   // 确保canvas尺寸正确
   const chartContainer = chartRef.value.parentElement;
   if (chartContainer) {
     chartRef.value.width = chartContainer.clientWidth;
     chartRef.value.height = 400;
   }
-  
+
   // 创建图表
   try {
+    // 计算渐变背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(124, 58, 237, 0.2)'); // 紫色渐变起点 (shadcn风格)
+    gradient.addColorStop(1, 'rgba(124, 58, 237, 0.0)'); // 紫色渐变终点 (透明)
+
+    // 定义主题色
+    const primaryColor = 'rgb(124, 58, 237)'; // 紫色 (shadcn主题色)
+    const secondaryColor = 'rgb(148, 85, 255)'; // 浅紫色
+    const textColor = 'rgb(15, 23, 42)'; // 深色文本
+    const mutedTextColor = 'rgb(100, 116, 139)'; // 次要文本
+    const borderColor = 'rgb(226, 232, 240)'; // 边框颜色
+    const gridColor = 'rgba(226, 232, 240, 0.6)'; // 网格线颜色
+
     chart.value = new Chart(ctx, {
       type: 'line',
       data: {
         labels,
-        datasets: [{
-          label: `${selectedGold.value.name || '金价'}(元/克)`,
-          data: prices,
-          borderColor: '#F7A35C',
-          backgroundColor: 'rgba(247, 163, 92, 0.1)',
-          fill: true,
-          tension: 0.4,
-          spanGaps: true,
-          pointRadius: 5,
-          pointHoverRadius: 8,
-          pointBackgroundColor: '#F7A35C',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          borderWidth: 3
-        }]
+        datasets: [
+          {
+            label: `${selectedGold.value.name || '金价'}(元/克)`,
+            data: prices,
+            borderColor: primaryColor,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.4,
+            spanGaps: true,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: primaryColor,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            borderWidth: 2,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         interaction: {
           mode: 'index',
-          intersect: false
+          intersect: false,
         },
         plugins: {
           legend: {
             display: true,
             position: 'top',
+            align: 'end',
             labels: {
-              boxWidth: 12,
+              boxWidth: 10,
               usePointStyle: true,
               pointStyle: 'circle',
               padding: 20,
+              color: textColor,
               font: {
-                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                size: 13
-              }
-            }
+                family:
+                  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                size: 12,
+                weight: '500',
+              },
+            },
           },
           tooltip: {
             mode: 'index',
             intersect: false,
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            titleColor: '#303133',
-            bodyColor: '#606266',
-            borderColor: '#ebeef5',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            titleColor: textColor,
+            bodyColor: mutedTextColor,
+            borderColor: borderColor,
             borderWidth: 1,
             padding: 12,
-            cornerRadius: 8,
+            cornerRadius: 6,
             boxPadding: 6,
             titleFont: {
-              size: 14,
-              weight: 'bold'
+              size: 13,
+              weight: '600',
+              family:
+                'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             },
             bodyFont: {
-              size: 13
+              size: 12,
+              family:
+                'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             },
+            displayColors: false,
             callbacks: {
-              title: function(tooltipItems) {
+              title: function (tooltipItems) {
                 if (tooltipItems.length > 0) {
                   const index = tooltipItems[0].dataIndex;
                   const item = sortedData[index];
                   if (item && item.time) {
                     const date = new Date(item.time);
-                    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+                    return `${date.getFullYear()}年${
+                      date.getMonth() + 1
+                    }月${date.getDate()}日`;
                   }
                 }
                 return '';
               },
-              label: function(context) {
-                return `${context.dataset.label}: ${context.parsed.y} 元`;
-              }
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: 'category',
-          title: {
-            display: true,
-            text: '日期',
-            color: '#909399',
-            font: {
-              size: 13,
-              weight: 'normal'
+              label: function (context) {
+                return `${context.parsed.y.toFixed(2)} 元/克`;
+              },
             },
-            padding: {top: 10, bottom: 0}
           },
-          grid: {
-            display: true,
-            drawBorder: true,
-            drawOnChartArea: true,
-            color: 'rgba(235, 238, 245, 0.6)'
-          },
-          ticks: {
-            color: '#909399',
-            font: {
-              size: 12
-            },
-            padding: 8
-          }
         },
-        y: {
-          beginAtZero: false,
-          title: {
-            display: true,
-            text: '价格(元/克)',
-            color: '#909399',
-            font: {
-              size: 13,
-              weight: 'normal'
+        scales: {
+          x: {
+            type: 'category',
+            border: {
+              display: false,
             },
-            padding: {top: 0, bottom: 10}
+            grid: {
+              display: true,
+              drawBorder: false,
+              drawOnChartArea: true,
+              color: gridColor,
+            },
+            ticks: {
+              color: mutedTextColor,
+              font: {
+                family:
+                  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                size: 11,
+                weight: '500',
+              },
+              padding: 8,
+              maxRotation: 0,
+            },
           },
-          ticks: {
-            callback: function(value) {
-              return value + ' 元';
+          y: {
+            beginAtZero: false,
+            border: {
+              display: false,
             },
-            color: '#909399',
-            font: {
-              size: 12
+            position: 'right',
+            ticks: {
+              callback: function (value) {
+                return value + ' 元';
+              },
+              color: mutedTextColor,
+              font: {
+                family:
+                  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                size: 11,
+                weight: '500',
+              },
+              padding: 8,
+              precision: 2,
             },
-            padding: 8
+            grid: {
+              display: true,
+              drawBorder: false,
+              drawOnChartArea: true,
+              color: gridColor,
+            },
           },
-          grid: {
-            display: true,
-            drawBorder: true,
-            drawOnChartArea: true,
-            color: 'rgba(235, 238, 245, 0.6)'
-          }
-        }
-      }
+        },
+      },
     });
     console.log('图表渲染完成');
   } catch (error) {
@@ -391,9 +434,9 @@ onMounted(async () => {
         if (chartRef.value && goldHistory.value.length > 0) {
           renderChart();
         } else {
-          console.warn('延迟后仍无法渲染图表:', { 
-            chartRefExists: !!chartRef.value, 
-            historyLength: goldHistory.value.length 
+          console.warn('延迟后仍无法渲染图表:', {
+            chartRefExists: !!chartRef.value,
+            historyLength: goldHistory.value.length,
           });
         }
       }, 300);
@@ -469,7 +512,10 @@ const refreshData = async () => {
 // 监听金价列表变化
 watch(goldList, () => {
   // 如果列表中没有选中的金价，则默认选择第一个
-  if (goldList.value.length > 0 && !goldList.value.some(item => item.goldId === selectedGoldId.value)) {
+  if (
+    goldList.value.length > 0 &&
+    !goldList.value.some((item) => item.goldId === selectedGoldId.value)
+  ) {
     selectedGoldId.value = goldList.value[0].goldId;
   }
 });
@@ -477,10 +523,11 @@ watch(goldList, () => {
 
 <style scoped>
 .gold-page {
-  padding: 20px;
-  background-color: #f9fafc;
+  padding: 24px;
+  background-color: hsl(220, 14%, 96%);
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
 }
 
 .gold-container {
@@ -493,16 +540,17 @@ watch(goldList, () => {
 
 .gold-chart-card,
 .gold-list-card {
-  background-color: #fff;
-  border-radius: 12px;
+  background-color: hsl(0, 0%, 100%);
+  border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 1px solid hsl(220, 13%, 91%);
+  transition: all 0.2s ease;
 }
 
 .gold-chart-card:hover,
 .gold-list-card:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
 .chart-header {
@@ -510,35 +558,37 @@ watch(goldList, () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  border-bottom: 1px solid #f0f2f5;
+  border-bottom: 1px solid hsl(220, 13%, 91%);
   padding-bottom: 16px;
 }
 
 .chart-controls {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .chart-container {
   height: 400px;
   width: 100%;
   position: relative;
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
-  background: linear-gradient(to bottom, #ffffff, #f9fafc);
-  margin-bottom: 20px; /* 添加底部间距 */
+  background: hsl(0, 0%, 100%);
+  margin-bottom: 20px;
+  border: 1px solid hsl(220, 13%, 91%);
 }
 
 .chart-wrapper {
   width: 100%;
   height: 100%;
   position: relative;
+  padding: 16px;
 }
 
 .chart-container canvas {
   width: 100% !important;
   height: 100% !important;
-  display: block; /* 确保canvas正确显示 */
+  display: block;
 }
 
 /* 响应式布局 */
@@ -548,16 +598,16 @@ watch(goldList, () => {
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .chart-controls {
     width: 100%;
     flex-wrap: wrap;
   }
-  
+
   .chart-container {
     height: 350px; /* 增加移动设备上的高度 */
   }
-  
+
   .gold-chart-card,
   .gold-list-card {
     padding: 16px;
@@ -565,19 +615,19 @@ watch(goldList, () => {
 }
 h2 {
   margin: 0 0 20px 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  color: #303133;
-  letter-spacing: 0.5px;
+  color: hsl(222, 47%, 11%);
+  letter-spacing: -0.025em;
 }
 
 .price-up {
-  color: #F56C6C;
+  color: hsl(0, 84%, 60%);
   font-weight: 500;
 }
 
 .price-down {
-  color: #67C23A;
+  color: hsl(142, 71%, 45%);
   font-weight: 500;
 }
 
@@ -586,45 +636,85 @@ h2 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #909399;
-  font-size: 16px;
+  color: hsl(215, 16%, 47%);
+  font-size: 14px;
   text-align: center;
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 16px 24px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  background-color: hsl(0, 0%, 100%);
+  padding: 12px 20px;
+  border-radius: 6px;
+  border: 1px solid hsl(220, 13%, 91%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* 表格样式优化 */
+/* 表格样式优化 - shadcn风格 */
 :deep(.el-table) {
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  box-shadow: none;
+  border: 1px solid hsl(220, 13%, 91%);
 }
 
 :deep(.el-table th) {
-  background-color: #f9fafc;
+  background-color: hsl(220, 14%, 96%);
   font-weight: 600;
-  color: #606266;
+  color: hsl(215, 25%, 27%);
+  font-size: 13px;
+  padding: 12px 16px;
+  border-bottom: 1px solid hsl(220, 13%, 91%);
+}
+
+:deep(.el-table td) {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: hsl(222, 47%, 11%);
 }
 
 :deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
-  background-color: #fafbfc;
+  background-color: hsl(220, 14%, 98%);
+}
+
+:deep(.el-table__row:hover td) {
+  background-color: hsl(250, 84%, 97%) !important;
 }
 
 :deep(.el-select .el-input__wrapper) {
-  border-radius: 8px;
-}
-
-:deep(.el-button) {
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid hsl(220, 13%, 91%);
+  box-shadow: none !important;
   transition: all 0.2s ease;
 }
 
-:deep(.el-button:hover) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+:deep(.el-select .el-input__wrapper:hover) {
+  border-color: hsl(250, 84%, 67%);
+}
+
+:deep(.el-select .el-input__wrapper.is-focus) {
+  border-color: hsl(250, 84%, 67%);
+  box-shadow: 0 0 0 2px hsla(250, 84%, 67%, 0.2) !important;
+}
+
+:deep(.el-button) {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  height: 36px;
+  padding: 0 16px;
+}
+
+:deep(.el-button--primary) {
+  background-color: hsl(250, 84%, 67%);
+  border-color: hsl(250, 84%, 67%);
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: hsl(250, 84%, 60%);
+  border-color: hsl(250, 84%, 60%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+:deep(.el-button--primary:active) {
+  background-color: hsl(250, 84%, 55%);
+  border-color: hsl(250, 84%, 55%);
 }
 
 /* 响应式布局 */
@@ -634,16 +724,16 @@ h2 {
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .chart-controls {
     width: 100%;
     flex-wrap: wrap;
   }
-  
+
   .chart-container {
     height: 300px;
   }
-  
+
   .gold-chart-card,
   .gold-list-card {
     padding: 16px;
