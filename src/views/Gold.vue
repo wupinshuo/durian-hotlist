@@ -49,18 +49,39 @@
       <!-- 金价列表 -->
       <div class="gold-list-card">
         <h2>今日金价</h2>
-        <el-table :data="goldList" stripe style="width: 100%">
-          <el-table-column prop="name" label="品牌" />
-          <el-table-column prop="price" label="价格(元/克)">
+        <el-table
+          :data="goldList"
+          stripe
+          style="width: 100%"
+          class="gold-price-table"
+          :header-cell-style="{
+            backgroundColor: 'hsl(222, 47%, 11%)',
+            color: 'hsl(214, 32%, 91%)',
+            fontWeight: '600',
+            borderBottom: '1px solid hsl(215, 25%, 27%, 0.3)',
+          }"
+          :cell-style="{
+            backgroundColor: 'hsl(224, 71%, 4%)',
+            color: 'hsl(210, 40%, 98%)',
+            borderBottom: '1px solid hsl(215, 25%, 27%, 0.2)',
+          }"
+          :row-style="{
+            backgroundColor: 'hsl(224, 71%, 4%)',
+            transition: 'all 0.2s ease',
+          }"
+          :row-class-name="'gold-table-row'"
+        >
+          <el-table-column prop="name" label="品牌" width="180" />
+          <el-table-column prop="price" label="价格(元/克)" align="right">
             <template #default="scope">
-              <span>{{
+              <span class="gold-price-value">{{
                 typeof scope.row.price === 'number'
                   ? scope.row.price.toFixed(2)
                   : scope.row.price
               }}</span>
             </template>
           </el-table-column>
-          <!-- <el-table-column label="与基准价差">
+          <!-- <el-table-column label="与基准价差" align="right" width="120">
             <template #default="scope">
               <span :class="getPriceDiffClass(scope.row)">
                 {{ calculatePriceDiff(scope.row) }}
@@ -260,16 +281,16 @@ const renderChart = () => {
   try {
     // 计算渐变背景
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(124, 58, 237, 0.2)'); // 紫色渐变起点 (shadcn风格)
-    gradient.addColorStop(1, 'rgba(124, 58, 237, 0.0)'); // 紫色渐变终点 (透明)
+    gradient.addColorStop(0, 'rgba(124, 58, 237, 0.3)'); // 紫色渐变起点 (深色模式)
+    gradient.addColorStop(1, 'rgba(124, 58, 237, 0.05)'); // 紫色渐变终点 (深色模式)
 
-    // 定义主题色
-    const primaryColor = 'rgb(124, 58, 237)'; // 紫色 (shadcn主题色)
-    const secondaryColor = 'rgb(148, 85, 255)'; // 浅紫色
-    const textColor = 'rgb(15, 23, 42)'; // 深色文本
-    const mutedTextColor = 'rgb(100, 116, 139)'; // 次要文本
-    const borderColor = 'rgb(226, 232, 240)'; // 边框颜色
-    const gridColor = 'rgba(226, 232, 240, 0.6)'; // 网格线颜色
+    // 定义深色主题色
+    const primaryColor = 'rgb(167, 139, 250)'; // 亮紫色 (深色模式)
+    const secondaryColor = 'rgb(192, 132, 252)'; // 更亮的紫色 (深色模式)
+    const textColor = 'rgb(241, 245, 249)'; // 浅色文本 (深色模式)
+    const mutedTextColor = 'rgb(148, 163, 184)'; // 次要文本 (深色模式)
+    const borderColor = 'rgba(71, 85, 105, 0.5)'; // 边框颜色 (深色模式)
+    const gridColor = 'rgba(71, 85, 105, 0.3)'; // 网格线颜色 (深色模式)
 
     chart.value = new Chart(ctx, {
       type: 'line',
@@ -322,7 +343,7 @@ const renderChart = () => {
           tooltip: {
             mode: 'index',
             intersect: false,
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
             titleColor: textColor,
             bodyColor: mutedTextColor,
             borderColor: borderColor,
@@ -524,10 +545,11 @@ watch(goldList, () => {
 <style scoped>
 .gold-page {
   padding: 24px;
-  background-color: hsl(220, 14%, 96%);
+  background-color: hsl(222, 47%, 11%); /* 深色背景 */
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Helvetica, Arial, sans-serif;
+  color: hsl(210, 40%, 98%); /* 浅色文本 */
 }
 
 .gold-container {
@@ -540,17 +562,18 @@ watch(goldList, () => {
 
 .gold-chart-card,
 .gold-list-card {
-  background-color: hsl(0, 0%, 100%);
+  background-color: hsl(224, 71%, 4%); /* 深色卡片背景 */
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
-  border: 1px solid hsl(220, 13%, 91%);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border: 1px solid hsl(215, 25%, 27%, 0.3); /* 深色边框 */
   transition: all 0.2s ease;
 }
 
 .gold-chart-card:hover,
 .gold-list-card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.25);
+  border-color: hsl(215, 25%, 27%, 0.5);
 }
 
 .chart-header {
@@ -558,7 +581,7 @@ watch(goldList, () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  border-bottom: 1px solid hsl(220, 13%, 91%);
+  border-bottom: 1px solid hsl(215, 25%, 27%, 0.3); /* 深色边框 */
   padding-bottom: 16px;
 }
 
@@ -573,9 +596,9 @@ watch(goldList, () => {
   position: relative;
   border-radius: 6px;
   overflow: hidden;
-  background: hsl(0, 0%, 100%);
+  background: hsl(224, 71%, 4%, 0.5); /* 深色图表背景 */
   margin-bottom: 20px;
-  border: 1px solid hsl(220, 13%, 91%);
+  border: 1px solid hsl(215, 25%, 27%, 0.3); /* 深色边框 */
 }
 
 .chart-wrapper {
@@ -617,7 +640,7 @@ h2 {
   margin: 0 0 20px 0;
   font-size: 18px;
   font-weight: 600;
-  color: hsl(222, 47%, 11%);
+  color: hsl(210, 40%, 98%); /* 浅色文本 */
   letter-spacing: -0.025em;
 }
 
@@ -636,50 +659,116 @@ h2 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: hsl(215, 16%, 47%);
+  color: hsl(210, 40%, 98%);
   font-size: 14px;
   text-align: center;
-  background-color: hsl(0, 0%, 100%);
+  background-color: hsl(224, 71%, 4%);
   padding: 12px 20px;
   border-radius: 6px;
-  border: 1px solid hsl(220, 13%, 91%);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid hsl(215, 25%, 27%, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* 表格样式优化 - shadcn风格 */
+/* 表格样式优化 - 深色模式 */
 :deep(.el-table) {
   border-radius: 6px;
   overflow: hidden;
   box-shadow: none;
-  border: 1px solid hsl(220, 13%, 91%);
+  border: 1px solid hsl(215, 25%, 27%, 0.3);
+  background-color: hsl(224, 71%, 4%);
+  color: hsl(210, 40%, 98%);
 }
 
 :deep(.el-table th) {
-  background-color: hsl(220, 14%, 96%);
+  background-color: hsl(222, 47%, 11%);
   font-weight: 600;
-  color: hsl(215, 25%, 27%);
+  color: hsl(214, 32%, 91%);
   font-size: 13px;
   padding: 12px 16px;
-  border-bottom: 1px solid hsl(220, 13%, 91%);
+  border-bottom: 1px solid hsl(215, 25%, 27%, 0.3);
 }
 
 :deep(.el-table td) {
   padding: 12px 16px;
   font-size: 14px;
-  color: hsl(222, 47%, 11%);
+  color: hsl(210, 40%, 98%);
+  border-bottom: 1px solid hsl(215, 25%, 27%, 0.2);
 }
 
 :deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
-  background-color: hsl(220, 14%, 98%);
+  background-color: hsla(222, 47%, 11%, 0.4);
 }
 
 :deep(.el-table__row:hover td) {
-  background-color: hsl(250, 84%, 97%) !important;
+  background-color: hsla(250, 84%, 20%, 0.3) !important;
 }
 
+/* 修复表格边框和背景 */
+:deep(.el-table__inner-wrapper::before),
+:deep(.el-table__border-left-patch) {
+  background-color: hsl(215, 25%, 27%, 0.3) !important;
+}
+
+:deep(.el-table__header-wrapper),
+:deep(.el-table__body-wrapper),
+:deep(.el-table__footer-wrapper) {
+  background-color: transparent;
+}
+
+:deep(.el-table__empty-block) {
+  background-color: hsl(224, 71%, 4%);
+}
+
+:deep(.el-table__empty-text) {
+  color: hsl(214, 32%, 91%);
+}
+
+/* 金价表格特定样式 */
+.gold-price-table {
+  --el-table-border-color: hsl(215, 25%, 27%, 0.3);
+  --el-table-header-bg-color: hsl(222, 47%, 11%);
+  --el-table-bg-color: hsl(224, 71%, 4%);
+  --el-table-tr-bg-color: hsl(224, 71%, 4%);
+  --el-table-expanded-cell-bg-color: hsl(224, 71%, 4%);
+}
+
+:deep(.gold-price-table .el-table__header) {
+  border-bottom: 2px solid hsl(250, 84%, 67%, 0.3);
+}
+
+:deep(.gold-price-table .el-table__row) {
+  transition: all 0.2s ease;
+}
+
+:deep(.gold-price-table .el-table__row:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+:deep(.gold-price-table .gold-table-row:nth-child(odd) td) {
+  background-color: hsla(222, 47%, 11%, 0.4);
+}
+
+:deep(.gold-price-table .gold-table-row:nth-child(even) td) {
+  background-color: hsla(224, 71%, 4%, 1);
+}
+
+:deep(.gold-price-table .gold-table-row:hover td) {
+  background-color: hsla(250, 84%, 20%, 0.3) !important;
+}
+
+.gold-price-value {
+  font-weight: 600;
+  font-size: 15px;
+  color: hsl(250, 84%, 80%);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 深色模式下的表单控件样式 */
 :deep(.el-select .el-input__wrapper) {
   border-radius: 6px;
-  border: 1px solid hsl(220, 13%, 91%);
+  border: 1px solid hsl(215, 25%, 27%, 0.5);
+  background-color: hsl(222, 47%, 11%);
   box-shadow: none !important;
   transition: all 0.2s ease;
 }
@@ -693,6 +782,37 @@ h2 {
   box-shadow: 0 0 0 2px hsla(250, 84%, 67%, 0.2) !important;
 }
 
+/* 下拉菜单文本颜色 */
+:deep(.el-input__inner) {
+  color: hsl(210, 40%, 98%) !important;
+}
+
+/* 下拉菜单图标颜色 */
+:deep(.el-select .el-input .el-select__caret) {
+  color: hsl(214, 32%, 91%);
+}
+
+/* 下拉选项样式 */
+:deep(.el-select-dropdown) {
+  background-color: hsl(222, 47%, 11%);
+  border: 1px solid hsl(215, 25%, 27%, 0.5);
+}
+
+:deep(.el-select-dropdown__item) {
+  color: hsl(210, 40%, 98%);
+}
+
+:deep(.el-select-dropdown__item.hover),
+:deep(.el-select-dropdown__item:hover) {
+  background-color: hsla(250, 84%, 20%, 0.3);
+}
+
+:deep(.el-select-dropdown__item.selected) {
+  color: hsl(250, 84%, 67%);
+  font-weight: 600;
+}
+
+/* 按钮样式 */
 :deep(.el-button) {
   border-radius: 6px;
   font-weight: 500;
@@ -709,12 +829,17 @@ h2 {
 :deep(.el-button--primary:hover) {
   background-color: hsl(250, 84%, 60%);
   border-color: hsl(250, 84%, 60%);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 :deep(.el-button--primary:active) {
   background-color: hsl(250, 84%, 55%);
   border-color: hsl(250, 84%, 55%);
+}
+
+/* 图标颜色 */
+:deep(.el-button .el-icon) {
+  color: hsl(210, 40%, 98%);
 }
 
 /* 响应式布局 */
@@ -739,4 +864,49 @@ h2 {
     padding: 16px;
   }
 }
+
+/* 深色模式下的骨架屏样式 */
+:deep(.el-skeleton) {
+  --el-skeleton-color: hsla(222, 47%, 15%, 1);
+  --el-skeleton-to-color: hsla(222, 47%, 18%, 1);
+}
+
+/* 深色模式下的消息提示样式 */
+:deep(.el-message) {
+  background-color: hsl(222, 47%, 11%);
+  border-color: hsl(215, 25%, 27%, 0.3);
+}
+
+:deep(.el-message--info) {
+  --el-message-text-color: hsl(210, 40%, 98%);
+  --el-message-bg-color: hsl(222, 47%, 11%);
+}
+
+:deep(.el-message--success) {
+  --el-message-text-color: hsl(142, 71%, 45%);
+}
+
+:deep(.el-message--error) {
+  --el-message-text-color: hsl(0, 84%, 60%);
+}
+
+:deep(.el-message--warning) {
+  --el-message-text-color: hsl(48, 96%, 53%);
+}
 </style>
+/* 金价表格高亮和动画效果 */ @keyframes priceGlow { 0% { text-shadow: 0 0 5px
+hsla(250, 84%, 67%, 0); } 50% { text-shadow: 0 0 10px hsla(250, 84%, 67%, 0.5);
+} 100% { text-shadow: 0 0 5px hsla(250, 84%, 67%, 0); } } .gold-price-value {
+animation: priceGlow 3s infinite; transition: all 0.3s ease; }
+:deep(.gold-price-table .el-table__row:hover .gold-price-value) { color:
+hsl(250, 84%, 90%); text-shadow: 0 0 10px hsla(250, 84%, 67%, 0.7); } /*
+表格行交互效果增强 */ :deep(.gold-price-table .el-table__row) { position:
+relative; overflow: hidden; } :deep(.gold-price-table .el-table__row::after) {
+content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 3px;
+background-color: transparent; transition: all 0.3s ease; }
+:deep(.gold-price-table .el-table__row:hover::after) { background-color:
+hsl(250, 84%, 67%); } /* 表格容器增强 */ .gold-list-card { position: relative;
+overflow: hidden; } .gold-list-card::before { content: ''; position: absolute;
+top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg,
+hsl(250, 84%, 67%) 0%, hsl(250, 84%, 80%) 50%, hsl(250, 84%, 67%) 100%);
+opacity: 0.7; }
