@@ -10,27 +10,36 @@
               v-model="selectedGoldId"
               placeholder="选择金价"
               @change="handleGoldChange"
+              class="dark-select"
+              popper-class="dark-select-dropdown"
             >
               <el-option
                 v-for="item in goldList"
                 :key="item.goldId"
                 :label="item.name"
                 :value="item.goldId"
+                class="dark-option"
               />
             </el-select>
             <el-select
               v-model="selectedDays"
               placeholder="选择时间范围"
               @change="handleDaysChange"
+              class="dark-select"
+              popper-class="dark-select-dropdown"
             >
-              <el-option label="最近7天" :value="7" />
-              <el-option label="最近14天" :value="14" />
-              <el-option label="最近30天" :value="30" />
-              <el-option label="最近60天" :value="60" />
-              <el-option label="最近90天" :value="90" />
-              <el-option label="最近180天" :value="180" />
+              <el-option label="最近7天" :value="7" class="dark-option" />
+              <el-option label="最近14天" :value="14" class="dark-option" />
+              <el-option label="最近30天" :value="30" class="dark-option" />
+              <el-option label="最近60天" :value="60" class="dark-option" />
+              <el-option label="最近90天" :value="90" class="dark-option" />
+              <el-option label="最近180天" :value="180" class="dark-option" />
             </el-select>
-            <el-button type="primary" @click="refreshData">
+            <el-button
+              type="primary"
+              @click="refreshData"
+              class="refresh-button"
+            >
               <el-icon><Refresh /></el-icon> 刷新
             </el-button>
           </div>
@@ -587,7 +596,8 @@ watch(goldList, () => {
 
 .chart-controls {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
 }
 
 .chart-container {
@@ -910,3 +920,124 @@ overflow: hidden; } .gold-list-card::before { content: ''; position: absolute;
 top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg,
 hsl(250, 84%, 67%) 0%, hsl(250, 84%, 80%) 50%, hsl(250, 84%, 67%) 100%);
 opacity: 0.7; }
+/* 下拉框和按钮增强样式 */
+.dark-select {
+  width: 140px;
+  height: 36px;
+}
+
+:deep(.dark-select .el-input__wrapper) {
+  background-color: hsl(224, 71%, 4%);
+  border: 1px solid hsl(215, 25%, 27%, 0.5);
+  box-shadow: none !important;
+  padding: 0 12px;
+  height: 36px;
+}
+
+:deep(.dark-select .el-input__wrapper:hover) {
+  border-color: hsl(250, 84%, 67%);
+}
+
+:deep(.dark-select .el-input__wrapper.is-focus) {
+  border-color: hsl(250, 84%, 67%);
+  box-shadow: 0 0 0 2px hsla(250, 84%, 67%, 0.2) !important;
+}
+
+:deep(.dark-select .el-input__inner) {
+  color: hsl(210, 40%, 98%);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+:deep(.dark-select .el-select__caret) {
+  color: hsl(250, 84%, 67%);
+  font-size: 16px;
+}
+
+:deep(.dark-select-dropdown) {
+  background-color: hsl(224, 71%, 4%) !important;
+  border: 1px solid hsl(215, 25%, 27%, 0.5) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+:deep(.dark-select-dropdown .el-scrollbar__view) {
+  padding: 4px 0;
+}
+
+:deep(.dark-select-dropdown .el-select-dropdown__item) {
+  color: hsl(210, 40%, 98%);
+  height: 36px;
+  line-height: 36px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+:deep(.dark-select-dropdown .el-select-dropdown__item.hover),
+:deep(.dark-select-dropdown .el-select-dropdown__item:hover) {
+  background-color: hsla(250, 84%, 20%, 0.3);
+}
+
+:deep(.dark-select-dropdown .el-select-dropdown__item.selected) {
+  background-color: hsla(250, 84%, 20%, 0.5);
+  color: hsl(250, 84%, 80%);
+  font-weight: 600;
+}
+
+.refresh-button {
+  height: 36px;
+  padding: 0 16px;
+  background-color: hsl(250, 84%, 67%);
+  border-color: hsl(250, 84%, 67%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.refresh-button:hover {
+  background-color: hsl(250, 84%, 60%);
+  border-color: hsl(250, 84%, 60%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.refresh-button:active {
+  background-color: hsl(250, 84%, 55%);
+  border-color: hsl(250, 84%, 55%);
+  transform: translateY(0);
+}
+
+:deep(.refresh-button .el-icon) {
+  margin-right: 0;
+  font-size: 16px;
+}
+
+/* 修复下拉框在深色模式下的样式问题 */
+:deep(.el-popper.is-light) {
+  background-color: hsl(224, 71%, 4%) !important;
+  border-color: hsl(215, 25%, 27%, 0.5) !important;
+}
+
+:deep(.el-popper.is-light .el-popper__arrow::before) {
+  background-color: hsl(224, 71%, 4%) !important;
+  border-color: hsl(215, 25%, 27%, 0.5) !important;
+}
+
+/* 确保控件在移动设备上的对齐 */
+@media (max-width: 768px) {
+  .chart-controls {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .dark-select {
+    width: calc(50% - 5px);
+  }
+  
+  .refresh-button {
+    width: 100%;
+    margin-top: 5px;
+  }
+}
