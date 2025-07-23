@@ -2,7 +2,7 @@
   <div class="bilibili-card">
     <div class="card-header">
       <div class="header-left">
-        <div class="logo">
+        <div class="logo clickable-logo" @click="handleLogoClick" title="访问哔哩哔哩">
           <AppIcon name="bilibili" />
         </div>
         <div>
@@ -87,6 +87,11 @@ function handleClick(item: any) {
   
   // 增加更新触发器来强制视图更新
   updateTrigger.value++;
+}
+
+// 处理 logo 点击事件
+function handleLogoClick() {
+  window.open('https://www.bilibili.com', '_blank');
 }
 
 function formatHotCount(hot: string): string {
@@ -314,6 +319,21 @@ function formatHotCount(hot: string): string {
 .trending-list-wrapper::-webkit-scrollbar-thumb {
   background: #e0e0e0;
   border-radius: 6px;
+}
+
+/* 可点击的 logo 样式 */
+.clickable-logo {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clickable-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 16px rgba(251, 114, 153, 0.4);
+}
+
+:root.dark .clickable-logo:hover {
+  box-shadow: 0 0 20px rgba(251, 114, 153, 0.6);
 }
 
 @media (max-width: 600px) {

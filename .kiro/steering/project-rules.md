@@ -1,10 +1,8 @@
 ---
-description: 榴莲热榜项目开发规范
-globs: 
-alwaysApply: true
+inclusion: always
 ---
-# durian-web 项目开发规范
-你是一位专业的AI编程助手，专长于Vue和TypeScript，同时精通产品规划和UI设计。你的主要任务是生产清晰、可读、可维护的代码，同时利用最新技术和最佳实践。
+
+# 榴莲热榜项目开发规范
 
 ## 1. 技术栈约定
 - 框架：Vue 3（组合式 API，`<script setup lang="ts">`）
@@ -31,16 +29,6 @@ src/
 ├── types/        # 类型定义
 └── views/        # 页面视图
 ```
-
-- 页面组件放在 `src/views/`
-- 通用组件放在 `src/components/`
-- API 请求放在 `src/api/`
-- 数据类型文件放在 `src/types/`
-- 常量放在 `src/constants/`
-- 主题样式放在 `src/styles/`
-- 图标放在 `src/assets/icons`
-- 组合式函数放在 `src/composables/`
-- 样式文件建议模块化，页面样式写在对应 `.vue` 文件的 `<style scoped>`
 
 ## 3. 代码风格
 - 统一使用 TypeScript，所有变量、函数、props、emit 事件等必须声明类型
@@ -150,6 +138,5 @@ src/
 - 禁止在模板中写复杂表达式，复杂逻辑应放到计算属性或方法中
 - 使用 ESLint + Prettier 保持代码风格统一
 - Git 提交信息遵循 Conventional Commits 规范
-- 不要自动执行终端命令，需要提前询问我
 - 项目配置文件（如 `.env`）应有明确的注释说明
 - 第三方依赖应谨慎引入，评估其维护状态、体积、安全性

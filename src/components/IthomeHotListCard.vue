@@ -2,7 +2,7 @@
   <div class="ithome-card">
     <div class="card-header">
       <div class="header-left">
-        <div class="logo">
+        <div class="logo clickable-logo" @click="handleLogoClick" title="访问IT之家">
           <img src="/images/ithome.ico" alt="IT之家" width="20" height="20">
         </div>
         <div>
@@ -67,6 +67,11 @@ const emit = defineEmits(['refresh']);
 
 function handleRefresh() {
   emit('refresh');
+}
+
+// 处理 logo 点击事件
+function handleLogoClick() {
+  window.open('https://www.ithome.com', '_blank');
 }
 
 // 处理点击事件
@@ -236,5 +241,20 @@ function handleClick(item: any) {
 
 .trending-list-wrapper::-webkit-scrollbar-thumb:hover {
   background-color: rgba(128, 128, 128, 0.5);
+}
+
+/* 可点击的 logo 样式 */
+.clickable-logo {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clickable-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 16px rgba(231, 64, 37, 0.4);
+}
+
+:root.dark .clickable-logo:hover {
+  box-shadow: 0 0 20px rgba(231, 64, 37, 0.6);
 }
 </style> 

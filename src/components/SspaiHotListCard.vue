@@ -2,7 +2,7 @@
   <div class="sspai-card">
     <div class="card-header">
       <div class="header-left">
-        <div class="logo">
+        <div class="logo clickable-logo" @click="handleLogoClick" title="访问少数派">
           <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M18,0C8.1,0,0,8.1,0,18s8.1,18,18,18s18-8.1,18-18S27.9,0,18,0z M26.9,11.6c0,0.2-0.1,0.3-0.2,0.5
                 c-0.1,0.1-0.3,0.2-0.4,0.2l-3.3,0.6v8.3c0,0.5,0.1,1,0.3,1.4l2.1,4c0.1,0.1,0.1,0.2,0.1,0.3c0,0.1,0,0.2-0.1,0.3
@@ -75,6 +75,11 @@ const emit = defineEmits(['refresh']);
 
 function handleRefresh() {
   emit('refresh');
+}
+
+// 处理 logo 点击事件
+function handleLogoClick() {
+  window.open('https://sspai.com', '_blank');
 }
 
 // 处理点击事件
@@ -239,5 +244,20 @@ function handleClick(item: any) {
 
 .trending-list-wrapper::-webkit-scrollbar-thumb:hover {
   background-color: rgba(128, 128, 128, 0.5);
+}
+
+/* 可点击的 logo 样式 */
+.clickable-logo {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clickable-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 16px rgba(215, 23, 24, 0.4);
+}
+
+:root.dark .clickable-logo:hover {
+  box-shadow: 0 0 20px rgba(215, 23, 24, 0.6);
 }
 </style> 

@@ -2,7 +2,7 @@
   <div class="juejin-card">
     <div class="card-header">
       <div class="header-left">
-        <div class="logo">
+        <div class="logo clickable-logo" @click="handleLogoClick" title="访问掘金">
           <svg width="22" height="22" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g>
               <path d="M512 128L128 384l384 256 384-256L512 128z" fill="#1e80ff"/>
@@ -91,6 +91,11 @@ function handleClick(item: any) {
   
   // 增加更新触发器来强制视图更新
   updateTrigger.value++;
+}
+
+// 处理 logo 点击事件
+function handleLogoClick() {
+  window.open('https://juejin.cn', '_blank');
 }
 </script>
 
@@ -304,6 +309,21 @@ function handleClick(item: any) {
 
 :root:not(.dark) .trending-list-wrapper::-webkit-scrollbar-track {
   background: rgba(230, 235, 240, 0.6);
+}
+
+/* 可点击的 logo 样式 */
+.clickable-logo {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clickable-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 16px rgba(30, 128, 255, 0.4);
+}
+
+:root.dark .clickable-logo:hover {
+  box-shadow: 0 0 20px rgba(30, 128, 255, 0.6);
 }
 
 @media (max-width: 768px) {
