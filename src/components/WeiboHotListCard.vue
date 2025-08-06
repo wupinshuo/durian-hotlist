@@ -94,8 +94,13 @@ function handleLogoClick() {
   window.open('https://weibo.com', '_blank');
 }
 
+/**
+ * 格式化微博热榜数据中的热榜数量
+ * @param hot 原始热榜数量字符串
+ * @returns 格式化后的数量字符串（万单位）
+ */
 function formatHotCount(hot: string): string {
-  const num = parseInt(hot, 10);
+  const num = Number(hot);
   if (isNaN(num)) {
     return hot;
   }

@@ -95,7 +95,7 @@ function handleLogoClick() {
 }
 
 function formatHotCount(hot: string): string {
-  const num = parseInt(hot, 10);
+  const num = Number(hot);
   if (isNaN(num)) {
     return hot;
   }
