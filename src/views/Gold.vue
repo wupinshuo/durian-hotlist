@@ -61,6 +61,47 @@
         </div>
       </div>
 
+      <!-- 今日金价详细走势图 -->
+      <div class="gold-chart-card today-gold-card">
+        <div class="chart-header">
+          <h2>今日金价实时走势</h2>
+          <div class="chart-controls">
+            <div class="select-container">
+              <span class="select-label">时间范围:</span>
+              <el-select
+                v-model="todaySelectedDays"
+                placeholder="选择时间范围"
+                @change="handleTodayDaysChange"
+                class="dark-select"
+                popper-class="dark-select-dropdown"
+              >
+                <el-option label="1天" :value="1" class="dark-option" />
+                <el-option label="2天" :value="2" class="dark-option" />
+                <el-option label="3天" :value="3" class="dark-option" />
+                <el-option label="5天" :value="5" class="dark-option" />
+                <el-option label="7天" :value="7" class="dark-option" />
+              </el-select>
+            </div>
+            <el-button
+              type="primary"
+              @click="refreshTodayGoldData"
+              class="refresh-button"
+            >
+              <el-icon><Refresh /></el-icon> 刷新
+            </el-button>
+          </div>
+        </div>
+        <div class="chart-container">
+          <el-skeleton v-if="todayLoading" :rows="10" animated />
+          <div v-else class="chart-wrapper">
+            <canvas ref="todayChartRef" id="todayGoldChart"></canvas>
+            <div v-if="todayGoldHistory.length === 0" class="no-data-message">
+              暂无实时数据
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 金价列表 -->
       <div class="gold-list-card">
         <h2>今日金价</h2>
@@ -111,8 +152,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
-import { getGoldList, getGoldHistory } from '@/api/gold';
-import { GoldItem } from '@/types/gold';
+import { getGoldList, getGoldHistory, getTodayGoldHistory } from '@/api/gold';
+import { GoldItem, TodayGoldItem } from '@/types/gold';
 import { ElMessage } from 'element-plus';
 import { Refresh } from '@element-plus/icons-vue';
 import Chart from 'chart.js/auto';
@@ -125,6 +166,13 @@ const chartRef = ref<HTMLCanvasElement | null>(null);
 const chart = ref<Chart | null>(null);
 const selectedGoldId = ref('jj'); // 默认选择今日金价
 const selectedDays = ref(7); // 默认查询7天
+
+// 今日金价详细数据状态
+const todayGoldHistory = ref<TodayGoldItem[]>([]);
+const todayLoading = ref(true);
+const todayChartRef = ref<HTMLCanvasElement | null>(null);
+const todayChart = ref<Chart | null>(null);
+const todaySelectedDays = ref(1); // 默认查询1天
 
 // 获取选中的金价信息
 const selectedGold = computed(() => {
@@ -192,6 +240,26 @@ const loadGoldHistory = async () => {
     ElMessage.error('加载金价历史数据失败');
   } finally {
     loading.value = false;
+  }
+};
+
+// 加载今日金价详细历史数据
+const loadTodayGoldHistory = async () => {
+  todayLoading.value = true;
+  try {
+    const data = await getTodayGoldHistory(todaySelectedDays.value);
+    if (data && data.list.length > 0) {
+      todayGoldHistory.value = data.list;
+      renderTodayChart();
+    } else {
+      // ElMessage.warning('今日金价详细数据为空');
+      todayGoldHistory.value = [];
+    }
+  } catch (error) {
+    console.error('加载今日金价详细数据失败:', error);
+    ElMessage.error('加载今日金价详细数据失败');
+  } finally {
+    todayLoading.value = false;
   }
 };
 
@@ -479,13 +547,265 @@ const renderChart = () => {
   }
 };
 
+// 渲染今日金价详细图表
+const renderTodayChart = () => {
+  console.log('尝试渲染今日金价图表', {
+    chartRefExists: !!todayChartRef.value,
+    historyLength: todayGoldHistory.value.length,
+  });
+
+  if (!todayChartRef.value || todayGoldHistory.value.length === 0) {
+    console.log(
+      '无法渲染今日金价图表：',
+      !todayChartRef.value ? 'chartRef不存在' : '历史数据为空',
+    );
+    return;
+  }
+
+  // 销毁旧图表
+  if (todayChart.value) {
+    todayChart.value.destroy();
+    todayChart.value = null;
+  }
+
+  // 准备数据 - 按时间戳排序
+  const sortedData = [...todayGoldHistory.value].sort(
+    (a, b) => a.timestamp - b.timestamp,
+  );
+
+  console.log('今日金价历史数据:', sortedData);
+
+  // 创建时间标签和价格数据
+  const dataPoints = sortedData.map((item) => {
+    const date = new Date(item.timestamp);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const label = `${hours}:${minutes}`;
+
+    return {
+      x: item.timestamp,
+      y: item.price,
+      label,
+      fullDate: date,
+    };
+  });
+
+  if (dataPoints.length === 0) {
+    console.log('没有有效的数据点');
+    return;
+  }
+
+  // 提取标签和数据
+  const labels = dataPoints.map((item) => item.label);
+  const prices = dataPoints.map((item) => item.y);
+
+  // 创建图表
+  const ctx = todayChartRef.value.getContext('2d');
+  if (!ctx) {
+    console.error('无法获取canvas上下文');
+    return;
+  }
+
+  // 确保canvas尺寸正确
+  const chartContainer = todayChartRef.value.parentElement;
+  if (chartContainer) {
+    todayChartRef.value.width = chartContainer.clientWidth;
+
+    // 根据屏幕宽度动态调整图表高度
+    const screenWidth = window.innerWidth;
+    let chartHeight = 400;
+
+    if (screenWidth <= 360) {
+      chartHeight = 220;
+    } else if (screenWidth <= 430) {
+      chartHeight = 300;
+    } else if (screenWidth <= 768) {
+      chartHeight = 280;
+    }
+
+    if (window.innerWidth > window.innerHeight && screenWidth <= 932) {
+      chartHeight = 240;
+    }
+
+    todayChartRef.value.height = chartHeight;
+  }
+
+  // 创建图表
+  try {
+    // 计算渐变背景 - 使用橙色渐变以区分
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(249, 115, 22, 0.3)'); // 橙色渐变起点
+    gradient.addColorStop(1, 'rgba(249, 115, 22, 0.05)'); // 橙色渐变终点
+
+    // 定义深色主题色 - 使用橙色系
+    const primaryColor = 'rgb(251, 146, 60)'; // 橙色
+    const textColor = 'rgb(241, 245, 249)';
+    const mutedTextColor = 'rgb(148, 163, 184)';
+    const borderColor = 'rgba(71, 85, 105, 0.5)';
+    const gridColor = 'rgba(71, 85, 105, 0.3)';
+
+    const isMobile = window.innerWidth <= 768;
+
+    todayChart.value = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: '今日金价(元/克)',
+            data: prices,
+            borderColor: primaryColor,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.4,
+            spanGaps: true,
+            pointRadius: isMobile ? 2 : 3,
+            pointHoverRadius: isMobile ? 4 : 6,
+            pointBackgroundColor: primaryColor,
+            pointBorderColor: '#fff',
+            pointBorderWidth: isMobile ? 1 : 2,
+            borderWidth: isMobile ? 1.5 : 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: {
+              boxWidth: 10,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              padding: 20,
+              color: textColor,
+              font: {
+                family:
+                  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                size: 12,
+                weight: '500',
+              },
+            },
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            titleColor: textColor,
+            bodyColor: mutedTextColor,
+            borderColor: borderColor,
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 6,
+            boxPadding: 6,
+            titleFont: {
+              size: 13,
+              weight: '600',
+              family:
+                'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            },
+            bodyFont: {
+              size: 12,
+              family:
+                'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            },
+            displayColors: false,
+            callbacks: {
+              title: function (tooltipItems) {
+                if (tooltipItems.length > 0) {
+                  const index = tooltipItems[0].dataIndex;
+                  const item = dataPoints[index];
+                  if (item && item.fullDate) {
+                    const date = item.fullDate;
+                    return `${date.getFullYear()}年${
+                      date.getMonth() + 1
+                    }月${date.getDate()}日 ${item.label}`;
+                  }
+                }
+                return '';
+              },
+              label: function (context) {
+                return `${context.parsed.y.toFixed(1)} 元/克`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            type: 'category',
+            border: {
+              display: false,
+            },
+            grid: {
+              display: true,
+              drawBorder: false,
+              drawOnChartArea: true,
+              color: gridColor,
+            },
+            ticks: {
+              color: mutedTextColor,
+              font: {
+                family:
+                  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                size: 11,
+                weight: '500',
+              },
+              padding: 8,
+              maxRotation: 45,
+              autoSkip: true,
+              maxTicksLimit: isMobile ? 6 : 12,
+            },
+          },
+          y: {
+            beginAtZero: false,
+            border: {
+              display: false,
+            },
+            position: 'right',
+            ticks: {
+              callback: function (value) {
+                return value + ' 元';
+              },
+              color: mutedTextColor,
+              font: {
+                family:
+                  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                size: 11,
+                weight: '500',
+              },
+              padding: 8,
+              precision: 1,
+            },
+            grid: {
+              display: true,
+              drawBorder: false,
+              drawOnChartArea: true,
+              color: gridColor,
+            },
+          },
+        },
+      },
+    });
+    console.log('今日金价图表渲染完成');
+  } catch (error) {
+    console.error('今日金价图表渲染失败:', error);
+  }
+};
+
 // 组件挂载时加载数据
 onMounted(async () => {
   try {
     await loadGoldList();
     // 添加更长的延迟确保DOM已完全渲染
     setTimeout(async () => {
-      await loadGoldHistory();
+      await Promise.all([loadGoldHistory(), loadTodayGoldHistory()]);
       // 再次延迟确保chartRef已经挂载
       setTimeout(() => {
         if (chartRef.value && goldHistory.value.length > 0) {
@@ -494,6 +814,15 @@ onMounted(async () => {
           console.warn('延迟后仍无法渲染图表:', {
             chartRefExists: !!chartRef.value,
             historyLength: goldHistory.value.length,
+          });
+        }
+
+        if (todayChartRef.value && todayGoldHistory.value.length > 0) {
+          renderTodayChart();
+        } else {
+          console.warn('延迟后仍无法渲染今日金价图表:', {
+            todayChartRefExists: !!todayChartRef.value,
+            todayHistoryLength: todayGoldHistory.value.length,
           });
         }
       }, 300);
@@ -544,6 +873,44 @@ const handleDaysChange = (days: number) => {
   } catch (error) {
     console.error('切换天数失败:', error);
     ElMessage.error('切换天数失败');
+  }
+};
+
+// 处理今日金价天数变化
+const handleTodayDaysChange = (days: number) => {
+  todaySelectedDays.value = days;
+  todayLoading.value = true;
+  try {
+    setTimeout(async () => {
+      await loadTodayGoldHistory();
+      setTimeout(() => {
+        if (todayChartRef.value && todayGoldHistory.value.length > 0) {
+          renderTodayChart();
+          console.log('今日金价天数切换后重新渲染图表');
+        }
+      }, 100);
+    }, 50);
+  } catch (error) {
+    console.error('切换今日金价天数失败:', error);
+    ElMessage.error('切换今日金价天数失败');
+  }
+};
+
+// 刷新今日金价数据
+const refreshTodayGoldData = async () => {
+  ElMessage.info('正在刷新今日金价数据...');
+  try {
+    await loadTodayGoldHistory();
+    setTimeout(() => {
+      if (todayChartRef.value && todayGoldHistory.value.length > 0) {
+        renderTodayChart();
+        console.log('刷新后重新渲染今日金价图表');
+      }
+    }, 100);
+    ElMessage.success('今日金价数据已更新');
+  } catch (error) {
+    console.error('刷新今日金价数据失败:', error);
+    ElMessage.error('刷新今日金价数据失败');
   }
 };
 
@@ -625,8 +992,21 @@ watch(goldList, () => {
 .chart-controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
+}
+
+.select-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.select-label {
+  color: hsl(210, 40%, 98%);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .chart-container {
@@ -725,6 +1105,41 @@ h2 {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+/* 今日金价卡片特殊样式 - 橙色主题 */
+.today-gold-card {
+  border: 1px solid hsla(24, 95%, 53%, 0.2); /* 橙色边框 */
+}
+
+.today-gold-card:hover {
+  border-color: hsla(24, 95%, 53%, 0.3);
+  box-shadow: 0 6px 12px rgba(249, 115, 22, 0.15);
+}
+
+.today-gold-card .chart-header {
+  border-bottom-color: hsla(24, 95%, 53%, 0.2);
+}
+
+.today-gold-card h2 {
+  color: hsl(24, 95%, 70%); /* 橙色标题 */
+}
+
+/* 今日金价卡片按钮样式 - 橙色主题 */
+.today-gold-card .refresh-button {
+  background-color: hsl(24, 95%, 53%);
+  border-color: hsl(24, 95%, 53%);
+}
+
+.today-gold-card .refresh-button:hover {
+  background-color: hsl(24, 95%, 48%);
+  border-color: hsl(24, 95%, 48%);
+  box-shadow: 0 4px 8px rgba(249, 115, 22, 0.3);
+}
+
+.today-gold-card .refresh-button:active {
+  background-color: hsl(24, 95%, 43%);
+  border-color: hsl(24, 95%, 43%);
+}
+
 /* 表格样式优化 - 深色模式 */
 :deep(.el-table) {
   border-radius: 6px;
@@ -821,12 +1236,27 @@ h2 {
 }
 
 /* 深色模式下的表单控件样式 */
+:deep(.el-select) {
+  width: 100%;
+}
+
 :deep(.el-select .el-input__wrapper) {
   border-radius: 6px;
   border: 1px solid hsl(215, 25%, 27%, 0.5);
   background-color: hsl(222, 47%, 11%);
   box-shadow: none !important;
   transition: all 0.2s ease;
+  height: 32px;
+  min-height: 32px;
+}
+
+:deep(.el-select .el-input) {
+  height: 32px;
+}
+
+:deep(.el-select .el-input__inner) {
+  height: 32px;
+  line-height: 32px;
 }
 
 :deep(.el-select .el-input__wrapper:hover) {
@@ -841,6 +1271,7 @@ h2 {
 /* 下拉菜单文本颜色 */
 :deep(.el-input__inner) {
   color: hsl(210, 40%, 98%) !important;
+  line-height: 32px;
 }
 
 /* 下拉菜单图标颜色 */
@@ -873,8 +1304,11 @@ h2 {
   border-radius: 6px;
   font-weight: 500;
   transition: all 0.2s ease;
-  height: 36px;
+  height: 32px;
   padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 :deep(.el-button--primary) {
@@ -965,15 +1399,15 @@ hsl(250, 84%, 67%); } /* 表格容器增强 */ .gold-list-card { position: relat
 overflow: hidden; } .gold-list-card::before { content: ''; position: absolute;
 top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg,
 hsl(250, 84%, 67%) 0%, hsl(250, 84%, 80%) 50%, hsl(250, 84%, 67%) 100%);
-opacity: 0.7; } /* 下拉框和按钮增强样式 */ .dark-select { width: 140px; height:
-36px; } :deep(.dark-select .el-input__wrapper) { background-color: hsl(224, 71%,
+opacity: 0.7; } /* 下拉框和按钮增强样式 */ .dark-select { width: 100px; height:
+32px; } :deep(.dark-select .el-input__wrapper) { background-color: hsl(224, 71%,
 4%); border: 1px solid hsl(215, 25%, 27%, 0.5); box-shadow: none !important;
-padding: 0 12px; height: 36px; } :deep(.dark-select .el-input__wrapper:hover) {
+padding: 0 12px; height: 32px; line-height: 32px; } :deep(.dark-select .el-input__wrapper:hover) {
 border-color: hsl(250, 84%, 67%); } :deep(.dark-select
 .el-input__wrapper.is-focus) { border-color: hsl(250, 84%, 67%); box-shadow: 0 0
 0 2px hsla(250, 84%, 67%, 0.2) !important; } :deep(.dark-select
-.el-input__inner) { color: hsl(210, 40%, 98%); font-size: 14px; font-weight:
-500; } :deep(.dark-select .el-select__caret) { color: hsl(250, 84%, 67%);
+.el-input__inner) { color: hsl(210, 40%, 98%) !important; font-size: 14px; font-weight:
+500; height: 32px; line-height: 32px; } :deep(.dark-select .el-select__caret) { color: hsl(250, 84%, 67%);
 font-size: 16px; } :deep(.dark-select-dropdown) { background-color: hsl(224,
 71%, 4%) !important; border: 1px solid hsl(215, 25%, 27%, 0.5) !important;
 border-radius: 6px !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3)
@@ -985,7 +1419,7 @@ border-radius: 6px !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3)
 hsla(250, 84%, 20%, 0.3); } :deep(.dark-select-dropdown
 .el-select-dropdown__item.selected) { background-color: hsla(250, 84%, 20%,
 0.5); color: hsl(250, 84%, 80%); font-weight: 600; } .refresh-button { height:
-36px; padding: 0 16px; background-color: hsl(250, 84%, 67%); border-color:
+32px; padding: 0 16px; background-color: hsl(250, 84%, 67%); border-color:
 hsl(250, 84%, 67%); display: flex; align-items: center; justify-content: center;
 gap: 6px; transition: all 0.2s ease; } .refresh-button:hover { background-color:
 hsl(250, 84%, 60%); border-color: hsl(250, 84%, 60%); transform:
@@ -1032,12 +1466,9 @@ height: 44px; line-height: 44px; font-size: 15px; } /* 优化移动端的触摸�
 :deep(.dark-select-dropdown .el-select-dropdown__item) { height: 44px;
 line-height: 44px; } } /* 下拉框标签样式 */ .select-container { display: flex;
 align-items: center; gap: 8px; } .select-label { color: hsl(210, 40%, 98%);
-font-size: 14px; font-weight: 500; white-space: nowrap; } /* 在移动端隐藏标签 */
+font-size: 14px; font-weight: 500; white-space: nowrap; } /* 移动端适配 */
 @media (max-width: 768px) { .select-container { width: 100%; } .select-label {
-display: none; } .dark-select { width: 100%; } } /* 在桌面端显示标签和下拉框 */
-@media (min-width: 769px) { .select-container { display: flex; align-items:
-center; } .select-label { display: inline-block; } .dark-select { width: 140px;
-} }/* 横屏模式下的优 化 */ @media (orientation: landscape) and (max-width:
+font-size: 13px; } .dark-select { flex: 1; min-width: 0; } }/* 横屏模式下的优 化 */ @media (orientation: landscape) and (max-width:
 932px) { .chart-header { flex-direction: row; align-items: center; }
 .chart-controls { width: auto; flex-wrap: nowrap; } .select-container {
 flex-direction: row; align-items: center; } .select-label { display:
