@@ -111,28 +111,8 @@
         </div>
         <div class="history-content">
           <el-skeleton v-if="historyLoading" :rows="10" animated />
-          <div v-else-if="historyData.length > 0" class="history-list">
-            <div
-              v-for="(item, index) in historyData"
-              :key="index"
-              class="history-item"
-            >
-              <div class="history-date">
-                {{ formatHistoryDate(item.time) }}
-              </div>
-              <div class="history-price">
-                <span class="price-label">金价:</span>
-                <span class="price-value">{{ formatPrice(item.price) }}</span>
-                <span class="price-unit">元/克</span>
-              </div>
-              <div
-                v-if="index > 0"
-                class="history-change"
-                :class="getPriceChangeClass(item.price, historyData[index - 1].price)"
-              >
-                {{ getPriceChange(item.price, historyData[index - 1].price) }}
-              </div>
-            </div>
+          <div v-else-if="historyData.length > 0" class="history-chart-wrapper">
+            <canvas ref="historyChartRef" id="historyChart"></canvas>
           </div>
           <div v-else class="no-history-data">暂无历史数据</div>
         </div>
@@ -215,6 +195,8 @@ const historyDialogVisible = ref(false);
 const historyData = ref<GoldItem[]>([]);
 const historyLoading = ref(false);
 const historySelectedDays = ref(7); // 默认查询7天
+const historyChartRef = ref<HTMLCanvasElement | null>(null);
+const historyChart = ref<Chart | null>(null);
 
 // 获取选中的金价信息
 const selectedGold = computed(() => {
@@ -995,12 +977,16 @@ const loadHistoryData = async () => {
   try {
     const data = await getGoldHistory('jj', historySelectedDays.value);
     if (data.length > 0) {
-      // 按时间倒序排列（最新的在前）
+      // 按时间正序排列（最早的在前，用于图表展示）
       historyData.value = data.sort((a, b) => {
         const timeA = a.time ? new Date(a.time).getTime() : 0;
         const timeB = b.time ? new Date(b.time).getTime() : 0;
-        return timeB - timeA;
+        return timeA - timeB;
       });
+      // 延迟渲染图表，确保DOM已经更新
+      setTimeout(() => {
+        renderHistoryChart();
+      }, 100);
     } else {
       historyData.value = [];
       ElMessage.warning('暂无历史数据');
@@ -1014,53 +1000,254 @@ const loadHistoryData = async () => {
   }
 };
 
-// 格式化历史日期
-const formatHistoryDate = (time?: string) => {
-  if (!time) return '未知日期';
-  const date = new Date(time);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const weekDay = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][
-    date.getDay()
-  ];
-  return `${year}年${month}月${day}日 ${weekDay}`;
-};
+// 渲染历史图表
+const renderHistoryChart = () => {
+  console.log('尝试渲染历史图表', {
+    chartRefExists: !!historyChartRef.value,
+    dataLength: historyData.value.length,
+  });
 
-// 格式化价格
-const formatPrice = (price: string | number) => {
-  const priceNum = typeof price === 'string' ? parseFloat(price) : price;
-  return priceNum.toFixed(2);
-};
-
-// 计算价格变化
-const getPriceChange = (currentPrice: string | number, prevPrice: string | number) => {
-  const current = typeof currentPrice === 'string' ? parseFloat(currentPrice) : currentPrice;
-  const prev = typeof prevPrice === 'string' ? parseFloat(prevPrice) : prevPrice;
-  const change = current - prev;
-  const changePercent = ((change / prev) * 100).toFixed(2);
-
-  if (change > 0) {
-    return `↑ ${change.toFixed(2)} (+${changePercent}%)`;
-  } else if (change < 0) {
-    return `↓ ${Math.abs(change).toFixed(2)} (${changePercent}%)`;
-  } else {
-    return '- 0.00 (0.00%)';
+  if (!historyChartRef.value || historyData.value.length === 0) {
+    console.log(
+      '无法渲染历史图表：',
+      !historyChartRef.value ? 'chartRef不存在' : '历史数据为空',
+    );
+    return;
   }
-};
 
-// 获取价格变化样式类
-const getPriceChangeClass = (currentPrice: string | number, prevPrice: string | number) => {
-  const current = typeof currentPrice === 'string' ? parseFloat(currentPrice) : currentPrice;
-  const prev = typeof prevPrice === 'string' ? parseFloat(prevPrice) : prevPrice;
-  const change = current - prev;
+  // 销毁旧图表
+  if (historyChart.value) {
+    historyChart.value.destroy();
+    historyChart.value = null;
+  }
 
-  if (change > 0) {
-    return 'price-change-up';
-  } else if (change < 0) {
-    return 'price-change-down';
-  } else {
-    return 'price-change-neutral';
+  // 准备数据
+  const sortedData = [...historyData.value];
+
+  // 创建数据点
+  const dataPoints = sortedData.map((item) => {
+    const date = item.time ? new Date(item.time) : null;
+    const price =
+      typeof item.price === 'string' ? parseFloat(item.price) : item.price;
+
+    return {
+      x: date,
+      y: price,
+      label: date ? `${date.getMonth() + 1}/${date.getDate()}` : '未知',
+      fullDate: date,
+    };
+  });
+
+  if (dataPoints.length === 0) {
+    console.log('没有有效的数据点');
+    return;
+  }
+
+  // 提取标签和数据
+  const labels = dataPoints.map((item) => item.label);
+  const prices = dataPoints.map((item) => item.y);
+
+  // 创建图表
+  const ctx = historyChartRef.value.getContext('2d');
+  if (!ctx) {
+    console.error('无法获取canvas上下文');
+    return;
+  }
+
+  // 确保canvas尺寸正确
+  const chartContainer = historyChartRef.value.parentElement;
+  if (chartContainer) {
+    historyChartRef.value.width = chartContainer.clientWidth;
+    historyChartRef.value.height = 500; // 固定高度
+  }
+
+  try {
+    // 计算渐变背景 - 使用青色/蓝色渐变
+    const gradient = ctx.createLinearGradient(0, 0, 0, 500);
+    gradient.addColorStop(0, 'rgba(14, 165, 233, 0.4)'); // 天蓝色渐变起点
+    gradient.addColorStop(1, 'rgba(14, 165, 233, 0.05)'); // 天蓝色渐变终点
+
+    // 定义深色主题色 - 使用青蓝色系
+    const primaryColor = 'rgb(56, 189, 248)'; // 天蓝色
+    const textColor = 'rgb(241, 245, 249)';
+    const mutedTextColor = 'rgb(148, 163, 184)';
+    const borderColor = 'rgba(71, 85, 105, 0.5)';
+    const gridColor = 'rgba(71, 85, 105, 0.3)';
+
+    const isMobile = window.innerWidth <= 768;
+
+    historyChart.value = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: '今日金价历史(元/克)',
+            data: prices,
+            borderColor: primaryColor,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.3,
+            spanGaps: true,
+            pointRadius: isMobile ? 3 : 4,
+            pointHoverRadius: isMobile ? 6 : 8,
+            pointBackgroundColor: primaryColor,
+            pointBorderColor: '#fff',
+            pointBorderWidth: isMobile ? 1.5 : 2,
+            borderWidth: isMobile ? 2 : 3,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: {
+              boxWidth: 12,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              padding: 20,
+              color: textColor,
+              font: {
+                family:
+                  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                size: 13,
+                weight: '600',
+              },
+            },
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            titleColor: textColor,
+            bodyColor: mutedTextColor,
+            borderColor: borderColor,
+            borderWidth: 1,
+            padding: 14,
+            cornerRadius: 8,
+            boxPadding: 8,
+            titleFont: {
+              size: 14,
+              weight: '600',
+              family:
+                'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            },
+            bodyFont: {
+              size: 13,
+              family:
+                'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            },
+            displayColors: true,
+            callbacks: {
+              title: function (tooltipItems) {
+                if (tooltipItems.length > 0) {
+                  const index = tooltipItems[0].dataIndex;
+                  const item = dataPoints[index];
+                  if (item && item.fullDate) {
+                    const date = item.fullDate;
+                    const weekDay = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][
+                      date.getDay()
+                    ];
+                    return `${date.getFullYear()}年${
+                      date.getMonth() + 1
+                    }月${date.getDate()}日 ${weekDay}`;
+                  }
+                }
+                return '';
+              },
+              label: function (context) {
+                const value = context.parsed.y.toFixed(2);
+
+                // 计算涨跌
+                if (context.dataIndex > 0) {
+                  const prevPrice = prices[context.dataIndex - 1];
+                  const change = context.parsed.y - prevPrice;
+                  const changePercent = ((change / prevPrice) * 100).toFixed(2);
+
+                  let changeText = '';
+                  if (change > 0) {
+                    changeText = ` (↑ +${change.toFixed(2)} +${changePercent}%)`;
+                  } else if (change < 0) {
+                    changeText = ` (↓ ${change.toFixed(2)} ${changePercent}%)`;
+                  }
+
+                  return `金价: ${value} 元/克${changeText}`;
+                }
+
+                return `金价: ${value} 元/克`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            type: 'category',
+            border: {
+              display: false,
+            },
+            grid: {
+              display: true,
+              drawBorder: false,
+              drawOnChartArea: true,
+              color: gridColor,
+            },
+            ticks: {
+              color: mutedTextColor,
+              font: {
+                family:
+                  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                size: 11,
+                weight: '500',
+              },
+              padding: 10,
+              maxRotation: 45,
+              minRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: isMobile ? 8 : 15,
+            },
+          },
+          y: {
+            beginAtZero: false,
+            border: {
+              display: false,
+            },
+            position: 'right',
+            ticks: {
+              callback: function (value) {
+                return value + ' 元';
+              },
+              color: mutedTextColor,
+              font: {
+                family:
+                  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                size: 11,
+                weight: '500',
+              },
+              padding: 10,
+              precision: 2,
+            },
+            grid: {
+              display: true,
+              drawBorder: false,
+              drawOnChartArea: true,
+              color: gridColor,
+            },
+          },
+        },
+      },
+    });
+    console.log('历史图表渲染完成');
+  } catch (error) {
+    console.error('历史图表渲染失败:', error);
   }
 };
 </script>
@@ -1837,88 +2024,30 @@ line-height: 44px; } }
 }
 
 .history-content {
-  min-height: 200px;
+  min-height: 500px;
 }
 
-.history-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.history-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  background-color: hsl(224, 71%, 4%);
-  border: 1px solid hsl(215, 25%, 27%, 0.3);
+.history-chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  padding: 20px;
+  background-color: hsl(224, 71%, 4%, 0.5);
   border-radius: 8px;
-  transition: all 0.2s ease;
+  border: 1px solid hsl(215, 25%, 27%, 0.3);
 }
 
-.history-item:hover {
-  border-color: hsla(24, 95%, 53%, 0.3);
-  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.15);
-  transform: translateY(-1px);
-}
-
-.history-date {
-  flex: 1;
-  color: hsl(210, 40%, 98%);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.history-price {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.price-label {
-  color: hsl(214, 32%, 91%, 0.7);
-  font-size: 13px;
-}
-
-.price-value {
-  color: hsl(24, 95%, 70%);
-  font-size: 18px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.price-unit {
-  color: hsl(214, 32%, 91%, 0.7);
-  font-size: 13px;
-}
-
-.history-change {
-  flex: 1;
-  text-align: right;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.price-change-up {
-  color: hsl(0, 84%, 60%);
-}
-
-.price-change-down {
-  color: hsl(142, 71%, 45%);
-}
-
-.price-change-neutral {
-  color: hsl(214, 32%, 91%, 0.5);
+.history-chart-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 
 .no-history-data {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  min-height: 500px;
   color: hsl(214, 32%, 91%, 0.5);
   font-size: 14px;
 }
@@ -1939,20 +2068,16 @@ line-height: 44px; } }
     width: 95% !important;
   }
 
-  .history-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .history-chart-wrapper {
+    height: 350px;
+    padding: 12px;
   }
 
-  .history-date,
-  .history-price,
-  .history-change {
-    width: 100%;
-    justify-content: flex-start;
+  .history-content {
+    min-height: 350px;
   }
 
-  .history-change {
-    text-align: left;
+  .no-history-data {
+    min-height: 350px;
   }
 }
