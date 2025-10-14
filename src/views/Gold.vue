@@ -4,58 +4,41 @@
       <!-- 金价走势图 -->
       <div class="gold-chart-card">
         <div class="chart-header">
-          <h2>{{ selectedGold.name || '金价' }}走势图</h2>
-          <div class="chart-controls">
-            <div class="select-container">
-              <span class="select-label">金价种类:</span>
-              <el-select
-                v-model="selectedGoldId"
-                placeholder="选择金价"
-                @change="handleGoldChange"
-                class="dark-select"
-                popper-class="dark-select-dropdown"
-              >
-                <el-option
-                  v-for="item in goldList"
-                  :key="item.goldId"
-                  :label="item.name"
-                  :value="item.goldId"
-                  class="dark-option"
-                />
-              </el-select>
-            </div>
-            <div class="select-container">
-              <span class="select-label">时间范围:</span>
-              <el-select
-                v-model="selectedDays"
-                placeholder="选择时间范围"
-                @change="handleDaysChange"
-                class="dark-select"
-                popper-class="dark-select-dropdown"
-              >
-                <el-option label="最近7天" :value="7" class="dark-option" />
-                <el-option label="最近14天" :value="14" class="dark-option" />
-                <el-option label="最近30天" :value="30" class="dark-option" />
-                <el-option label="最近60天" :value="60" class="dark-option" />
-                <el-option label="最近90天" :value="90" class="dark-option" />
-                <el-option label="最近180天" :value="180" class="dark-option" />
-              </el-select>
-            </div>
-            <!-- <el-button
-              type="primary"
-              @click="refreshData"
-              class="refresh-button"
-            >
-              <el-icon><Refresh /></el-icon> 刷新
-            </el-button> -->
-          </div>
+          <h2>金价走势图</h2>
         </div>
-        <div class="chart-container">
+        <div class="chart-container-wrapper">
           <el-skeleton v-if="loading" :rows="10" animated />
-          <div v-else class="chart-wrapper">
+          <div v-else class="chart-content">
             <canvas ref="chartRef" id="goldChart"></canvas>
             <div v-if="goldHistory.length === 0" class="no-data-message">
               暂无历史数据
+            </div>
+            <div class="chart-selectors">
+              <select
+                v-model="selectedGoldId"
+                @change="handleGoldChange"
+                class="chart-select"
+              >
+                <option
+                  v-for="item in goldList"
+                  :key="item.goldId"
+                  :value="item.goldId"
+                >
+                  {{ item.name }}
+                </option>
+              </select>
+              <select
+                v-model="selectedDays"
+                @change="handleDaysChange"
+                class="chart-select"
+              >
+                <option :value="7">7天</option>
+                <option :value="14">14天</option>
+                <option :value="30">30天</option>
+                <option :value="60">60天</option>
+                <option :value="90">90天</option>
+                <option :value="180">180天</option>
+              </select>
             </div>
           </div>
         </div>
@@ -66,22 +49,6 @@
         <div class="chart-header">
           <h2>今日金价实时走势</h2>
           <div class="chart-controls">
-            <div class="select-container">
-              <span class="select-label">时间范围:</span>
-              <el-select
-                v-model="todaySelectedDays"
-                placeholder="选择时间范围"
-                @change="handleTodayDaysChange"
-                class="dark-select"
-                popper-class="dark-select-dropdown"
-              >
-                <el-option label="1天" :value="1" class="dark-option" />
-                <el-option label="2天" :value="2" class="dark-option" />
-                <el-option label="3天" :value="3" class="dark-option" />
-                <el-option label="5天" :value="5" class="dark-option" />
-                <el-option label="7天" :value="7" class="dark-option" />
-              </el-select>
-            </div>
             <el-button
               type="primary"
               @click="refreshTodayGoldData"
@@ -91,12 +58,25 @@
             </el-button>
           </div>
         </div>
-        <div class="chart-container">
+        <div class="chart-container-wrapper">
           <el-skeleton v-if="todayLoading" :rows="10" animated />
-          <div v-else class="chart-wrapper">
+          <div v-else class="chart-content">
             <canvas ref="todayChartRef" id="todayGoldChart"></canvas>
             <div v-if="todayGoldHistory.length === 0" class="no-data-message">
               暂无实时数据
+            </div>
+            <div class="chart-time-selector">
+              <select
+                v-model="todaySelectedDays"
+                @change="handleTodayDaysChange"
+                class="time-select"
+              >
+                <option :value="1">1天</option>
+                <option :value="2">2天</option>
+                <option :value="3">3天</option>
+                <option :value="5">5天</option>
+                <option :value="7">7天</option>
+              </select>
             </div>
           </div>
         </div>
@@ -833,8 +813,7 @@ onMounted(async () => {
 });
 
 // 处理金价变化
-const handleGoldChange = (goldId: string) => {
-  selectedGoldId.value = goldId;
+const handleGoldChange = () => {
   loading.value = true;
   try {
     // 添加延迟确保DOM和数据都已更新
@@ -855,8 +834,7 @@ const handleGoldChange = (goldId: string) => {
 };
 
 // 处理天数变化
-const handleDaysChange = (days: number) => {
-  selectedDays.value = days;
+const handleDaysChange = () => {
   loading.value = true;
   try {
     // 添加延迟确保DOM和数据都已更新
@@ -877,8 +855,7 @@ const handleDaysChange = (days: number) => {
 };
 
 // 处理今日金价天数变化
-const handleTodayDaysChange = (days: number) => {
-  todaySelectedDays.value = days;
+const handleTodayDaysChange = () => {
   todayLoading.value = true;
   try {
     setTimeout(async () => {
@@ -1248,15 +1225,28 @@ h2 {
   transition: all 0.2s ease;
   height: 32px;
   min-height: 32px;
+  padding: 0 8px;
 }
 
 :deep(.el-select .el-input) {
   height: 32px;
+  line-height: 32px;
 }
 
 :deep(.el-select .el-input__inner) {
-  height: 32px;
-  line-height: 32px;
+  height: 32px !important;
+  line-height: 32px !important;
+  color: hsl(210, 40%, 98%) !important;
+}
+
+:deep(.el-select .el-select__selected-item) {
+  color: hsl(210, 40%, 98%) !important;
+  line-height: 32px !important;
+}
+
+:deep(.el-select .el-select__placeholder) {
+  color: hsl(210, 40%, 80%) !important;
+  line-height: 32px !important;
 }
 
 :deep(.el-select .el-input__wrapper:hover) {
@@ -1399,26 +1389,117 @@ hsl(250, 84%, 67%); } /* 表格容器增强 */ .gold-list-card { position: relat
 overflow: hidden; } .gold-list-card::before { content: ''; position: absolute;
 top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg,
 hsl(250, 84%, 67%) 0%, hsl(250, 84%, 80%) 50%, hsl(250, 84%, 67%) 100%);
-opacity: 0.7; } /* 下拉框和按钮增强样式 */ .dark-select { width: 100px; height:
-32px; } :deep(.dark-select .el-input__wrapper) { background-color: hsl(224, 71%,
-4%); border: 1px solid hsl(215, 25%, 27%, 0.5); box-shadow: none !important;
-padding: 0 12px; height: 32px; line-height: 32px; } :deep(.dark-select .el-input__wrapper:hover) {
-border-color: hsl(250, 84%, 67%); } :deep(.dark-select
-.el-input__wrapper.is-focus) { border-color: hsl(250, 84%, 67%); box-shadow: 0 0
-0 2px hsla(250, 84%, 67%, 0.2) !important; } :deep(.dark-select
-.el-input__inner) { color: hsl(210, 40%, 98%) !important; font-size: 14px; font-weight:
-500; height: 32px; line-height: 32px; } :deep(.dark-select .el-select__caret) { color: hsl(250, 84%, 67%);
-font-size: 16px; } :deep(.dark-select-dropdown) { background-color: hsl(224,
-71%, 4%) !important; border: 1px solid hsl(215, 25%, 27%, 0.5) !important;
-border-radius: 6px !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3)
-!important; } :deep(.dark-select-dropdown .el-scrollbar__view) { padding: 4px 0;
-} :deep(.dark-select-dropdown .el-select-dropdown__item) { color: hsl(210, 40%,
-98%); height: 36px; line-height: 36px; padding: 0 12px; font-size: 14px; }
-:deep(.dark-select-dropdown .el-select-dropdown__item.hover),
-:deep(.dark-select-dropdown .el-select-dropdown__item:hover) { background-color:
-hsla(250, 84%, 20%, 0.3); } :deep(.dark-select-dropdown
-.el-select-dropdown__item.selected) { background-color: hsla(250, 84%, 20%,
-0.5); color: hsl(250, 84%, 80%); font-weight: 600; } .refresh-button { height:
+opacity: 0.7; }
+
+/* 图表容器包装器 */
+.chart-container-wrapper {
+  position: relative;
+  height: 400px;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: hsl(224, 71%, 4%, 0.5);
+  margin-bottom: 20px;
+  border: 1px solid hsl(215, 25%, 27%, 0.3);
+}
+
+.chart-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+}
+
+/* 图表右下角选择器容器 - 金价走势图(紫色主题) */
+.chart-selectors {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+/* 图表选择器样式 - 紫色主题 */
+.chart-select {
+  padding: 6px 28px 6px 12px;
+  height: 32px;
+  background-color: hsla(222, 47%, 11%, 0.95);
+  border: 1px solid hsla(250, 84%, 67%, 0.3);
+  border-radius: 6px;
+  color: hsl(210, 40%, 98%);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a78bfa' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.chart-select:hover {
+  border-color: hsla(250, 84%, 67%, 0.6);
+  background-color: hsla(222, 47%, 11%, 1);
+}
+
+.chart-select:focus {
+  border-color: hsl(250, 84%, 67%);
+  box-shadow: 0 0 0 2px hsla(250, 84%, 67%, 0.2);
+}
+
+.chart-select option {
+  background-color: hsl(222, 47%, 11%);
+  color: hsl(210, 40%, 98%);
+  padding: 8px;
+}
+
+/* 图表右下角时间选择器 - 今日金价(橙色主题) */
+.chart-time-selector {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 10;
+}
+
+.time-select {
+  padding: 6px 28px 6px 12px;
+  height: 32px;
+  background-color: hsla(222, 47%, 11%, 0.95);
+  border: 1px solid hsla(24, 95%, 53%, 0.3);
+  border-radius: 6px;
+  color: hsl(210, 40%, 98%);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fb923c' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.time-select:hover {
+  border-color: hsla(24, 95%, 53%, 0.6);
+  background-color: hsla(222, 47%, 11%, 1);
+}
+
+.time-select:focus {
+  border-color: hsl(24, 95%, 53%);
+  box-shadow: 0 0 0 2px hsla(24, 95%, 53%, 0.2);
+}
+
+.time-select option {
+  background-color: hsl(222, 47%, 11%);
+  color: hsl(210, 40%, 98%);
+  padding: 8px;
+} .refresh-button { height:
 32px; padding: 0 16px; background-color: hsl(250, 84%, 67%); border-color:
 hsl(250, 84%, 67%); display: flex; align-items: center; justify-content: center;
 gap: 6px; transition: all 0.2s ease; } .refresh-button:hover { background-color:
@@ -1464,13 +1545,58 @@ height: 44px; line-height: 44px; font-size: 15px; } /* 优化移动端的触摸�
 @media (hover: none) and (pointer: coarse) { :deep(.el-select-dropdown__item),
 :deep(.el-button), :deep(.el-input__wrapper) { cursor: default; }
 :deep(.dark-select-dropdown .el-select-dropdown__item) { height: 44px;
-line-height: 44px; } } /* 下拉框标签样式 */ .select-container { display: flex;
-align-items: center; gap: 8px; } .select-label { color: hsl(210, 40%, 98%);
-font-size: 14px; font-weight: 500; white-space: nowrap; } /* 移动端适配 */
-@media (max-width: 768px) { .select-container { width: 100%; } .select-label {
-font-size: 13px; } .dark-select { flex: 1; min-width: 0; } }/* 横屏模式下的优 化 */ @media (orientation: landscape) and (max-width:
-932px) { .chart-header { flex-direction: row; align-items: center; }
-.chart-controls { width: auto; flex-wrap: nowrap; } .select-container {
-flex-direction: row; align-items: center; } .select-label { display:
-inline-block; font-size: 13px; } .dark-select { width: 120px; } .refresh-button
-{ width: auto; margin-top: 0; } }
+line-height: 44px; } }
+
+/* 图表选择器移动端适配 */
+@media (max-width: 768px) {
+  .chart-container-wrapper {
+    height: 280px;
+  }
+
+  .chart-selectors {
+    bottom: 12px;
+    right: 12px;
+    gap: 6px;
+    flex-wrap: wrap;
+    max-width: calc(100% - 24px);
+  }
+
+  .chart-select {
+    font-size: 12px;
+    height: 28px;
+    padding: 4px 24px 4px 10px;
+  }
+
+  .chart-time-selector {
+    bottom: 12px;
+    right: 12px;
+  }
+
+  .time-select {
+    font-size: 12px;
+    height: 28px;
+    padding: 4px 24px 4px 10px;
+  }
+}
+
+/* 横屏模式下的优化 */
+@media (orientation: landscape) and (max-width: 932px) {
+  .chart-header {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .chart-controls {
+    width: auto;
+    flex-wrap: nowrap;
+  }
+
+  .chart-container-wrapper {
+    height: 240px;
+  }
+
+  .refresh-button {
+    width: auto;
+    margin-top: 0;
+  }
+}
