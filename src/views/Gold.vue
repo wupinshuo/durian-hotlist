@@ -67,6 +67,13 @@
             >
               <el-icon><Refresh /></el-icon> 刷新
             </el-button>
+            <el-button
+              type="primary"
+              @click="showHistoryDialog"
+              class="history-button"
+            >
+              查看更多历史
+            </el-button>
           </div>
         </div>
         <div class="chart-container-wrapper">
@@ -79,6 +86,57 @@
           </div>
         </div>
       </div>
+
+      <!-- 历史记录对话框 -->
+      <el-dialog
+        v-model="historyDialogVisible"
+        title="今日金价历史记录"
+        width="90%"
+        :close-on-click-modal="false"
+        class="history-dialog"
+      >
+        <div class="history-dialog-header">
+          <select
+            v-model="historySelectedDays"
+            @change="loadHistoryData"
+            class="history-days-select"
+          >
+            <option :value="7">最近7天</option>
+            <option :value="14">最近14天</option>
+            <option :value="30">最近30天</option>
+            <option :value="60">最近60天</option>
+            <option :value="90">最近90天</option>
+            <option :value="180">最近180天</option>
+          </select>
+        </div>
+        <div class="history-content">
+          <el-skeleton v-if="historyLoading" :rows="10" animated />
+          <div v-else-if="historyData.length > 0" class="history-list">
+            <div
+              v-for="(item, index) in historyData"
+              :key="index"
+              class="history-item"
+            >
+              <div class="history-date">
+                {{ formatHistoryDate(item.time) }}
+              </div>
+              <div class="history-price">
+                <span class="price-label">金价:</span>
+                <span class="price-value">{{ formatPrice(item.price) }}</span>
+                <span class="price-unit">元/克</span>
+              </div>
+              <div
+                v-if="index > 0"
+                class="history-change"
+                :class="getPriceChangeClass(item.price, historyData[index - 1].price)"
+              >
+                {{ getPriceChange(item.price, historyData[index - 1].price) }}
+              </div>
+            </div>
+          </div>
+          <div v-else class="no-history-data">暂无历史数据</div>
+        </div>
+      </el-dialog>
 
       <!-- 金价列表 -->
       <div class="gold-list-card">
@@ -151,6 +209,12 @@ const todayLoading = ref(true);
 const todayChartRef = ref<HTMLCanvasElement | null>(null);
 const todayChart = ref<Chart | null>(null);
 const todaySelectedDays = ref(1); // 默认查询1天
+
+// 历史记录对话框状态
+const historyDialogVisible = ref(false);
+const historyData = ref<GoldItem[]>([]);
+const historyLoading = ref(false);
+const historySelectedDays = ref(7); // 默认查询7天
 
 // 获取选中的金价信息
 const selectedGold = computed(() => {
@@ -918,6 +982,87 @@ watch(goldList, () => {
     selectedGoldId.value = goldList.value[0].goldId;
   }
 });
+
+// 显示历史记录对话框
+const showHistoryDialog = () => {
+  historyDialogVisible.value = true;
+  loadHistoryData();
+};
+
+// 加载历史数据
+const loadHistoryData = async () => {
+  historyLoading.value = true;
+  try {
+    const data = await getGoldHistory('jj', historySelectedDays.value);
+    if (data.length > 0) {
+      // 按时间倒序排列（最新的在前）
+      historyData.value = data.sort((a, b) => {
+        const timeA = a.time ? new Date(a.time).getTime() : 0;
+        const timeB = b.time ? new Date(b.time).getTime() : 0;
+        return timeB - timeA;
+      });
+    } else {
+      historyData.value = [];
+      ElMessage.warning('暂无历史数据');
+    }
+  } catch (error) {
+    console.error('加载历史数据失败:', error);
+    ElMessage.error('加载历史数据失败');
+    historyData.value = [];
+  } finally {
+    historyLoading.value = false;
+  }
+};
+
+// 格式化历史日期
+const formatHistoryDate = (time?: string) => {
+  if (!time) return '未知日期';
+  const date = new Date(time);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const weekDay = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][
+    date.getDay()
+  ];
+  return `${year}年${month}月${day}日 ${weekDay}`;
+};
+
+// 格式化价格
+const formatPrice = (price: string | number) => {
+  const priceNum = typeof price === 'string' ? parseFloat(price) : price;
+  return priceNum.toFixed(2);
+};
+
+// 计算价格变化
+const getPriceChange = (currentPrice: string | number, prevPrice: string | number) => {
+  const current = typeof currentPrice === 'string' ? parseFloat(currentPrice) : currentPrice;
+  const prev = typeof prevPrice === 'string' ? parseFloat(prevPrice) : prevPrice;
+  const change = current - prev;
+  const changePercent = ((change / prev) * 100).toFixed(2);
+
+  if (change > 0) {
+    return `↑ ${change.toFixed(2)} (+${changePercent}%)`;
+  } else if (change < 0) {
+    return `↓ ${Math.abs(change).toFixed(2)} (${changePercent}%)`;
+  } else {
+    return '- 0.00 (0.00%)';
+  }
+};
+
+// 获取价格变化样式类
+const getPriceChangeClass = (currentPrice: string | number, prevPrice: string | number) => {
+  const current = typeof currentPrice === 'string' ? parseFloat(currentPrice) : currentPrice;
+  const prev = typeof prevPrice === 'string' ? parseFloat(prevPrice) : prevPrice;
+  const change = current - prev;
+
+  if (change > 0) {
+    return 'price-change-up';
+  } else if (change < 0) {
+    return 'price-change-down';
+  } else {
+    return 'price-change-neutral';
+  }
+};
 </script>
 
 <style scoped>
@@ -1596,5 +1741,218 @@ line-height: 44px; } }
   .refresh-button {
     width: auto;
     margin-top: 0;
+  }
+}
+
+/* 历史按钮样式 */
+.history-button {
+  height: 32px;
+  padding: 0 16px;
+  background-color: hsl(24, 95%, 53%);
+  border-color: hsl(24, 95%, 53%);
+}
+
+.history-button:hover {
+  background-color: hsl(24, 95%, 48%);
+  border-color: hsl(24, 95%, 48%);
+  box-shadow: 0 4px 8px rgba(249, 115, 22, 0.3);
+}
+
+.history-button:active {
+  background-color: hsl(24, 95%, 43%);
+  border-color: hsl(24, 95%, 43%);
+}
+
+/* 历史记录对话框样式 */
+:deep(.history-dialog) {
+  background-color: hsl(222, 47%, 11%);
+  border-radius: 12px;
+}
+
+:deep(.history-dialog .el-dialog__header) {
+  background-color: hsl(222, 47%, 11%);
+  border-bottom: 1px solid hsl(215, 25%, 27%, 0.3);
+  padding: 20px;
+}
+
+:deep(.history-dialog .el-dialog__title) {
+  color: hsl(210, 40%, 98%);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+:deep(.history-dialog .el-dialog__body) {
+  background-color: hsl(222, 47%, 11%);
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+:deep(.history-dialog .el-dialog__close) {
+  color: hsl(210, 40%, 98%);
+}
+
+:deep(.history-dialog .el-dialog__close:hover) {
+  color: hsl(24, 95%, 53%);
+}
+
+.history-dialog-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.history-days-select {
+  padding: 8px 32px 8px 12px;
+  height: 36px;
+  background-color: hsl(224, 71%, 4%);
+  border: 1px solid hsla(24, 95%, 53%, 0.3);
+  border-radius: 6px;
+  color: hsl(210, 40%, 98%);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23fb923c' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.history-days-select:hover {
+  border-color: hsla(24, 95%, 53%, 0.6);
+  background-color: hsl(224, 71%, 6%);
+}
+
+.history-days-select:focus {
+  border-color: hsl(24, 95%, 53%);
+  box-shadow: 0 0 0 2px hsla(24, 95%, 53%, 0.2);
+}
+
+.history-days-select option {
+  background-color: hsl(222, 47%, 11%);
+  color: hsl(210, 40%, 98%);
+  padding: 8px;
+}
+
+.history-content {
+  min-height: 200px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: hsl(224, 71%, 4%);
+  border: 1px solid hsl(215, 25%, 27%, 0.3);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.history-item:hover {
+  border-color: hsla(24, 95%, 53%, 0.3);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.15);
+  transform: translateY(-1px);
+}
+
+.history-date {
+  flex: 1;
+  color: hsl(210, 40%, 98%);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.history-price {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.price-label {
+  color: hsl(214, 32%, 91%, 0.7);
+  font-size: 13px;
+}
+
+.price-value {
+  color: hsl(24, 95%, 70%);
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.price-unit {
+  color: hsl(214, 32%, 91%, 0.7);
+  font-size: 13px;
+}
+
+.history-change {
+  flex: 1;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.price-change-up {
+  color: hsl(0, 84%, 60%);
+}
+
+.price-change-down {
+  color: hsl(142, 71%, 45%);
+}
+
+.price-change-neutral {
+  color: hsl(214, 32%, 91%, 0.5);
+}
+
+.no-history-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: hsl(214, 32%, 91%, 0.5);
+  font-size: 14px;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .chart-controls {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .history-button {
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  :deep(.history-dialog) {
+    width: 95% !important;
+  }
+
+  .history-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .history-date,
+  .history-price,
+  .history-change {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .history-change {
+    text-align: left;
   }
 }
