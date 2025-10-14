@@ -2,7 +2,7 @@
   <div class="gold-page">
     <div class="gold-container">
       <!-- 金价走势图 -->
-      <div class="gold-chart-card">
+      <!-- <div class="gold-chart-card">
         <div class="chart-header">
           <h2>金价走势图</h2>
         </div>
@@ -42,13 +42,24 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- 今日金价详细走势图 -->
       <div class="gold-chart-card today-gold-card">
         <div class="chart-header">
           <h2>今日金价实时走势</h2>
           <div class="chart-controls">
+            <select
+              v-model="todaySelectedDays"
+              @change="handleTodayDaysChange"
+              class="time-select"
+            >
+              <option :value="1">1天</option>
+              <option :value="2">2天</option>
+              <option :value="3">3天</option>
+              <option :value="5">5天</option>
+              <option :value="7">7天</option>
+            </select>
             <el-button
               type="primary"
               @click="refreshTodayGoldData"
@@ -64,19 +75,6 @@
             <canvas ref="todayChartRef" id="todayGoldChart"></canvas>
             <div v-if="todayGoldHistory.length === 0" class="no-data-message">
               暂无实时数据
-            </div>
-            <div class="chart-time-selector">
-              <select
-                v-model="todaySelectedDays"
-                @change="handleTodayDaysChange"
-                class="time-select"
-              >
-                <option :value="1">1天</option>
-                <option :value="2">2天</option>
-                <option :value="3">3天</option>
-                <option :value="5">5天</option>
-                <option :value="7">7天</option>
-              </select>
             </div>
           </div>
         </div>
