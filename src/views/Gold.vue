@@ -604,7 +604,9 @@ const renderTodayChart = () => {
     const date = new Date(item.timestamp);
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
-    const label = `${hours}:${minutes}`;
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const label = `${month}/${day} ${hours}:${minutes}`;
 
     return {
       x: item.timestamp,
@@ -622,6 +624,10 @@ const renderTodayChart = () => {
   // 提取标签和数据
   const labels = dataPoints.map((item) => item.label);
   const prices = dataPoints.map((item) => item.y);
+
+  // 计算最高金价
+  const maxPrice = Math.max(...prices);
+  const maxPriceIndex = prices.indexOf(maxPrice);
 
   // 创建图表
   const ctx = todayChartRef.value.getContext('2d');
@@ -683,11 +689,19 @@ const renderTodayChart = () => {
             fill: true,
             tension: 0.4,
             spanGaps: true,
-            pointRadius: isMobile ? 2 : 3,
+            pointRadius: prices.map((_, i) =>
+              i === maxPriceIndex ? (isMobile ? 6 : 8) : (isMobile ? 2 : 3)
+            ),
             pointHoverRadius: isMobile ? 4 : 6,
-            pointBackgroundColor: primaryColor,
-            pointBorderColor: '#fff',
-            pointBorderWidth: isMobile ? 1 : 2,
+            pointBackgroundColor: prices.map((_, i) =>
+              i === maxPriceIndex ? 'rgb(34, 197, 94)' : primaryColor
+            ),
+            pointBorderColor: prices.map((_, i) =>
+              i === maxPriceIndex ? 'rgb(34, 197, 94)' : '#fff'
+            ),
+            pointBorderWidth: prices.map((_, i) =>
+              i === maxPriceIndex ? (isMobile ? 2 : 3) : (isMobile ? 1 : 2)
+            ),
             borderWidth: isMobile ? 1.5 : 2,
           },
         ],
@@ -756,7 +770,11 @@ const renderTodayChart = () => {
                 return '';
               },
               label: function (context) {
-                return `${context.parsed.y.toFixed(1)} 元/克`;
+                const label = `${context.parsed.y.toFixed(1)} 元/克`;
+                if (context.dataIndex === maxPriceIndex) {
+                  return label + ' (最高)';
+                }
+                return label;
               },
             },
           },
@@ -816,6 +834,58 @@ const renderTodayChart = () => {
           },
         },
       },
+      plugins: [
+        {
+          id: 'maxPriceLabel',
+          afterDatasetsDraw(chart) {
+            const ctx = chart.ctx;
+            const meta = chart.getDatasetMeta(0);
+            const maxPoint = meta.data[maxPriceIndex];
+
+            if (maxPoint) {
+              const x = maxPoint.x;
+              const y = maxPoint.y;
+
+              // 绘制最高价格标签
+              ctx.save();
+              ctx.font = isMobile ? 'bold 11px Inter' : 'bold 13px Inter';
+              ctx.fillStyle = 'rgb(34, 197, 94)';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'bottom';
+
+              const text = `最高: ${maxPrice.toFixed(1)}元`;
+              const padding = 6;
+              const textWidth = ctx.measureText(text).width;
+              const textHeight = isMobile ? 11 : 13;
+
+              // 绘制背景框
+              ctx.fillStyle = 'rgba(34, 197, 94, 0.15)';
+              ctx.fillRect(
+                x - textWidth / 2 - padding,
+                y - textHeight - padding * 2 - 8,
+                textWidth + padding * 2,
+                textHeight + padding * 2
+              );
+
+              // 绘制边框
+              ctx.strokeStyle = 'rgb(34, 197, 94)';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(
+                x - textWidth / 2 - padding,
+                y - textHeight - padding * 2 - 8,
+                textWidth + padding * 2,
+                textHeight + padding * 2
+              );
+
+              // 绘制文字
+              ctx.fillStyle = 'rgb(34, 197, 94)';
+              ctx.fillText(text, x, y - padding - 8);
+
+              ctx.restore();
+            }
+          },
+        },
+      ],
     });
     console.log('今日金价图表渲染完成');
   } catch (error) {
