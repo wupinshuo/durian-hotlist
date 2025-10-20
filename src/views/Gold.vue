@@ -638,9 +638,11 @@ const renderTodayChart = () => {
   const labels = dataPoints.map((item) => item.label);
   const prices = dataPoints.map((item) => item.y);
 
-  // 计算最高金价
+  // 计算最高金价和最低金价
   const maxPrice = Math.max(...prices);
   const maxPriceIndex = prices.indexOf(maxPrice);
+  const minPrice = Math.min(...prices);
+  const minPriceIndex = prices.indexOf(minPrice);
 
   // 创建图表
   const ctx = todayChartRef.value.getContext('2d');
@@ -703,17 +705,17 @@ const renderTodayChart = () => {
             tension: 0.4,
             spanGaps: true,
             pointRadius: prices.map((_, i) =>
-              i === maxPriceIndex ? (isMobile ? 6 : 8) : (isMobile ? 2 : 3)
+              i === maxPriceIndex || i === minPriceIndex ? (isMobile ? 6 : 8) : (isMobile ? 2 : 3)
             ),
             pointHoverRadius: isMobile ? 4 : 6,
             pointBackgroundColor: prices.map((_, i) =>
-              i === maxPriceIndex ? 'rgb(34, 197, 94)' : primaryColor
+              i === maxPriceIndex ? 'rgb(34, 197, 94)' : i === minPriceIndex ? 'rgb(239, 68, 68)' : primaryColor
             ),
             pointBorderColor: prices.map((_, i) =>
-              i === maxPriceIndex ? 'rgb(34, 197, 94)' : '#fff'
+              i === maxPriceIndex ? 'rgb(34, 197, 94)' : i === minPriceIndex ? 'rgb(239, 68, 68)' : '#fff'
             ),
             pointBorderWidth: prices.map((_, i) =>
-              i === maxPriceIndex ? (isMobile ? 2 : 3) : (isMobile ? 1 : 2)
+              i === maxPriceIndex || i === minPriceIndex ? (isMobile ? 2 : 3) : (isMobile ? 1 : 2)
             ),
             borderWidth: isMobile ? 1.5 : 2,
           },
@@ -787,6 +789,9 @@ const renderTodayChart = () => {
                 if (context.dataIndex === maxPriceIndex) {
                   return label + ' (最高)';
                 }
+                if (context.dataIndex === minPriceIndex) {
+                  return label + ' (最低)';
+                }
                 return label;
               },
             },
@@ -849,17 +854,18 @@ const renderTodayChart = () => {
       },
       plugins: [
         {
-          id: 'maxPriceLabel',
+          id: 'priceLabels',
           afterDatasetsDraw(chart) {
             const ctx = chart.ctx;
             const meta = chart.getDatasetMeta(0);
             const maxPoint = meta.data[maxPriceIndex];
+            const minPoint = meta.data[minPriceIndex];
 
+            // 绘制最高价格标签
             if (maxPoint) {
               const x = maxPoint.x;
               const y = maxPoint.y;
 
-              // 绘制最高价格标签
               ctx.save();
               ctx.font = isMobile ? 'bold 11px Inter' : 'bold 13px Inter';
               ctx.fillStyle = 'rgb(34, 197, 94)';
@@ -893,6 +899,48 @@ const renderTodayChart = () => {
               // 绘制文字（放在数据点下方）
               ctx.fillStyle = 'rgb(34, 197, 94)';
               ctx.fillText(text, x, y + padding + 8);
+
+              ctx.restore();
+            }
+
+            // 绘制最低价格标签
+            if (minPoint) {
+              const x = minPoint.x;
+              const y = minPoint.y;
+
+              ctx.save();
+              ctx.font = isMobile ? 'bold 11px Inter' : 'bold 13px Inter';
+              ctx.fillStyle = 'rgb(239, 68, 68)';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'bottom';
+
+              const text = `最低: ${minPrice.toFixed(1)}元`;
+              const padding = 6;
+              const textWidth = ctx.measureText(text).width;
+              const textHeight = isMobile ? 11 : 13;
+
+              // 绘制背景框（放在数据点上方）
+              ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+              ctx.fillRect(
+                x - textWidth / 2 - padding,
+                y - textHeight - padding * 2 - 8,
+                textWidth + padding * 2,
+                textHeight + padding * 2
+              );
+
+              // 绘制边框
+              ctx.strokeStyle = 'rgb(239, 68, 68)';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(
+                x - textWidth / 2 - padding,
+                y - textHeight - padding * 2 - 8,
+                textWidth + padding * 2,
+                textHeight + padding * 2
+              );
+
+              // 绘制文字（放在数据点上方）
+              ctx.fillStyle = 'rgb(239, 68, 68)';
+              ctx.fillText(text, x, y - padding - 8);
 
               ctx.restore();
             }
