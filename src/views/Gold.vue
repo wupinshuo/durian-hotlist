@@ -54,11 +54,14 @@
               @change="handleTodayDaysChange"
               class="time-select"
             >
+              <option :value="0.5">半天</option>
               <option :value="1">1天</option>
               <option :value="2">2天</option>
               <option :value="3">3天</option>
+              <option :value="4">4天</option>
               <option :value="5">5天</option>
-              <option :value="7">7天</option>
+              <option :value="6">6天</option>
+              <option :value="7">一周</option>
             </select>
             <el-button
               type="primary"
@@ -851,18 +854,18 @@ const renderTodayChart = () => {
               ctx.font = isMobile ? 'bold 11px Inter' : 'bold 13px Inter';
               ctx.fillStyle = 'rgb(34, 197, 94)';
               ctx.textAlign = 'center';
-              ctx.textBaseline = 'bottom';
+              ctx.textBaseline = 'top';
 
               const text = `最高: ${maxPrice.toFixed(1)}元`;
               const padding = 6;
               const textWidth = ctx.measureText(text).width;
               const textHeight = isMobile ? 11 : 13;
 
-              // 绘制背景框
+              // 绘制背景框（放在数据点下方）
               ctx.fillStyle = 'rgba(34, 197, 94, 0.15)';
               ctx.fillRect(
                 x - textWidth / 2 - padding,
-                y - textHeight - padding * 2 - 8,
+                y + 8,
                 textWidth + padding * 2,
                 textHeight + padding * 2
               );
@@ -872,14 +875,14 @@ const renderTodayChart = () => {
               ctx.lineWidth = 1;
               ctx.strokeRect(
                 x - textWidth / 2 - padding,
-                y - textHeight - padding * 2 - 8,
+                y + 8,
                 textWidth + padding * 2,
                 textHeight + padding * 2
               );
 
-              // 绘制文字
+              // 绘制文字（放在数据点下方）
               ctx.fillStyle = 'rgb(34, 197, 94)';
-              ctx.fillText(text, x, y - padding - 8);
+              ctx.fillText(text, x, y + padding + 8);
 
               ctx.restore();
             }
