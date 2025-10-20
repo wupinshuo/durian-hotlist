@@ -54,7 +54,6 @@
               @change="handleTodayDaysChange"
               class="time-select"
             >
-              <option :value="0.5">半天</option>
               <option :value="1">1天</option>
               <option :value="2">2天</option>
               <option :value="3">3天</option>
@@ -730,22 +729,7 @@ const renderTodayChart = () => {
         },
         plugins: {
           legend: {
-            display: true,
-            position: 'top',
-            align: 'end',
-            labels: {
-              boxWidth: 10,
-              usePointStyle: true,
-              pointStyle: 'circle',
-              padding: 20,
-              color: textColor,
-              font: {
-                family:
-                  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                size: 12,
-                weight: '500',
-              },
-            },
+            display: false,
           },
           tooltip: {
             mode: 'index',
@@ -804,10 +788,7 @@ const renderTodayChart = () => {
               display: false,
             },
             grid: {
-              display: true,
-              drawBorder: false,
-              drawOnChartArea: true,
-              color: gridColor,
+              display: false,
             },
             ticks: {
               color: mutedTextColor,
@@ -844,10 +825,7 @@ const renderTodayChart = () => {
               precision: 1,
             },
             grid: {
-              display: true,
-              drawBorder: false,
-              drawOnChartArea: true,
-              color: gridColor,
+              display: false,
             },
           },
         },
