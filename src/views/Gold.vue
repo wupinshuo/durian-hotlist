@@ -769,13 +769,52 @@ const renderTodayChart = () => {
                 return '';
               },
               label: function (context) {
-                const label = `${context.parsed.y.toFixed(1)} 元/克`;
+                let label = `金价: ${context.parsed.y.toFixed(1)} 元/克`;
+
+                // 添加最高/最低标记
                 if (context.dataIndex === maxPriceIndex) {
-                  return label + ' (最高)';
+                  label += ' (最高)';
+                } else if (context.dataIndex === minPriceIndex) {
+                  label += ' (最低)';
                 }
-                if (context.dataIndex === minPriceIndex) {
-                  return label + ' (最低)';
+
+                // 计算涨跌幅 - 基于上一天的最后一次记录
+                const currentItem = dataPoints[context.dataIndex];
+                if (currentItem && currentItem.fullDate) {
+                  const currentDate = currentItem.fullDate;
+                  const currentDay = currentDate.getDate();
+
+                  // 找到上一天的最后一次记录
+                  let prevDayLastPrice = null;
+                  for (let i = context.dataIndex - 1; i >= 0; i--) {
+                    const item = dataPoints[i];
+                    if (item && item.fullDate) {
+                      const itemDay = item.fullDate.getDate();
+                      if (itemDay !== currentDay) {
+                        prevDayLastPrice = prices[i];
+                        break;
+                      }
+                    }
+                  }
+
+                  // 如果找到了上一天的价格,计算涨跌幅
+                  if (prevDayLastPrice !== null) {
+                    const change = context.parsed.y - prevDayLastPrice;
+                    const changePercent = ((change / prevDayLastPrice) * 100).toFixed(2);
+
+                    let changeText = '';
+                    if (change > 0) {
+                      changeText = `\n涨幅: ↑ +${change.toFixed(1)}元 (+${changePercent}%)`;
+                    } else if (change < 0) {
+                      changeText = `\n跌幅: ↓ ${change.toFixed(1)}元 (${changePercent}%)`;
+                    } else {
+                      changeText = `\n持平: 0.0元 (0.00%)`;
+                    }
+
+                    label += changeText;
+                  }
                 }
+
                 return label;
               },
             },
