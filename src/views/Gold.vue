@@ -350,8 +350,8 @@ const renderChart = () => {
       // 确保价格格式正确
       const price =
         typeof item.price === 'string' ? parseFloat(item.price) : item.price;
-      if (isNaN(price)) {
-        console.error('价格格式错误:', item.price);
+      if (isNaN(price) || price <= 0) {
+        console.log('价格无效或为0，已过滤:', item.price);
         return null;
       }
 
@@ -603,21 +603,31 @@ const renderTodayChart = () => {
   console.log('今日金价历史数据:', sortedData);
 
   // 创建时间标签和价格数据
-  const dataPoints = sortedData.map((item) => {
-    const date = new Date(item.timestamp);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const label = `${month}/${day} ${hours}:${minutes}`;
+  const dataPoints = sortedData
+    .filter((item) => {
+      // 过滤掉价格为0或无效的数据
+      const price = typeof item.price === 'number' ? item.price : parseFloat(item.price);
+      if (isNaN(price) || price <= 0) {
+        console.log('今日金价无效或为0，已过滤:', item.price);
+        return false;
+      }
+      return true;
+    })
+    .map((item) => {
+      const date = new Date(item.timestamp);
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const label = `${month}/${day} ${hours}:${minutes}`;
 
-    return {
-      x: item.timestamp,
-      y: item.price,
-      label,
-      fullDate: date,
-    };
-  });
+      return {
+        x: item.timestamp,
+        y: item.price,
+        label,
+        fullDate: date,
+      };
+    });
 
   if (dataPoints.length === 0) {
     console.log('没有有效的数据点');
@@ -1098,18 +1108,29 @@ const renderHistoryChart = () => {
   const sortedData = [...historyData.value];
 
   // 创建数据点
-  const dataPoints = sortedData.map((item) => {
-    const date = item.time ? new Date(item.time) : null;
-    const price =
-      typeof item.price === 'string' ? parseFloat(item.price) : item.price;
+  const dataPoints = sortedData
+    .filter((item) => {
+      // 过滤掉价格为0或无效的数据
+      const price =
+        typeof item.price === 'string' ? parseFloat(item.price) : item.price;
+      if (isNaN(price) || price <= 0) {
+        console.log('历史数据价格无效或为0，已过滤:', item.price);
+        return false;
+      }
+      return true;
+    })
+    .map((item) => {
+      const date = item.time ? new Date(item.time) : null;
+      const price =
+        typeof item.price === 'string' ? parseFloat(item.price) : item.price;
 
-    return {
-      x: date,
-      y: price,
-      label: date ? `${date.getMonth() + 1}/${date.getDate()}` : '未知',
-      fullDate: date,
-    };
-  });
+      return {
+        x: date,
+        y: price,
+        label: date ? `${date.getMonth() + 1}/${date.getDate()}` : '未知',
+        fullDate: date,
+      };
+    });
 
   if (dataPoints.length === 0) {
     console.log('没有有效的数据点');
