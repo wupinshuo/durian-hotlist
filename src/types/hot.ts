@@ -117,4 +117,7 @@ export type HotType =
   | 'ithome' // IT之家
   | 'sspai' // 少数派
   | 'bilibili' // B站
-  | 'zhihu'; // 知乎
+  | 'zhihu' // 知乎
+  | 'hupu' // 虎扑
+  | '36kr' // 36氪
+  | 'v2ex'; // V2EX

@@ -127,7 +127,11 @@ function getSourceColor(source: string): string {
     '微博': '#e6162d',
     'IT之家': '#E74025',
     '少数派': '#D71718',
-    'B站': '#FB7299'
+    'B站': '#FB7299',
+    '知乎': '#056de8',
+    '虎扑': '#FF6900',
+    '36氪': '#1890FF',
+    'V2EX': '#778087'
   };
   
   return colorMap[source] || '#606266';

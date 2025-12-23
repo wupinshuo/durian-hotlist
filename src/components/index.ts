@@ -6,5 +6,8 @@ export { default as IthomeHotListCard } from './IthomeHotListCard.vue';
 export { default as SspaiHotListCard } from './SspaiHotListCard.vue';
 export { default as BilibiliHotListCard } from './BilibiliHotListCard.vue';
 export { default as ZhihuHotListCard } from './ZhihuHotListCard.vue';
+export { default as HupuHotListCard } from './HupuHotListCard.vue';
+export { default as Kr36HotListCard } from './Kr36HotListCard.vue';
+export { default as V2exHotListCard } from './V2exHotListCard.vue';
 export { default as UpdateTimeDisplay } from './UpdateTimeDisplay.vue';
 export { default as AppIcon } from './AppIcon.vue';

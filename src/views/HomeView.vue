@@ -50,6 +50,24 @@
         :updateTime="sspaiUpdateTime"
         @refresh="refreshSspaiHotList"
       />
+      <HupuHotListCard
+        :hotTopics="hupuHotList"
+        :loading="hupuLoading"
+        :updateTime="hupuUpdateTime"
+        @refresh="refreshHupuHotList"
+      />
+      <Kr36HotListCard
+        :hotTopics="kr36HotList"
+        :loading="kr36Loading"
+        :updateTime="kr36UpdateTime"
+        @refresh="refreshKr36HotList"
+      />
+      <V2exHotListCard
+        :hotTopics="v2exHotList"
+        :loading="v2exLoading"
+        :updateTime="v2exUpdateTime"
+        @refresh="refreshV2exHotList"
+      />
     </div>
   </div>
 </template>
@@ -62,6 +80,9 @@ import IthomeHotListCard from '@/components/IthomeHotListCard.vue'
 import SspaiHotListCard from '@/components/SspaiHotListCard.vue'
 import BilibiliHotListCard from '@/components/BilibiliHotListCard.vue'
 import ZhihuHotListCard from '@/components/ZhihuHotListCard.vue'
+import HupuHotListCard from '@/components/HupuHotListCard.vue'
+import Kr36HotListCard from '@/components/Kr36HotListCard.vue'
+import V2exHotListCard from '@/components/V2exHotListCard.vue'
 import RecommendationCard from '@/components/RecommendationCard.vue'
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import { getHotListByType } from '@/api/hotlist'
@@ -78,6 +99,9 @@ const ithomeHotList = ref<HotItem[]>([])
 const sspaiHotList = ref<HotItem[]>([])
 const bilibiliHotList = ref<HotItem[]>([])
 const zhihuHotList = ref<HotItem[]>([])
+const hupuHotList = ref<HotItem[]>([])
+const kr36HotList = ref<HotItem[]>([])
+const v2exHotList = ref<HotItem[]>([])
 const githubLoading = ref(true)
 const juejinLoading = ref(true)
 const weiboLoading = ref(true)
@@ -85,6 +109,9 @@ const ithomeLoading = ref(true)
 const sspaiLoading = ref(true)
 const bilibiliLoading = ref(true)
 const zhihuLoading = ref(true)
+const hupuLoading = ref(true)
+const kr36Loading = ref(true)
+const v2exLoading = ref(true)
 const githubUpdateTime = ref(0)
 const juejinUpdateTime = ref(0)
 const weiboUpdateTime = ref(0)
@@ -92,6 +119,9 @@ const ithomeUpdateTime = ref(0)
 const sspaiUpdateTime = ref(0)
 const bilibiliUpdateTime = ref(0)
 const zhihuUpdateTime = ref(0)
+const hupuUpdateTime = ref(0)
+const kr36UpdateTime = ref(0)
+const v2exUpdateTime = ref(0)
 const githubPeriod = ref<GithubPeriod>(GITHUB_PERIOD.WEEKLY)
 
 // 推荐引擎
@@ -101,7 +131,7 @@ const { recommendations, loading: recommendationsLoading, generateRecommendation
 const userBehavior = useUserBehavior()
 
 // 监听所有热榜数据变化，更新推荐
-watch([githubTrending, juejinArticles, weiboHotList, ithomeHotList, sspaiHotList, bilibiliHotList, zhihuHotList], () => {
+watch([githubTrending, juejinArticles, weiboHotList, ithomeHotList, sspaiHotList, bilibiliHotList, zhihuHotList, hupuHotList, kr36HotList, v2exHotList], () => {
   generateRecommendations()
 }, { deep: true })
 
@@ -114,6 +144,9 @@ onMounted(() => {
   loadSspaiHotList()
   loadBilibiliHotList()
   loadZhihuHotList()
+  loadHupuHotList()
+  loadKr36HotList()
+  loadV2exHotList()
   
   // 监听来自HeaderBar的刷新推荐事件
   window.addEventListener('refresh-recommendations', refreshRecommendations)
@@ -133,7 +166,10 @@ const generateRecommendations = () => {
     ithomeHotList.value,
     sspaiHotList.value,
     bilibiliHotList.value,
-    zhihuHotList.value
+    zhihuHotList.value,
+    hupuHotList.value,
+    kr36HotList.value,
+    v2exHotList.value
   )
 }
 
@@ -296,6 +332,63 @@ const loadZhihuHotList = async () => {
   }
 }
 
+// 加载虎扑热榜数据
+const loadHupuHotList = async () => {
+  hupuLoading.value = true
+  try {
+    const hupuData = await getHotListByType('hupu') as HotList
+    if(hupuData.list.length === 0) {
+      console.error('虎扑热榜数据为空', hupuData)
+      return;
+    }
+    hupuHotList.value = hupuData.list
+    hupuUpdateTime.value = hupuData.updateTime
+  } catch (error) {
+    console.error('加载虎扑热榜数据失败', error)
+    ElMessage.error('加载虎扑热榜数据失败，请稍后刷新')
+  } finally {
+    hupuLoading.value = false
+  }
+}
+
+// 加载36氪热榜数据
+const loadKr36HotList = async () => {
+  kr36Loading.value = true
+  try {
+    const kr36Data = await getHotListByType('36kr') as HotList
+    if(kr36Data.list.length === 0) {
+      console.error('36氪热榜数据为空', kr36Data)
+      return;
+    }
+    kr36HotList.value = kr36Data.list
+    kr36UpdateTime.value = kr36Data.updateTime
+  } catch (error) {
+    console.error('加载36氪热榜数据失败', error)
+    ElMessage.error('加载36氪热榜数据失败，请稍后刷新')
+  } finally {
+    kr36Loading.value = false
+  }
+}
+
+// 加载V2EX热榜数据
+const loadV2exHotList = async () => {
+  v2exLoading.value = true
+  try {
+    const v2exData = await getHotListByType('v2ex') as HotList
+    if(v2exData.list.length === 0) {
+      console.error('V2EX热榜数据为空', v2exData)
+      return;
+    }
+    v2exHotList.value = v2exData.list
+    v2exUpdateTime.value = v2exData.updateTime
+  } catch (error) {
+    console.error('加载V2EX热榜数据失败', error)
+    ElMessage.error('加载V2EX热榜数据失败，请稍后刷新')
+  } finally {
+    v2exLoading.value = false
+  }
+}
+
 // 处理GitHub热榜时间范围变化
 const handleGithubPeriodChange = (period: GithubPeriod) => {
   githubPeriod.value = period
@@ -446,6 +539,69 @@ const refreshZhihuHotList = async () => {
     ElMessage.error('刷新失败，请稍后再试')
   } finally {
     zhihuLoading.value = false
+  }
+}
+
+// 刷新虎扑热榜
+const refreshHupuHotList = async () => {
+  try {
+    hupuLoading.value = true
+    ElMessage.info('正在刷新虎扑热榜...')
+    const hupuData = await getHotListByType('hupu', undefined, true) as HotList
+    if(hupuData.list.length === 0) {
+      console.error('虎扑热榜数据为空', hupuData)
+      return;
+    }
+    hupuHotList.value = hupuData.list
+    hupuUpdateTime.value = hupuData.updateTime
+    ElMessage.success('虎扑热榜已更新')
+  } catch (error) {
+    console.error('刷新虎扑热榜失败', error)
+    ElMessage.error('刷新失败，请稍后再试')
+  } finally {
+    hupuLoading.value = false
+  }
+}
+
+// 刷新36氪热榜
+const refreshKr36HotList = async () => {
+  try {
+    kr36Loading.value = true
+    ElMessage.info('正在刷新36氪热榜...')
+    const kr36Data = await getHotListByType('36kr', undefined, true) as HotList
+    if(kr36Data.list.length === 0) {
+      console.error('36氪热榜数据为空', kr36Data)
+      return;
+    }
+    kr36HotList.value = kr36Data.list
+    kr36UpdateTime.value = kr36Data.updateTime
+    ElMessage.success('36氪热榜已更新')
+  } catch (error) {
+    console.error('刷新36氪热榜失败', error)
+    ElMessage.error('刷新失败，请稍后再试')
+  } finally {
+    kr36Loading.value = false
+  }
+}
+
+// 刷新V2EX热榜
+const refreshV2exHotList = async () => {
+  try {
+    v2exLoading.value = true
+    ElMessage.info('正在刷新V2EX热榜...')
+    const v2exData = await getHotListByType('v2ex', undefined, true) as HotList
+    if(v2exData.list.length === 0) {
+      console.error('V2EX热榜数据为空', v2exData)
+      return;
+    }
+    v2exHotList.value = v2exData.list
+    v2exUpdateTime.value = v2exData.updateTime
+    ElMessage.success('V2EX热榜已更新')
+  } catch (error) {
+    console.error('刷新V2EX热榜失败', error)
+    ElMessage.error('刷新失败，请稍后再试')
+  } finally {
+    v2exLoading.value = false
   }
 }
 </script>

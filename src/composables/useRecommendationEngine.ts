@@ -61,6 +61,9 @@ export function useRecommendationEngine() {
     sspaiItems: HotItem[] = [],
     bilibiliItems: HotItem[] = [],
     zhihuItems: HotItem[] = [],
+    hupuItems: HotItem[] = [],
+    kr36Items: HotItem[] = [],
+    v2exItems: HotItem[] = [],
   ) => {
     loading.value = true;
 
@@ -217,6 +220,72 @@ export function useRecommendationEngine() {
           reason: matchedTags.length
             ? `匹配"${matchedTags.join('、')}"`
             : '热门问答',
+          matchedTags,
+        });
+      });
+
+      // 处理虎扑热榜
+      hupuItems.forEach((item) => {
+        const randomBonus = Math.random() * 0.3;
+        const score =
+          calculateMatchScore(item.title, userInterests) + randomBonus;
+        const matchedTags = userInterests.filter(
+          (tag) =>
+            item.title.toLowerCase().includes(tag.toLowerCase()) ||
+            (item.desc && item.desc.toLowerCase().includes(tag.toLowerCase())),
+        );
+
+        candidates.push({
+          ...item,
+          score,
+          source: '虎扑',
+          reason: matchedTags.length
+            ? `匹配"${matchedTags.join('、')}"`
+            : '体育话题',
+          matchedTags,
+        });
+      });
+
+      // 处理36氪热榜
+      kr36Items.forEach((item) => {
+        const randomBonus = Math.random() * 0.3;
+        const score =
+          calculateMatchScore(item.title, userInterests) + randomBonus;
+        const matchedTags = userInterests.filter(
+          (tag) =>
+            item.title.toLowerCase().includes(tag.toLowerCase()) ||
+            (item.desc && item.desc.toLowerCase().includes(tag.toLowerCase())),
+        );
+
+        candidates.push({
+          ...item,
+          score,
+          source: '36氪',
+          reason: matchedTags.length
+            ? `匹配"${matchedTags.join('、')}"`
+            : '创投资讯',
+          matchedTags,
+        });
+      });
+
+      // 处理V2EX热榜
+      v2exItems.forEach((item) => {
+        const randomBonus = Math.random() * 0.3;
+        const score =
+          calculateMatchScore(item.title, userInterests) + randomBonus;
+        const matchedTags = userInterests.filter(
+          (tag) =>
+            item.title.toLowerCase().includes(tag.toLowerCase()) ||
+            (item.desc && item.desc.toLowerCase().includes(tag.toLowerCase())),
+        );
+
+        candidates.push({
+          ...item,
+          score,
+          source: 'V2EX',
+          reason: matchedTags.length
+            ? `匹配"${matchedTags.join('、')}"`
+            : '技术讨论',
           matchedTags,
         });
       });
