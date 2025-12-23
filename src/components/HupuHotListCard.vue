@@ -36,15 +36,6 @@
                   @click="handleClick(item)"
                 >{{ item.title }}</a>
                 <div v-if="item.desc" class="topic-desc" :title="item.desc">{{ item.desc }}</div>
-                <div class="repo-meta">
-                  <span class="repo-stars">
-                    <svg class="hot-icon" viewBox="0 0 1024 1024" width="14" height="14">
-                      <path fill="#FF6900" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/>
-                      <path fill="#FF6900" d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165 120.7c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.5 1.8-8.5-1.5-11.3z"/>
-                    </svg>
-                    {{ formatHotCount(item.hot) }}
-                  </span>
-                </div>
               </div>
             </div>
             <div v-if="!hotTopics.length" class="empty-tip">暂无数据</div>
@@ -98,24 +89,6 @@ function handleClick(item: HotItem) {
  */
 function handleLogoClick() {
   window.open('https://www.hupu.com', '_blank')
-}
-
-/**
- * 格式化虎扑热榜数据中的热度数量
- * @param hot 原始热度数量字符串
- * @returns 格式化后的数量字符串（万单位）
- */
-function formatHotCount(hot: string): string {
-  const num = Number(hot)
-  if (isNaN(num)) {
-    return hot
-  }
-  
-  if (num >= 10000) {
-    return (num / 10000).toFixed(1) + '万'
-  }
-  
-  return num.toString()
 }
 </script>
 
@@ -280,18 +253,6 @@ function formatHotCount(hot: string): string {
   gap: 6px;
   font-size: 11px;
   line-height: 1.2;
-}
-
-.repo-stars {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #FF6900;
-}
-
-.hot-icon {
-  width: 14px;
-  height: 14px;
 }
 
 .empty-tip {
