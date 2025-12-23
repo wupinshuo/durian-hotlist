@@ -116,4 +116,5 @@ export type HotType =
   | 'github' // github
   | 'ithome' // IT之家
   | 'sspai' // 少数派
-  | 'bilibili'; // B站
+  | 'bilibili' // B站
+  | 'zhihu'; // 知乎

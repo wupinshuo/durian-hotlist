@@ -5,5 +5,6 @@ export { default as WeiboHotListCard } from './WeiboHotListCard.vue';
 export { default as IthomeHotListCard } from './IthomeHotListCard.vue';
 export { default as SspaiHotListCard } from './SspaiHotListCard.vue';
 export { default as BilibiliHotListCard } from './BilibiliHotListCard.vue';
+export { default as ZhihuHotListCard } from './ZhihuHotListCard.vue';
 export { default as UpdateTimeDisplay } from './UpdateTimeDisplay.vue';
 export { default as AppIcon } from './AppIcon.vue';

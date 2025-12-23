@@ -60,6 +60,7 @@ export function useRecommendationEngine() {
     ithomeItems: HotItem[] = [],
     sspaiItems: HotItem[] = [],
     bilibiliItems: HotItem[] = [],
+    zhihuItems: HotItem[] = [],
   ) => {
     loading.value = true;
 
@@ -194,6 +195,28 @@ export function useRecommendationEngine() {
           reason: matchedTags.length
             ? `匹配"${matchedTags.join('、')}"`
             : '热门视频',
+          matchedTags,
+        });
+      });
+
+      // 处理知乎热榜
+      zhihuItems.forEach((item) => {
+        const randomBonus = Math.random() * 0.3;
+        const score =
+          calculateMatchScore(item.title, userInterests) + randomBonus;
+        const matchedTags = userInterests.filter(
+          (tag) =>
+            item.title.toLowerCase().includes(tag.toLowerCase()) ||
+            (item.desc && item.desc.toLowerCase().includes(tag.toLowerCase())),
+        );
+
+        candidates.push({
+          ...item,
+          score,
+          source: '知乎',
+          reason: matchedTags.length
+            ? `匹配"${matchedTags.join('、')}"`
+            : '热门问答',
           matchedTags,
         });
       });

@@ -32,6 +32,12 @@
         :updateTime="bilibiliUpdateTime"
         @refresh="refreshBilibiliHotList"
       />
+      <ZhihuHotListCard
+        :hotTopics="zhihuHotList"
+        :loading="zhihuLoading"
+        :updateTime="zhihuUpdateTime"
+        @refresh="refreshZhihuHotList"
+      />
       <IthomeHotListCard
         :hotTopics="ithomeHotList"
         :loading="ithomeLoading"
@@ -55,6 +61,7 @@ import WeiboHotListCard from '@/components/WeiboHotListCard.vue'
 import IthomeHotListCard from '@/components/IthomeHotListCard.vue'
 import SspaiHotListCard from '@/components/SspaiHotListCard.vue'
 import BilibiliHotListCard from '@/components/BilibiliHotListCard.vue'
+import ZhihuHotListCard from '@/components/ZhihuHotListCard.vue'
 import RecommendationCard from '@/components/RecommendationCard.vue'
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import { getHotListByType } from '@/api/hotlist'
@@ -70,18 +77,21 @@ const weiboHotList = ref<HotItem[]>([])
 const ithomeHotList = ref<HotItem[]>([])
 const sspaiHotList = ref<HotItem[]>([])
 const bilibiliHotList = ref<HotItem[]>([])
+const zhihuHotList = ref<HotItem[]>([])
 const githubLoading = ref(true)
 const juejinLoading = ref(true)
 const weiboLoading = ref(true)
 const ithomeLoading = ref(true)
 const sspaiLoading = ref(true)
 const bilibiliLoading = ref(true)
+const zhihuLoading = ref(true)
 const githubUpdateTime = ref(0)
 const juejinUpdateTime = ref(0)
 const weiboUpdateTime = ref(0)
 const ithomeUpdateTime = ref(0)
 const sspaiUpdateTime = ref(0)
 const bilibiliUpdateTime = ref(0)
+const zhihuUpdateTime = ref(0)
 const githubPeriod = ref<GithubPeriod>(GITHUB_PERIOD.WEEKLY)
 
 // 推荐引擎
@@ -91,7 +101,7 @@ const { recommendations, loading: recommendationsLoading, generateRecommendation
 const userBehavior = useUserBehavior()
 
 // 监听所有热榜数据变化，更新推荐
-watch([githubTrending, juejinArticles, weiboHotList, ithomeHotList, sspaiHotList, bilibiliHotList], () => {
+watch([githubTrending, juejinArticles, weiboHotList, ithomeHotList, sspaiHotList, bilibiliHotList, zhihuHotList], () => {
   generateRecommendations()
 }, { deep: true })
 
@@ -103,6 +113,7 @@ onMounted(() => {
   loadIthomeHotList()
   loadSspaiHotList()
   loadBilibiliHotList()
+  loadZhihuHotList()
   
   // 监听来自HeaderBar的刷新推荐事件
   window.addEventListener('refresh-recommendations', refreshRecommendations)
@@ -121,7 +132,8 @@ const generateRecommendations = () => {
     weiboHotList.value,
     ithomeHotList.value,
     sspaiHotList.value,
-    bilibiliHotList.value
+    bilibiliHotList.value,
+    zhihuHotList.value
   )
 }
 
@@ -265,6 +277,25 @@ const loadBilibiliHotList = async () => {
   }
 }
 
+// 加载知乎热榜数据
+const loadZhihuHotList = async () => {
+  zhihuLoading.value = true
+  try {
+    const zhihuData = await getHotListByType('zhihu') as HotList
+    if(zhihuData.list.length === 0) {
+      console.error('知乎热榜数据为空', zhihuData)
+      return;
+    }
+    zhihuHotList.value = zhihuData.list
+    zhihuUpdateTime.value = zhihuData.updateTime
+  } catch (error) {
+    console.error('加载知乎热榜数据失败', error)
+    ElMessage.error('加载知乎热榜数据失败，请稍后刷新')
+  } finally {
+    zhihuLoading.value = false
+  }
+}
+
 // 处理GitHub热榜时间范围变化
 const handleGithubPeriodChange = (period: GithubPeriod) => {
   githubPeriod.value = period
@@ -394,6 +425,27 @@ const refreshBilibiliHotList = async () => {
     ElMessage.error('刷新失败，请稍后再试')
   } finally {
     bilibiliLoading.value = false
+  }
+}
+
+// 刷新知乎热榜
+const refreshZhihuHotList = async () => {
+  try {
+    zhihuLoading.value = true
+    ElMessage.info('正在刷新知乎热榜...')
+    const zhihuData = await getHotListByType('zhihu', undefined, true) as HotList
+    if(zhihuData.list.length === 0) {
+      console.error('知乎热榜数据为空', zhihuData)
+      return;
+    }
+    zhihuHotList.value = zhihuData.list
+    zhihuUpdateTime.value = zhihuData.updateTime
+    ElMessage.success('知乎热榜已更新')
+  } catch (error) {
+    console.error('刷新知乎热榜失败', error)
+    ElMessage.error('刷新失败，请稍后再试')
+  } finally {
+    zhihuLoading.value = false
   }
 }
 </script>
