@@ -113,6 +113,11 @@
             <option :value="60">最近60天</option>
             <option :value="90">最近90天</option>
             <option :value="180">最近180天</option>
+            <option :value="200">最近200天</option>
+            <option :value="300">最近300天</option>
+            <option :value="365">最近1年</option>
+            <option :value="400">最近400天</option>
+
           </select>
         </div>
         <div class="history-content">
