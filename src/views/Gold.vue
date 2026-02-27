@@ -38,6 +38,10 @@
                 <option :value="60">60天</option>
                 <option :value="90">90天</option>
                 <option :value="180">180天</option>
+                <option :value="200">200天</option>
+                <option :value="300">300天</option>
+                <option :value="365">1年</option>
+                <option :value="400">400天</option>
               </select>
             </div>
           </div>
