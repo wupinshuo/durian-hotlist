@@ -130,7 +130,7 @@ function getSourceColor(source: string): string {
     'B站': '#FB7299',
     '知乎': '#056de8',
     '虎扑': '#FF6900',
-    '36氪': '#1890FF',
+    // '36氪': '#1890FF', // 暂时屏蔽36氪
     'V2EX': '#778087'
   };
   

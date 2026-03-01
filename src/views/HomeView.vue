@@ -56,12 +56,14 @@
         :updateTime="hupuUpdateTime"
         @refresh="refreshHupuHotList"
       />
+      <!-- 暂时屏蔽36氪
       <Kr36HotListCard
         :hotTopics="kr36HotList"
         :loading="kr36Loading"
         :updateTime="kr36UpdateTime"
         @refresh="refreshKr36HotList"
       />
+      -->
       <V2exHotListCard
         :hotTopics="v2exHotList"
         :loading="v2exLoading"
@@ -81,7 +83,7 @@ import SspaiHotListCard from '@/components/SspaiHotListCard.vue'
 import BilibiliHotListCard from '@/components/BilibiliHotListCard.vue'
 import ZhihuHotListCard from '@/components/ZhihuHotListCard.vue'
 import HupuHotListCard from '@/components/HupuHotListCard.vue'
-import Kr36HotListCard from '@/components/Kr36HotListCard.vue'
+// import Kr36HotListCard from '@/components/Kr36HotListCard.vue' // 暂时屏蔽36氪
 import V2exHotListCard from '@/components/V2exHotListCard.vue'
 import RecommendationCard from '@/components/RecommendationCard.vue'
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
@@ -100,7 +102,7 @@ const sspaiHotList = ref<HotItem[]>([])
 const bilibiliHotList = ref<HotItem[]>([])
 const zhihuHotList = ref<HotItem[]>([])
 const hupuHotList = ref<HotItem[]>([])
-const kr36HotList = ref<HotItem[]>([])
+// const kr36HotList = ref<HotItem[]>([]) // 暂时屏蔽36氪
 const v2exHotList = ref<HotItem[]>([])
 const githubLoading = ref(true)
 const juejinLoading = ref(true)
@@ -110,7 +112,7 @@ const sspaiLoading = ref(true)
 const bilibiliLoading = ref(true)
 const zhihuLoading = ref(true)
 const hupuLoading = ref(true)
-const kr36Loading = ref(true)
+// const kr36Loading = ref(true) // 暂时屏蔽36氪
 const v2exLoading = ref(true)
 const githubUpdateTime = ref(0)
 const juejinUpdateTime = ref(0)
@@ -120,7 +122,7 @@ const sspaiUpdateTime = ref(0)
 const bilibiliUpdateTime = ref(0)
 const zhihuUpdateTime = ref(0)
 const hupuUpdateTime = ref(0)
-const kr36UpdateTime = ref(0)
+// const kr36UpdateTime = ref(0) // 暂时屏蔽36氪
 const v2exUpdateTime = ref(0)
 const githubPeriod = ref<GithubPeriod>(GITHUB_PERIOD.WEEKLY)
 
@@ -131,7 +133,7 @@ const { recommendations, loading: recommendationsLoading, generateRecommendation
 const userBehavior = useUserBehavior()
 
 // 监听所有热榜数据变化，更新推荐
-watch([githubTrending, juejinArticles, weiboHotList, ithomeHotList, sspaiHotList, bilibiliHotList, zhihuHotList, hupuHotList, kr36HotList, v2exHotList], () => {
+watch([githubTrending, juejinArticles, weiboHotList, ithomeHotList, sspaiHotList, bilibiliHotList, zhihuHotList, hupuHotList, /* kr36HotList, */ v2exHotList], () => {
   generateRecommendations()
 }, { deep: true })
 
@@ -145,7 +147,7 @@ onMounted(() => {
   loadBilibiliHotList()
   loadZhihuHotList()
   loadHupuHotList()
-  loadKr36HotList()
+  // loadKr36HotList() // 暂时屏蔽36氪
   loadV2exHotList()
   
   // 监听来自HeaderBar的刷新推荐事件
@@ -168,7 +170,7 @@ const generateRecommendations = () => {
     bilibiliHotList.value,
     zhihuHotList.value,
     hupuHotList.value,
-    kr36HotList.value,
+    [], // kr36HotList.value, // 暂时屏蔽36氪
     v2exHotList.value
   )
 }
@@ -351,6 +353,8 @@ const loadHupuHotList = async () => {
   }
 }
 
+// 暂时屏蔽36氪
+/*
 // 加载36氪热榜数据
 const loadKr36HotList = async () => {
   kr36Loading.value = true
@@ -369,6 +373,7 @@ const loadKr36HotList = async () => {
     kr36Loading.value = false
   }
 }
+*/
 
 // 加载V2EX热榜数据
 const loadV2exHotList = async () => {
@@ -563,6 +568,8 @@ const refreshHupuHotList = async () => {
   }
 }
 
+// 暂时屏蔽36氪
+/*
 // 刷新36氪热榜
 const refreshKr36HotList = async () => {
   try {
@@ -583,6 +590,7 @@ const refreshKr36HotList = async () => {
     kr36Loading.value = false
   }
 }
+*/
 
 // 刷新V2EX热榜
 const refreshV2exHotList = async () => {
